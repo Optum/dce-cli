@@ -14,7 +14,6 @@ func init() {
 	accountsCmd.AddCommand(accountsAddCmd)
 	accountsCmd.AddCommand(accountsRemoveCmd)
 	accountsCmd.AddCommand(accountsDescribeCmd)
-	accountsCmd.AddCommand(accountsLoginCmd)
 	RootCmd.AddCommand(accountsCmd)
 }
 
@@ -52,13 +51,5 @@ var accountsRemoveCmd = &cobra.Command{
 	Short: "Remove one or more accounts from the accounts pool.",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Print("Destroy command")
-	},
-}
-
-var accountsLoginCmd = &cobra.Command{
-	Use:   "login",
-	Short: "Login to a DCE account",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("login command")
 	},
 }
