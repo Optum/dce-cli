@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+go run docs/update_docs.go $@
+
+exit $?
