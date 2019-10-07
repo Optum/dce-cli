@@ -71,6 +71,11 @@ func initConfig() {
 
 	// viper.AutomaticEnv() // read in environment variables that match
 
+	//Temporary credentials for api access
+	viper.BindEnv("AWS_ACCESS_KEY_ID")
+	viper.BindEnv("AWS_SECRET_ACCESS_KEY")
+	viper.BindEnv("AWS_SESSION_TOKEN")
+
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}

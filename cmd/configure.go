@@ -14,6 +14,7 @@ var configureCmd = &cobra.Command{
 	Use:   "configure",
 	Short: "Configure DCE cli",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Master Account .aws Credentials Profile: " + *config.Admin.MasterAccount.Profile)
+		fmt.Println("TODO: implement")
+		fmt.Println("Master Account Access Key: " + *config.System.MasterAccount.Credentials.AwsAccessKeyID)
 	},
 }
