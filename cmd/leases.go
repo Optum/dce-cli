@@ -88,6 +88,7 @@ var leasesLoginCmd = &cobra.Command{
 			leaseLoginURL = *config.API.BaseURL + "?leaseID=" + loginLeaseID
 		}
 
+		fmt.Println("Requesting leased account credentials from: ", leaseLoginURL)
 		response := api.Request(&api.ApiRequestInput{
 			Method: "GET",
 			Url:    leaseLoginURL,
@@ -107,7 +108,6 @@ var leasesLoginCmd = &cobra.Command{
 		json.Unmarshal(body, &leaseCreds)
 
 		if loginOpenBrowser {
-			fmt.Println("Requesting leased account credentials from: ", leaseLoginURL)
 			fmt.Println("Opening AWS Console in Web Browser")
 			var consoleURL string
 
@@ -116,7 +116,6 @@ var leasesLoginCmd = &cobra.Command{
 
 			browser.OpenURL(consoleURL)
 		} else {
-			fmt.Println("Requesting leased account credentials from: ", leaseLoginURL)
 			fmt.Println(leaseCreds)
 		}
 	},
