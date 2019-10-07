@@ -13,7 +13,7 @@ import (
 
 var loginAcctID string
 var loginLeaseID string
-var loginPrintCredentials bool
+var loginOpenBrowser bool
 
 func init() {
 	leasesCmd.AddCommand(leasesDescribeCmd)
@@ -21,9 +21,9 @@ func init() {
 	leasesCmd.AddCommand(leasesCreateCmd)
 	leasesCmd.AddCommand(leasesDestroyCmd)
 
-	leasesLoginCmd.Flags().StringVarP(&loginAcctID, "acctount-id", "a", "", "Account ID to login to")
+	leasesLoginCmd.Flags().StringVarP(&loginAcctID, "account-id", "a", "", "Account ID to login to")
 	leasesLoginCmd.Flags().StringVarP(&loginLeaseID, "lease-id", "l", "", "Lease ID for the account to login to")
-	leasesLoginCmd.Flags().BoolVarP(&loginPrintCredentials, "print-credentials", "c", true, "Prints temporary credentials instead of opening AWS console in a web browser")
+	leasesLoginCmd.Flags().BoolVarP(&loginOpenBrowser, "open-browser", "b", false, "Opens web broswer to AWS console instead of printing credentials")
 	leasesCmd.AddCommand(leasesLoginCmd)
 
 	RootCmd.AddCommand(leasesCmd)
@@ -85,7 +85,7 @@ var leasesLoginCmd = &cobra.Command{
 			leaseLoginURL = *config.API.BaseURL + "?accountID=" + loginAcctID
 		}
 		if loginLeaseID != "" {
-			leaseLoginURL = *config.API.BaseURL + "?leaseID=" + loginAcctID
+			leaseLoginURL = *config.API.BaseURL + "?leaseID=" + loginLeaseID
 		}
 
 		response := api.Request(&api.ApiRequestInput{
@@ -106,17 +106,18 @@ var leasesLoginCmd = &cobra.Command{
 		body = []byte("{\"AwsAccessKeyID\": \"AKD\", \"AwsSecretAccessKey\": \"ASK\", \"AwsSessionToken\": \"AST\" }")
 		json.Unmarshal(body, &leaseCreds)
 
-		if loginPrintCredentials {
-			fmt.Println("Requesting leased account credentials from: ", leaseLoginURL)
-			fmt.Println(leaseCreds)
-		} else {
+		if loginOpenBrowser {
 			fmt.Println("Requesting leased account credentials from: ", leaseLoginURL)
 			fmt.Println("Opening AWS Console in Web Browser")
 			var consoleURL string
 
 			// Build aws console url here
+			consoleURL = "https://amazon.com"
 
 			browser.OpenURL(consoleURL)
+		} else {
+			fmt.Println("Requesting leased account credentials from: ", leaseLoginURL)
+			fmt.Println(leaseCreds)
 		}
 	},
 }
