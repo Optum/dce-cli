@@ -1,0 +1,5 @@
+Admin:
+  MasterAccount:
+    Profile: <insert .aws profile name>
+Auth:
+  LoginUrl: https://<login-url>
