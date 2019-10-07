@@ -11,14 +11,14 @@ var authUrl string
 
 func init() {
 	RootCmd.AddCommand(authCmd)
-	authCmd.Flags().StringVarP(&authUrl, "url-override", "u", "", "DCE version to deploy (Defaults to latest)")
+	authCmd.Flags().StringVarP(&authUrl, "url-override", "u", "", "Override the DCE login url")
 }
 
 var authCmd = &cobra.Command{
 	Use:   "auth",
-	Short: "Configure DCE cli",
+	Short: "Login to dce",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Opening web browser. Please login. You will be provided with credentials to copy/paste into this terminal.")
+		fmt.Println("Opening web browser. Please login and copy/paste the provided credentials into this terminal.")
 
 		if authUrl == "" {
 			authUrl = *config.Auth.LoginUrl
