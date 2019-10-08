@@ -17,9 +17,19 @@ var loginAcctID string
 var loginLeaseID string
 var loginOpenBrowser bool
 
+var principleID string
+var budgetAmount float64
+var budgetCurrency string
+var email []string
+
 func init() {
 	leasesCmd.AddCommand(leasesDescribeCmd)
 	leasesCmd.AddCommand(leasesListCmd)
+
+	leasesCreateCmd.Flags().StringVarP(&principleID, "principle-id", "p", "", "Principle ID for the user of the leased account")
+	leasesCreateCmd.Flags().Float64VarP(&budgetAmount, "budget-amount", "b", 0, "The leased accounts budget amount")
+	leasesCreateCmd.Flags().StringVarP(&budgetCurrency, "budget-currency", "a", "USD", "The leased accounts budget currency")
+	leasesCreateCmd.Flags().StringArrayVarP(&email, "email", "e", nil, "The email address that budget notifications will be sent to")
 	leasesCmd.AddCommand(leasesCreateCmd)
 	leasesCmd.AddCommand(leasesDestroyCmd)
 
@@ -52,33 +62,26 @@ var leasesListCmd = &cobra.Command{
 	},
 }
 
+//TODO: Finish Implementing after implementing accounts
 var leasesCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a lease.",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		type requestBody struct {
-			PrincipalID              string   `json:"principalId"`
-			AccountID                string   `json:"accountId"`
-			BudgetAmount             float64  `json:"budgetAmount"`
-			BudgetCurrency           string   `json:"budgetCurrency"`
-			BudgetNotificationEmails []string `json:"budgetNotificationEmails"`
+		postBody := &api.CreateLeaseRequest{
+			PrincipalID:              principleID,
+			BudgetAmount:             budgetAmount,
+			BudgetCurrency:           budgetCurrency,
+			BudgetNotificationEmails: email,
 		}
 
-		postBody := &requestBody{
-			PrincipalID:              "abc",
-			BudgetAmount:             350,
-			BudgetCurrency:           "USD",
-			BudgetNotificationEmails: []string{"test@test.com"},
-		}
-
-		leasesPath := *config.API.BaseURL + LeasesPath
-		fmt.Println("Posting to: ", leasesPath)
+		leasesFullURL := *config.API.BaseURL + LeasesPath
+		fmt.Println("Posting to: ", leasesFullURL)
 		fmt.Println("Post body: ", postBody)
 
 		response := api.Request(&api.ApiRequestInput{
 			Method: "POST",
-			Url:    *config.API.BaseURL + LeasesPath,
+			Url:    leasesFullURL,
 			Region: *config.API.Region,
 			Json:   postBody,
 		})

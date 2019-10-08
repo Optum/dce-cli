@@ -17,7 +17,15 @@ type CreateAccountRequest struct {
 	AdminRoleArn string `json:"adminRoleArn"`
 }
 
-type LeaseRequest struct {
+type CreateLeaseRequest struct {
+	PrincipalID              string   `json:"principalId"`
+	AccountID                string   `json:"accountId"`
+	BudgetAmount             float64  `json:"budgetAmount"`
+	BudgetCurrency           string   `json:"budgetCurrency"`
+	BudgetNotificationEmails []string `json:"budgetNotificationEmails"`
+}
+
+type GetLeaseRequest struct {
 	PrincipalID string `json:"principalId"`
 	AccountID   string `json:"accountId"`
 }
@@ -77,6 +85,10 @@ func Request(input *ApiRequestInput) *ApiResponse {
 		Timeout: 60 * time.Second,
 	}
 	resp, err := httpClient.Do(req)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	// Parse the JSON response
 	apiResp := &ApiResponse{
