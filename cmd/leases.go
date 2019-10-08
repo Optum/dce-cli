@@ -6,10 +6,12 @@ import (
 
 	"encoding/json"
 
-	api "github.com/Optum/dce-cli/internal/api"
+	"github.com/Optum/dce-cli/internal/api"
 	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 )
+
+const LeasesPath = "/leases"
 
 var loginAcctID string
 var loginLeaseID string
@@ -54,7 +56,36 @@ var leasesCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a lease.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Create command")
+
+		type requestBody struct {
+			PrincipalID              string   `json:"principalId"`
+			AccountID                string   `json:"accountId"`
+			BudgetAmount             float64  `json:"budgetAmount"`
+			BudgetCurrency           string   `json:"budgetCurrency"`
+			BudgetNotificationEmails []string `json:"budgetNotificationEmails"`
+		}
+
+		postBody := &requestBody{
+			PrincipalID:              "abc",
+			BudgetAmount:             350,
+			BudgetCurrency:           "USD",
+			BudgetNotificationEmails: []string{"test@test.com"},
+		}
+
+		leasesPath := *config.API.BaseURL + LeasesPath
+		fmt.Println("Posting to: ", leasesPath)
+		fmt.Println("Post body: ", postBody)
+
+		response := api.Request(&api.ApiRequestInput{
+			Method: "POST",
+			Url:    *config.API.BaseURL + LeasesPath,
+			Region: *config.API.Region,
+			Json:   postBody,
+		})
+
+		body, _ := ioutil.ReadAll(response.Body)
+		fmt.Println("Response: ", response)
+		fmt.Println("Response Body: ", body)
 	},
 }
 
