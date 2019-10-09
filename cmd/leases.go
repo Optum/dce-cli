@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+//LeasesPath path to lease endpoint
 const LeasesPath = "/leases"
 
 var loginAcctID string
@@ -31,7 +32,10 @@ func init() {
 	leasesCreateCmd.Flags().StringVarP(&budgetCurrency, "budget-currency", "a", "USD", "The leased accounts budget currency")
 	leasesCreateCmd.Flags().StringArrayVarP(&email, "email", "e", nil, "The email address that budget notifications will be sent to")
 	leasesCmd.AddCommand(leasesCreateCmd)
-	leasesCmd.AddCommand(leasesDestroyCmd)
+
+	leasesEndCmd.Flags().StringVarP(&principleID, "principle-id", "p", "", "Principle ID for the user of the leased account")
+	leasesEndCmd.Flags().StringVarP(&accountID, "account-id", "a", "", "Account ID associated with the lease you wish to end")
+	leasesCmd.AddCommand(leasesEndCmd)
 
 	leasesLoginCmd.Flags().StringVarP(&loginAcctID, "account-id", "a", "", "Account ID to login to")
 	leasesLoginCmd.Flags().StringVarP(&loginLeaseID, "lease-id", "l", "", "Lease ID for the account to login to")
@@ -62,13 +66,12 @@ var leasesListCmd = &cobra.Command{
 	},
 }
 
-//TODO: Finish Implementing after implementing accounts
 var leasesCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a lease.",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		postBody := &api.CreateLeaseRequest{
+		postBody := &api.LeaseRequest{
 			PrincipalID:              principleID,
 			BudgetAmount:             budgetAmount,
 			BudgetCurrency:           budgetCurrency,
@@ -92,11 +95,32 @@ var leasesCreateCmd = &cobra.Command{
 	},
 }
 
-var leasesDestroyCmd = &cobra.Command{
+var leasesEndCmd = &cobra.Command{
 	Use:   "end",
 	Short: "Cause a lease to immediately expire",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Destroy command")
+		postBody := &api.LeaseRequest{
+			AccountID:                accountID,
+			PrincipalID:              principleID,
+			BudgetAmount:             budgetAmount,
+			BudgetCurrency:           budgetCurrency,
+			BudgetNotificationEmails: email,
+		}
+
+		leasesFullURL := *config.API.BaseURL + LeasesPath
+		fmt.Println("Posting to: ", leasesFullURL)
+		fmt.Println("Post body: ", postBody)
+
+		response := api.Request(&api.ApiRequestInput{
+			Method: "DELETE",
+			Url:    leasesFullURL,
+			Region: *config.API.Region,
+			Json:   postBody,
+		})
+
+		body, _ := ioutil.ReadAll(response.Body)
+		fmt.Println("Response: ", response)
+		fmt.Println("Response Body: ", body)
 	},
 }
 

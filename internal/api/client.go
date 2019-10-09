@@ -17,17 +17,12 @@ type CreateAccountRequest struct {
 	AdminRoleArn string `json:"adminRoleArn"`
 }
 
-type CreateLeaseRequest struct {
-	PrincipalID              string   `json:"principalId"`
-	AccountID                string   `json:"accountId"`
-	BudgetAmount             float64  `json:"budgetAmount"`
-	BudgetCurrency           string   `json:"budgetCurrency"`
-	BudgetNotificationEmails []string `json:"budgetNotificationEmails"`
-}
-
-type GetLeaseRequest struct {
-	PrincipalID string `json:"principalId"`
-	AccountID   string `json:"accountId"`
+type LeaseRequest struct {
+	PrincipalID              string   `json:"principalId,omitEmpty"`
+	AccountID                string   `json:"accountId,omitEmpty"`
+	BudgetAmount             float64  `json:"budgetAmount,omitEmpty"`
+	BudgetCurrency           string   `json:"budgetCurrency,omitEmpty"`
+	BudgetNotificationEmails []string `json:"budgetNotificationEmails,omitEmpty"`
 }
 
 type ApiRequestInput struct {
@@ -67,7 +62,10 @@ func Request(input *ApiRequestInput) *ApiResponse {
 	// If there's a json provided, add it when signing
 	// Body does not matter if added before the signing, it will be overwritten
 	if input.Json != nil {
+
 		payload, err := json.Marshal(input.Json)
+		fmt.Println("Marshalled Payload: ", string(payload))
+
 		if err != nil {
 			fmt.Println("Error marshaling json payload")
 		}
