@@ -26,12 +26,11 @@ import (
 )
 
 var cfgFile string
-var config = &configs.Config{}
+var config = &configs.Root{}
 
 func init() {
 	cobra.OnInitialize(initConfig)
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dce.yaml)")
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // RootCmd represents the base command when called without any subcommands
@@ -56,7 +55,6 @@ func Execute() {
 
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
 		home, err := homedir.Dir()
@@ -68,13 +66,6 @@ func initConfig() {
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".dce")
 	}
-
-	// viper.AutomaticEnv() // read in environment variables that match
-
-	//Temporary credentials for api access
-	viper.BindEnv("AWS_ACCESS_KEY_ID")
-	viper.BindEnv("AWS_SECRET_ACCESS_KEY")
-	viper.BindEnv("AWS_SESSION_TOKEN")
 
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
