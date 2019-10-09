@@ -18,11 +18,11 @@ type CreateAccountRequest struct {
 }
 
 type LeaseRequest struct {
-	PrincipalID              string   `json:"principalId,omitEmpty"`
-	AccountID                string   `json:"accountId,omitEmpty"`
-	BudgetAmount             float64  `json:"budgetAmount,omitEmpty"`
-	BudgetCurrency           string   `json:"budgetCurrency,omitEmpty"`
-	BudgetNotificationEmails []string `json:"budgetNotificationEmails,omitEmpty"`
+	PrincipalID              string   `json:"principalId"`
+	AccountID                string   `json:"accountId"`
+	BudgetAmount             float64  `json:"budgetAmount"`
+	BudgetCurrency           string   `json:"budgetCurrency"`
+	BudgetNotificationEmails []string `json:"budgetNotificationEmails"`
 }
 
 type ApiRequestInput struct {

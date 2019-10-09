@@ -71,7 +71,7 @@ var leasesCreateCmd = &cobra.Command{
 	Short: "Create a lease.",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		postBody := &api.LeaseRequest{
+		requestBody := &api.LeaseRequest{
 			PrincipalID:              principleID,
 			BudgetAmount:             budgetAmount,
 			BudgetCurrency:           budgetCurrency,
@@ -80,13 +80,13 @@ var leasesCreateCmd = &cobra.Command{
 
 		leasesFullURL := *config.API.BaseURL + LeasesPath
 		fmt.Println("Posting to: ", leasesFullURL)
-		fmt.Println("Post body: ", postBody)
+		fmt.Println("Post body: ", requestBody)
 
 		response := api.Request(&api.ApiRequestInput{
 			Method: "POST",
 			Url:    leasesFullURL,
 			Region: *config.API.Region,
-			Json:   postBody,
+			Json:   requestBody,
 		})
 
 		body, _ := ioutil.ReadAll(response.Body)
@@ -99,23 +99,20 @@ var leasesEndCmd = &cobra.Command{
 	Use:   "end",
 	Short: "Cause a lease to immediately expire",
 	Run: func(cmd *cobra.Command, args []string) {
-		postBody := &api.LeaseRequest{
-			AccountID:                accountID,
-			PrincipalID:              principleID,
-			BudgetAmount:             budgetAmount,
-			BudgetCurrency:           budgetCurrency,
-			BudgetNotificationEmails: email,
+		requestBody := &api.LeaseRequest{
+			AccountID:   accountID,
+			PrincipalID: principleID,
 		}
 
 		leasesFullURL := *config.API.BaseURL + LeasesPath
 		fmt.Println("Posting to: ", leasesFullURL)
-		fmt.Println("Post body: ", postBody)
+		fmt.Println("Post body: ", requestBody)
 
 		response := api.Request(&api.ApiRequestInput{
 			Method: "DELETE",
 			Url:    leasesFullURL,
 			Region: *config.API.Region,
-			Json:   postBody,
+			Json:   requestBody,
 		})
 
 		body, _ := ioutil.ReadAll(response.Body)

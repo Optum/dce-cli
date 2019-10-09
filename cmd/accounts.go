@@ -22,6 +22,7 @@ func init() {
 	accountsAddCmd.Flags().BoolVarP(&newAcct, "new", "n", false, "Create a new account rather than specifying an exiting one.")
 	accountsCmd.AddCommand(accountsAddCmd)
 
+	accountsRemoveCmd.Flags().StringVarP(&accountID, "account-id", "a", "", "The ID of the account to remove from the accounts pool.")
 	accountsCmd.AddCommand(accountsRemoveCmd)
 	accountsCmd.AddCommand(accountsDescribeCmd)
 	RootCmd.AddCommand(accountsCmd)
@@ -53,20 +54,20 @@ var accountsAddCmd = &cobra.Command{
 	Short: "Add one or more accounts to the accounts pool.",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		postBody := &api.CreateAccountRequest{
+		requestBody := &api.CreateAccountRequest{
 			ID:           accountID,
 			AdminRoleArn: adminRoleARN,
 		}
 
 		accountsFullURL := *config.API.BaseURL + accountsPath
 		fmt.Println("Posting to: ", accountsFullURL)
-		fmt.Println("Post body: ", postBody)
+		fmt.Println("Post body: ", requestBody)
 
 		response := api.Request(&api.ApiRequestInput{
 			Method: "POST",
 			Url:    accountsFullURL,
 			Region: *config.API.Region,
-			Json:   postBody,
+			Json:   requestBody,
 		})
 
 		body, _ := ioutil.ReadAll(response.Body)
@@ -80,6 +81,17 @@ var accountsRemoveCmd = &cobra.Command{
 	Use:   "remove",
 	Short: "Remove one or more accounts from the accounts pool.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Destroy command")
+		accountsFullURL := *config.API.BaseURL + accountsPath + "/" + accountID
+		fmt.Println("Posting to: ", accountsFullURL)
+
+		response := api.Request(&api.ApiRequestInput{
+			Method: "DELETE",
+			Url:    accountsFullURL,
+			Region: *config.API.Region,
+		})
+
+		body, _ := ioutil.ReadAll(response.Body)
+		fmt.Println("Response: ", response)
+		fmt.Println("Response Body: ", body)
 	},
 }
