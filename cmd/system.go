@@ -4,15 +4,20 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 
 	terraform "github.com/hashicorp/terraform/command"
 	"github.com/mitchellh/cli"
 	"github.com/spf13/cobra"
 )
 
+var deployNamespace string
+
 func init() {
 
+	systemDeployCmd.Flags().StringVarP(&deployNamespace, "namespace", "n", "", "Set a custom terraform namespace (Optional)")
 	systemCmd.AddCommand(systemDeployCmd)
 
 	systemLogsCmd.AddCommand(systemLogsAccountsCmd)
@@ -41,7 +46,9 @@ var systemDeployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Deploy the DCE system",
 	Run: func(cmd *cobra.Command, args []string) {
-		// Read template from internal and write into a /tmp file, init there
+
+		log.Println("Creating temporary terraform working directory")
+
 		tfBackendTemplate :=
 			`provider "aws" {
 region = "us-east-1"
@@ -160,34 +167,104 @@ value = aws_s3_bucket.local_tfstate.bucket
 			log.Fatalf("error: %v", err)
 		}
 
-		log.Println("Created temporary terraform working directory at: ", tempDir)
+		log.Println("Temporary directory created at: " + tempDir)
 
-		ui := &cli.BasicUi{
-			Reader:      os.Stdin,
-			Writer:      os.Stdout,
-			ErrorWriter: os.Stderr,
+		log.Println("Initializing working directory and building remote state infrastructure")
+		terraformInit()
+		if deployNamespace != "" {
+			terraformApply(deployNamespace)
+		} else {
+			terraformApply("dce-default-" + getRandString(8))
 		}
 
-		tfInit := &terraform.InitCommand{
-			Meta: terraform.Meta{
-				Ui: ui,
-			},
-		}
-		// initReturn := tfInit.Run([]string{"--plugin-dir", tempDir})
-		initReturn := tfInit.Run([]string{})
-		log.Println(initReturn)
+		log.Println("Retrieving remote state bucket name from terraform outputs")
+		stateBucket := getTerraformOutput("bucket")
 
-		tfApply := &terraform.ApplyCommand{
-			Meta: terraform.Meta{
-				Ui: ui,
-			},
-		}
-		applyReturn := tfApply.Run([]string{})
-		log.Println(applyReturn)
-
+		log.Println("State Bucket = " + stateBucket)
 		// EASY TEMPORARY OPTION FOR LAMBDA ARTIFACT DEPLOYMENT:
 		//   Use flag to set path to local DCE repo. Build all artifacts there and deploy them.
 	},
+}
+
+func terraformInit() {
+	log.Println("Running terraform init")
+
+	tfInit := &terraform.InitCommand{
+		Meta: terraform.Meta{
+			Ui: getTerraformUI(),
+		},
+	}
+	tfInit.Run([]string{})
+}
+
+func terraformApply(namespace string) {
+	log.Println("Running terraform apply with namespace: " + namespace)
+	tfApply := &terraform.ApplyCommand{
+		Meta: terraform.Meta{
+			Ui: getTerraformUI(),
+		},
+	}
+	namespaceKey := "-var"
+	namespaceValue := "namespace=" + namespace
+	tfApply.Run([]string{namespaceKey, namespaceValue})
+}
+
+func getTerraformOutput(key string) string {
+	log.Println("Retrieving terraform output for: " + key)
+	outputCaptorUI := &UIOutputCaptor{
+		BasicUi: &cli.BasicUi{
+			Reader:      os.Stdin,
+			Writer:      os.Stdout,
+			ErrorWriter: os.Stderr,
+		},
+		Captor: new(string),
+	}
+	tfOutput := &terraform.OutputCommand{
+		Meta: terraform.Meta{
+			Ui: outputCaptorUI,
+		},
+	}
+	tfOutput.Run([]string{"bucket"})
+	return *outputCaptorUI.Captor
+}
+
+func getTerraformUI() *cli.PrefixedUi {
+	basicUI := &cli.BasicUi{
+		Reader:      os.Stdin,
+		Writer:      os.Stdout,
+		ErrorWriter: os.Stderr,
+	}
+	prefix := "\nTerraform Says...\n"
+	return &cli.PrefixedUi{
+		AskPrefix:       prefix,
+		AskSecretPrefix: prefix,
+		OutputPrefix:    prefix,
+		InfoPrefix:      prefix,
+		ErrorPrefix:     prefix,
+		WarnPrefix:      prefix,
+		Ui:              basicUI,
+	}
+}
+
+type UIOutputCaptor struct {
+	Captor *string
+	*cli.BasicUi
+}
+
+func (u *UIOutputCaptor) Output(message string) {
+	u.Captor = &message
+	u.BasicUi.Output(message)
+}
+
+// https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go
+func getRandString(n int) string {
+	rand.Seed(time.Now().UnixNano())
+	const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Int63()%int64(len(letterBytes))]
+	}
+	return string(b)
 }
 
 /*
