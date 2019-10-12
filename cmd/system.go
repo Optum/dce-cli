@@ -1,23 +1,31 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
+	"net/http"
 	"os"
 	"time"
 
-	terraform "github.com/hashicorp/terraform/command"
-	"github.com/mitchellh/cli"
+	"github.com/Optum/dce-cli/internal/terra"
+	"github.com/shurcooL/githubv4"
 	"github.com/spf13/cobra"
+	"golang.org/x/oauth2"
+
+	"github.com/mholt/archiver"
 )
 
 var deployNamespace string
+var dceRepoPath string
 
 func init() {
 
 	systemDeployCmd.Flags().StringVarP(&deployNamespace, "namespace", "n", "", "Set a custom terraform namespace (Optional)")
+	systemDeployCmd.Flags().StringVarP(&dceRepoPath, "path", "p", "", "Path to local DCE repo")
 	systemCmd.AddCommand(systemDeployCmd)
 
 	systemLogsCmd.AddCommand(systemLogsAccountsCmd)
@@ -47,213 +55,161 @@ var systemDeployCmd = &cobra.Command{
 	Short: "Deploy the DCE system",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		log.Println("Creating temporary terraform working directory")
+		log.Println("Creating terraform remote state backend infrastructure")
+		stateBucket := createRemoteStateBackend()
 
-		tfBackendTemplate :=
-			`provider "aws" {
-region = "us-east-1"
-}
+		log.Println("Creating DCE infrastructure")
+		artifactsBucket := createDceInfra(stateBucket)
+		log.Println("Artifacts bucket = ", artifactsBucket)
 
-variable "global_tags" {
-description = "The tags to apply to all resources that support tags"
-type        = map(string)
-
-default = {
-	Terraform = "True"
-	AppName   = "AWS Redbox Management"
-	Source    = "github.com/Optum/Redbox//modules"
-	Contact   = "fake_email@domain.com"
-}
-}
-
-variable "namespace" {
-type = string
-}
-
-data "aws_caller_identity" "current" {}
-
-# Configure an S3 Bucket to hold artifacts
-# (eg. application code deployments, etc.)
-resource "aws_s3_bucket" "local_tfstate" {
-bucket = "${data.aws_caller_identity.current.account_id}-local-tfstate-${var.namespace}"
-
-# Allow S3 access logs to be written to this bucket
-acl = "log-delivery-write"
-
-# Allow Terraform to destroy the bucket
-# (so ephemeral PR environments can be torn down)
-force_destroy = true
-
-# Encrypt objects by default
-server_side_encryption_configuration {
-	rule {
-	apply_server_side_encryption_by_default {
-		sse_algorithm = "AES256"
-	}
-	}
-}
-
-versioning {
-	enabled = true
-}
-
-# Send S3 access logs for this bucket to itself
-logging {
-	target_bucket = "${data.aws_caller_identity.current.account_id}-local-tfstate-${var.namespace}"
-	target_prefix = "logs/"
-}
-
-tags = var.global_tags
-}
-
-# Enforce SSL only access to the bucket
-resource "aws_s3_bucket_policy" "reset_codepipeline_source_ssl_policy" {
-bucket = aws_s3_bucket.local_tfstate.id
-
-policy = <<POLICY
-{
-	"Version": "2012-10-17",
-	"Statement": [
-	{
-		"Sid": "DenyInsecureCommunications",
-		"Effect": "Deny",
-		"Principal": "*",
-		"Action": "s3:*",
-		"Resource": "${aws_s3_bucket.local_tfstate.arn}/*",
-		"Condition": {
-			"Bool": {
-				"aws:SecureTransport": "false"
-			}
-		}
-	}
-	]
-}
-POLICY
-
-}
-
-resource "aws_dynamodb_table" "local_terraform_state_lock" {
-name           = "Terraform-State-Backend-${var.namespace}"
-read_capacity  = 1
-write_capacity = 1
-hash_key       = "LockID"
-
-attribute {
-	name = "LockID"
-	type = "S"
-}
-}
-
-output "bucket" {
-value = aws_s3_bucket.local_tfstate.bucket
-}
-`
-		tempDir, err := ioutil.TempDir("", "dce-init-")
-		currentDir, err := os.Getwd()
-		if err != nil {
-			log.Fatalln(err)
-		}
-		os.Chdir(tempDir)
-		defer os.Chdir(currentDir)
-		defer os.RemoveAll(tempDir)
-
-		if err != nil {
-			log.Fatalf("Error: ", err)
-		}
-
-		fileName := tempDir + "/" + "init.tf"
-		err = ioutil.WriteFile(fileName, []byte(tfBackendTemplate), 0644)
-		if err != nil {
-			log.Fatalf("error: %v", err)
-		}
-
-		log.Println("Temporary directory created at: " + tempDir)
-
-		log.Println("Initializing working directory and building remote state infrastructure")
-		terraformInit()
-		if deployNamespace != "" {
-			terraformApply(deployNamespace)
-		} else {
-			terraformApply("dce-default-" + getRandString(8))
-		}
-
-		log.Println("Retrieving remote state bucket name from terraform outputs")
-		stateBucket := getTerraformOutput("bucket")
-
-		log.Println("State Bucket = " + stateBucket)
-		// EASY TEMPORARY OPTION FOR LAMBDA ARTIFACT DEPLOYMENT:
-		//   Use flag to set path to local DCE repo. Build all artifacts there and deploy them.
+		// Deploy code assets to DCE infra
 	},
 }
 
-func terraformInit() {
-	log.Println("Running terraform init")
+func createDceInfra(stateBucket string) string {
+	workingDir, originDir := mvToTempDir("dce-")
+	defer os.RemoveAll(workingDir)
+	defer os.Chdir(originDir)
 
-	tfInit := &terraform.InitCommand{
-		Meta: terraform.Meta{
-			Ui: getTerraformUI(),
-		},
+	log.Println("Downloading DCE terraform modules")
+	artifactsFileName := "terraform_artifacts.zip"
+	downloadGithubReleaseAsset(artifactsFileName)
+
+	// TODO:
+	// Protect against zip-slip vulnerability? https://snyk.io/research/zip-slip-vulnerability
+	//
+	// err := z.Walk("/Users/matt/Desktop/test.zip", func(f archiver.File) error {
+	// 	zfh, ok := f.Header.(zip.FileHeader)
+	// 	if ok {
+	// 		fmt.Println("Filename:", zfh.Name)
+	// 	}
+	// 	return nil
+	// })
+
+	err := archiver.Unarchive(artifactsFileName, ".")
+	if err != nil {
+		log.Fatalf("error: %v", err)
 	}
-	tfInit.Run([]string{})
+
+	os.Remove(artifactsFileName)
+	files, err := ioutil.ReadDir("./")
+	if len(files) != 1 || !files[0].IsDir() {
+		log.Fatalf("Unexpected content in DCE assets archive")
+	}
+	os.Chdir(files[0].Name())
+
+	log.Println("Initializing terraform working directory")
+	terra.Init([]string{"-backend-config=\"bucket=" + stateBucket + "\"", "-backend-config=\"key=local-tf-state\""})
+
+	// log.Println("Building DCE infrastructure")
+	// var namesSpace string
+	// if deployNamespace != "" {
+	// 	namesSpace = deployNamespace
+	// } else {
+	// 	namesSpace = "dce-default-" + getRandString(8)
+	// }
+	// terra.Apply(namesSpace)
+
+	// log.Println("Retrieving artifacts bucket name from terraform outputs")
+	// artifactsBucket := terra.GetOutput("artifacts_bucket_name")
+	// log.Println("	-->", artifactsBucket)
+
+	// return artifactsBucket
+	return ""
 }
 
-func terraformApply(namespace string) {
-	log.Println("Running terraform apply with namespace: " + namespace)
-	tfApply := &terraform.ApplyCommand{
-		Meta: terraform.Meta{
-			Ui: getTerraformUI(),
-		},
+func downloadGithubReleaseAsset(assetName string) {
+	src := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
+	)
+	oauthHTTPClient := oauth2.NewClient(context.Background(), src)
+
+	var query struct {
+		Viewer struct {
+			Login     githubv4.String
+			CreatedAt githubv4.DateTime
+		}
+		Repository struct {
+			Releases struct {
+				Nodes []struct {
+					TagName       githubv4.String
+					ReleaseAssets struct {
+						Nodes []struct {
+							ID          githubv4.String
+							DownloadURL githubv4.String
+							URL         string
+						}
+					} `graphql:"releaseAssets(last: 1, name: \"terraform_artifacts.zip\")"`
+				}
+			} `graphql:"releases(last: 1)"`
+		} `graphql:"repository(owner: \"Optum\", name: \"Redbox\")"`
 	}
-	namespaceKey := "-var"
-	namespaceValue := "namespace=" + namespace
-	tfApply.Run([]string{namespaceKey, namespaceValue})
+
+	ghClient := githubv4.NewClient(oauthHTTPClient)
+	err := ghClient.Query(context.Background(), &query, nil)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	fmt.Println("    Query Response:", query.Repository.Releases.Nodes[0].ReleaseAssets.Nodes[0].URL)
+
+	req, err := http.NewRequest("GET", query.Repository.Releases.Nodes[0].ReleaseAssets.Nodes[0].URL, nil)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	defer resp.Body.Close()
+
+	out, err := os.Create(assetName)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	defer out.Close()
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
 }
 
-func getTerraformOutput(key string) string {
-	log.Println("Retrieving terraform output for: " + key)
-	outputCaptorUI := &UIOutputCaptor{
-		BasicUi: &cli.BasicUi{
-			Reader:      os.Stdin,
-			Writer:      os.Stdout,
-			ErrorWriter: os.Stderr,
-		},
-		Captor: new(string),
+func createRemoteStateBackend() string {
+	workingDir, originDir := mvToTempDir("dce-init-")
+	defer os.RemoveAll(workingDir)
+	defer os.Chdir(originDir)
+
+	log.Println("Creating terraform remote backend template (init.tf)")
+	fileName := workingDir + "/" + "init.tf"
+	err := ioutil.WriteFile(fileName, []byte(terra.RemoteBackend), 0644)
+	if err != nil {
+		log.Fatalf("error: %v", err)
 	}
-	tfOutput := &terraform.OutputCommand{
-		Meta: terraform.Meta{
-			Ui: outputCaptorUI,
-		},
+
+	log.Println("Initializing terraform working directory and building remote state infrastructure")
+	terra.Init([]string{})
+	if deployNamespace != "" {
+		terra.Apply(deployNamespace)
+	} else {
+		terra.Apply("dce-default-" + getRandString(8))
 	}
-	tfOutput.Run([]string{"bucket"})
-	return *outputCaptorUI.Captor
+
+	log.Println("Retrieving remote state bucket name from terraform outputs")
+	stateBucket := terra.GetOutput("bucket")
+	log.Println("	-->", stateBucket)
+
+	return stateBucket
 }
 
-func getTerraformUI() *cli.PrefixedUi {
-	basicUI := &cli.BasicUi{
-		Reader:      os.Stdin,
-		Writer:      os.Stdout,
-		ErrorWriter: os.Stderr,
+func mvToTempDir(prefix string) (string, string) {
+	log.Println("Creating temporary terraform working directory")
+	destinationDir, err := ioutil.TempDir("", prefix)
+	if err != nil {
+		log.Fatalln(err)
 	}
-	prefix := "\nTerraform Says...\n"
-	return &cli.PrefixedUi{
-		AskPrefix:       prefix,
-		AskSecretPrefix: prefix,
-		OutputPrefix:    prefix,
-		InfoPrefix:      prefix,
-		ErrorPrefix:     prefix,
-		WarnPrefix:      prefix,
-		Ui:              basicUI,
+	log.Println("	-->" + destinationDir)
+	originDir, err := os.Getwd()
+	if err != nil {
+		log.Fatalln(err)
 	}
-}
-
-type UIOutputCaptor struct {
-	Captor *string
-	*cli.BasicUi
-}
-
-func (u *UIOutputCaptor) Output(message string) {
-	u.Captor = &message
-	u.BasicUi.Output(message)
+	os.Chdir(destinationDir)
+	return destinationDir, originDir
 }
 
 // https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go
