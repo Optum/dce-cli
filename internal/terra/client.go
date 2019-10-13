@@ -56,7 +56,7 @@ func GetOutput(key string) string {
 			Ui: outputCaptorUI,
 		},
 	}
-	tfOutput.Run([]string{"bucket"})
+	tfOutput.Run([]string{key})
 	return *outputCaptorUI.Captor
 }
 
