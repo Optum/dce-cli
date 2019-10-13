@@ -4,15 +4,22 @@ import (
 	"log"
 	"os"
 
-	terraform "github.com/hashicorp/terraform/command"
+	tfBackendInit "github.com/hashicorp/terraform/backend/init"
+	tfCommand "github.com/hashicorp/terraform/command"
+	tfDiscovery "github.com/hashicorp/terraform/svchost/disco"
+
 	"github.com/mitchellh/cli"
 )
 
 // Init initialized a terraform working directory
 func Init(args []string) {
 	log.Println("Running terraform init")
-	tfInit := &terraform.InitCommand{
-		Meta: terraform.Meta{
+
+	services := tfDiscovery.NewWithCredentialsSource(nil)
+	tfBackendInit.Init(services)
+
+	tfInit := &tfCommand.InitCommand{
+		Meta: tfCommand.Meta{
 			Ui: getTerraformUI(),
 		},
 	}
@@ -22,13 +29,14 @@ func Init(args []string) {
 // Apply applies terraform template with given namespace
 func Apply(namespace string) {
 	log.Println("Running terraform apply with namespace: " + namespace)
-	tfApply := &terraform.ApplyCommand{
-		Meta: terraform.Meta{
+	tfApply := &tfCommand.ApplyCommand{
+		Meta: tfCommand.Meta{
 			Ui: getTerraformUI(),
 		},
 	}
 	namespaceKey := "-var"
 	namespaceValue := "namespace=" + namespace
+
 	tfApply.Run([]string{namespaceKey, namespaceValue})
 }
 
@@ -43,8 +51,8 @@ func GetOutput(key string) string {
 		},
 		Captor: new(string),
 	}
-	tfOutput := &terraform.OutputCommand{
-		Meta: terraform.Meta{
+	tfOutput := &tfCommand.OutputCommand{
+		Meta: tfCommand.Meta{
 			Ui: outputCaptorUI,
 		},
 	}
@@ -52,21 +60,11 @@ func GetOutput(key string) string {
 	return *outputCaptorUI.Captor
 }
 
-func getTerraformUI() *cli.PrefixedUi {
-	basicUI := &cli.BasicUi{
+func getTerraformUI() *cli.BasicUi {
+	return &cli.BasicUi{
 		Reader:      os.Stdin,
 		Writer:      os.Stdout,
 		ErrorWriter: os.Stderr,
-	}
-	prefix := "\nTerraform Says...\n"
-	return &cli.PrefixedUi{
-		AskPrefix:       prefix,
-		AskSecretPrefix: prefix,
-		OutputPrefix:    prefix,
-		InfoPrefix:      prefix,
-		ErrorPrefix:     prefix,
-		WarnPrefix:      prefix,
-		Ui:              basicUI,
 	}
 }
 

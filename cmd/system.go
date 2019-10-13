@@ -23,7 +23,6 @@ var deployNamespace string
 var dceRepoPath string
 
 func init() {
-
 	systemDeployCmd.Flags().StringVarP(&deployNamespace, "namespace", "n", "", "Set a custom terraform namespace (Optional)")
 	systemDeployCmd.Flags().StringVarP(&dceRepoPath, "path", "p", "", "Path to local DCE repo")
 	systemCmd.AddCommand(systemDeployCmd)
@@ -99,23 +98,22 @@ func createDceInfra(stateBucket string) string {
 	os.Chdir(files[0].Name())
 
 	log.Println("Initializing terraform working directory")
-	terra.Init([]string{"-backend-config=\"bucket=" + stateBucket + "\"", "-backend-config=\"key=local-tf-state\""})
+	terra.Init([]string{"-backend-config=bucket=" + stateBucket, "-backend-config=key=local-tf-state"})
 
-	// log.Println("Building DCE infrastructure")
-	// var namesSpace string
-	// if deployNamespace != "" {
-	// 	namesSpace = deployNamespace
-	// } else {
-	// 	namesSpace = "dce-default-" + getRandString(8)
-	// }
-	// terra.Apply(namesSpace)
+	log.Println("Applying DCE infrastructure")
+	var namesSpace string
+	if deployNamespace != "" {
+		namesSpace = deployNamespace
+	} else {
+		namesSpace = "dce-" + getRandString(6)
+	}
+	terra.Apply(namesSpace)
 
-	// log.Println("Retrieving artifacts bucket name from terraform outputs")
-	// artifactsBucket := terra.GetOutput("artifacts_bucket_name")
-	// log.Println("	-->", artifactsBucket)
+	log.Println("Retrieving artifacts bucket name from terraform outputs")
+	artifactsBucket := terra.GetOutput("artifacts_bucket_name")
+	log.Println("	-->", artifactsBucket)
 
-	// return artifactsBucket
-	return ""
+	return artifactsBucket
 }
 
 func downloadGithubReleaseAsset(assetName string) {
