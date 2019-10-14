@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/Optum/dce-cli/internal/api"
+	"github.com/Optum/dce-cli/internal/util/api"
 	"github.com/spf13/cobra"
 )
 

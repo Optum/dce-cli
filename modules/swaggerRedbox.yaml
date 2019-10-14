@@ -1,0 +1,301 @@
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: ${namespace}
+schemes:
+  - https
+paths:
+  "/accounts":
+    get:
+      summary: Lists accounts
+      produces:
+        - application/json
+      responses:
+        200:
+          description: A list of accounts
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/account"
+        403:
+          description: "Unauthorized"
+      x-amazon-apigateway-integration:
+        uri: ${accounts_lambda}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        passthroughBehavior: "when_no_match"
+      security:
+        - sigv4: []
+    post:
+      summary: Add an AWS Account to the Redbox account pool
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: account
+          description: Account creation parameters
+          schema:
+            type: object
+            required:
+              - id
+              - adminRoleArn
+            properties:
+              id:
+                type: string
+                description: AWS Account ID
+              adminRoleArn:
+                type: string
+                description: |
+                  ARN for an IAM role within this AWS account. The Redbox master account will assume this IAM role to execute operations within this AWS account. This IAM role is configured by the client, and must be configured with [a Trust Relationship with the Redbox master account.](/https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html)
+      produces:
+        - application/json
+      responses:
+        201:
+          $ref: "#/definitions/account"
+        403:
+          description: "Failed to authenticate request"
+      x-amazon-apigateway-integration:
+        uri: ${accounts_lambda}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        passthroughBehavior: "when_no_match"
+      security:
+        - sigv4: []
+  "/accounts/{id}":
+    get:
+      summary: Get a specific account by AccountId
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: accountId for lease
+      responses:
+        200:
+          $ref: "#/definitions/account"
+        403:
+          description: "Failed to retrieve account"
+      x-amazon-apigateway-integration:
+        uri: ${accounts_lambda}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        passthroughBehavior: "when_no_match"
+      security:
+        - sigv4: []
+    delete:
+      summary: Delete an account by ID.
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: The ID of the account to be deleted.
+      responses:
+        204:
+          description: "The account has been successfully deleted."
+        403:
+          description: "Unauthorized."
+        404:
+          description: "No account found for the given ID."
+        409:
+          description: "The account is unable to be deleted."
+      x-amazon-apigateway-integration:
+        uri: ${accounts_lambda}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        passthroughBehavior: "when_no_match"
+      security:
+        - sigv4: []
+  "/leases":
+    post:
+      summary: Creates a new lease.
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: lease
+          description: The owner of the lease
+          schema:
+            type: object
+            required:
+              - principalId
+              - budgetAmount
+              - budgetCurrency
+              - budgetNotificationEmails
+            properties:
+              principalId:
+                type: string
+              budgetAmount:
+                type: number
+              budgetCurrency:
+                type: string
+              budgetNotificationEmails:
+                type: array
+                items:
+                  type: string
+      produces:
+        - application/json
+      responses:
+        201:
+          $ref: "#/definitions/lease"
+        403:
+          description: "Failed to authenticate request"
+      x-amazon-apigateway-integration:
+        uri: ${router_lambda_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        passthroughBehavior: "when_no_match"
+      security:
+        - sigv4: []
+    delete:
+      summary: Removes a lease.
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: lease
+          description: The owner of the lease
+          schema:
+            type: object
+            required:
+              - principalId
+              - accountId
+            properties:
+              principalId:
+                type: string
+              accountId:
+                type: string
+      produces:
+        - application/json
+      responses:
+        201:
+          description: "Lease successfully removed"
+        403:
+          description: "Failed to authenticate request"
+      x-amazon-apigateway-integration:
+        uri: ${router_lambda_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        passthroughBehavior: "when_no_match"
+      security:
+        - sigv4: []
+    get:
+      summary: Get a lease by principalId and accountId [NOT IMPLEMENTED]
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: principalId
+          type: string
+          required: true
+          description: principalId of the lease to get
+        - in: path
+          name: accountId
+          type: string
+          required: true
+          description: accountId of the lease to get
+      responses:
+        200:
+          $ref: "#/definitions/lease"
+        403:
+          description: "Failed to authenticate request"
+      x-amazon-apigateway-integration:
+        uri: ${router_lambda_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        passthroughBehavior: "when_no_match"
+      security:
+        - sigv4: []
+securityDefinitions:
+  sigv4:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+    x-amazon-apigateway-authtype: "awsSigv4"
+definitions:
+  lease:
+    description: "Lease Id"
+    type: object
+    properties:
+      principalId:
+        type: string
+        description: principalId of the lease to get
+      accountId:
+        type: string
+        description: accountId of the AWS account
+      leaseStatus:
+        $ref: "#/definitions/leaseStatus"
+      createdOn:
+        type: number
+        description: creation date in epoch seconds
+      lastModifiedOn:
+        type: number
+        description: date last modified in epoch seconds
+      budgetAmount:
+        type: number
+        description: budget amount
+      budgetCurrency:
+        type: string
+        description: budget currency
+      budgetNotificationEmails:
+        type: array
+        items:
+          type: string
+        description: budget notification emails
+      leaseStatusModifiedOn:
+        type: number
+        description: date lease status was last modified in epoch seconds
+  account:
+    description: "Account Details"
+    type: object
+    properties:
+      id:
+        type: string
+        description: AWS Account ID
+      accountStatus:
+        $ref: "#/definitions/accountStatus"
+      adminRoleArn:
+        type: string
+        description: ARN for an IAM role within this AWS account. The Redbox master account will assume this IAM role to execute operations within this AWS account. This IAM role is configured by the client, and must be configured with [a Trust Relationship with the Redbox master account.](/https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html)
+      principalRoleArn:
+        type: string
+        description: ARN for an IAM role within this AWS account. This role is created by the Redbox master account, and may be assumed by principals to login to their AWS Redbox account.
+      principalPolicyHash:
+        type: string
+        description: The S3 object ETag used to apply the Principal IAM Policy within this AWS account.  This policy is created by the Redbox master account, and is assumed by people with access to principalRoleArn.
+      lastModifiedOn:
+        type: integer
+        description: Epoch timestamp, when account record was last modified
+      createdOn:
+        type: integer
+        description: Epoch timestamp, when account record was created
+      metadata:
+        type: object
+        description: Any organization specific data pertaining to the account that needs to be persisted
+  accountStatus:
+    type: string
+    enum: ["Ready", "NotReady", "Leased"]
+    description: |
+      Status of the Account.
+      "Ready": The account is clean and ready for lease
+      "NotReady": The account is in "dirty" state, and needs to be reset before it may be leased.
+      "Leased": The account is leased to a principal
+  leaseStatus:
+    type: string
+    enum:
+      [
+        "Active",
+        "Decommissioned",
+        "FinanceLock",
+        "ResetLock",
+        "ResetFinanceLock",
+      ]
+    description: |
+      Status of the Lease.
+      "Active": The principal is leased and has access to the account
+      "Decommissioned": The principal was previously leased to the account, but now is not.
+      "FinanceLock": The principal is leased to the account, but has hit a budget threshold, and is locked out of the account.
+      "ResetLock": The principal is leased to the account, but the account is being reset. The principal's access is temporarily revoked, and will be given back after the reset process is complete.
+      "ResetFinanceLock"": The principal is leased to the account, but has been locked out for hitting a budget threshold. Additionally, the account is being reset. After reset, the principal's access will _not_ be restored, and the LeaseStatus will be set back to `ResetLock`
