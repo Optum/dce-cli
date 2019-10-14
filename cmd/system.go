@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Optum/dce-cli/internal/deploy"
 	"github.com/spf13/cobra"
 )
 
@@ -43,15 +42,17 @@ var systemDeployCmd = &cobra.Command{
 	Short: "Deploy the DCE system",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		log.Println("Creating terraform remote state backend infrastructure")
-		stateBucket := deploy.CreateRemoteStateBackend(deployNamespace)
+		
 
-		log.Println("Creating DCE infrastructure")
-		artifactsBucket := deploy.CreateDceInfra(deployNamespace, stateBucket)
-		log.Println("Artifacts bucket = ", artifactsBucket)
+		// log.Println("Creating terraform remote state backend infrastructure")
+		// stateBucket := deploy.CreateRemoteStateBackend(deployNamespace)
 
-		// Deploy code assets to DCE infra
-		deploy.DeployCodeAssets(deployNamespace, artifactsBucket)
+		// log.Println("Creating DCE infrastructure")
+		// artifactsBucket := deploy.CreateDceInfra(deployNamespace, stateBucket)
+		// log.Println("Artifacts bucket = ", artifactsBucket)
+
+		// // Deploy code assets to DCE infra
+		// deploy.DeployCodeAssets(deployNamespace, artifactsBucket)
 	},
 }
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/Optum/dce-cli/internal/util/api"
+	"github.com/Optum/dce-cli/internal/util"
 	"github.com/spf13/cobra"
 )
 
@@ -54,7 +54,7 @@ var accountsAddCmd = &cobra.Command{
 	Short: "Add one or more accounts to the accounts pool.",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		requestBody := &api.CreateAccountRequest{
+		requestBody := &util.CreateAccountRequest{
 			ID:           accountID,
 			AdminRoleArn: adminRoleARN,
 		}
@@ -63,10 +63,10 @@ var accountsAddCmd = &cobra.Command{
 		fmt.Println("Posting to: ", accountsFullURL)
 		fmt.Println("Post body: ", requestBody)
 
-		response := api.Request(&api.ApiRequestInput{
+		response := util.Request(&util.ApiRequestInput{
 			Method: "POST",
 			Url:    accountsFullURL,
-			Region: *config.API.Region,
+			Region: *config.Region,
 			Json:   requestBody,
 		})
 

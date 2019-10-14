@@ -1,19 +1,22 @@
-package awshelpers
+package util
 
 import (
 	"log"
 	"os"
 	"path/filepath"
 
+	"github.com/Optum/dce-cli/configs"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
+	awsSession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-// UploadDirectoryToS3 uploads the contents of a directory to an s3 bucket.
-// Adapted from https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/sdk-utilities.html#s3-transfer-managers
-func UploadDirectoryToS3(localPath string, bucket string, prefix string) {
+type AWSUtil struct {
+	Config  *configs.Root
+	Session *awsSession.Session
+}
+
+func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix string) []string {
 	walker := make(fileWalk)
 	go func() {
 		// Gather the files to upload by walking the path recursively
@@ -24,14 +27,8 @@ func UploadDirectoryToS3(localPath string, bucket string, prefix string) {
 	}()
 
 	// For each file found walking, upload it to S3
-	region := "us-east-1"
-	uploader := s3manager.NewUploader(session.New(&aws.Config{
-		Credentials: credentials.NewChainCredentials([]credentials.Provider{
-			&credentials.EnvProvider{},
-			&credentials.SharedCredentialsProvider{Filename: "", Profile: ""},
-		}),
-		Region: &region,
-	}))
+	lambdas := []string{}
+	uploader := s3manager.NewUploader(u.Session)
 	for path := range walker {
 		rel, err := filepath.Rel(localPath, path)
 		if err != nil {
@@ -52,7 +49,9 @@ func UploadDirectoryToS3(localPath string, bucket string, prefix string) {
 			log.Fatalln("Failed to upload", path, err)
 		}
 		log.Println("Uploaded", path, result.Location)
+		lambdas = append(lambdas, filepath.Base(path))
 	}
+	return lambdas
 }
 
 type fileWalk chan string
@@ -65,4 +64,17 @@ func (f fileWalk) Walk(path string, info os.FileInfo, err error) error {
 		f <- path
 	}
 	return nil
+}
+
+func (a *AWSUtil) UpdateLambdasFromS3Assets() {
+	log.Println("TODO")
+	// svc := lambda.New(SystemSession)
+	// input := &lambda.UpdateFunctionCodeInput{
+	// 	FunctionName:    aws.String("myFunction"),
+	// 	Publish:         aws.Bool(true),
+	// 	S3Bucket:        aws.String("myBucket"),
+	// 	S3Key:           aws.String("myKey"),
+	// 	S3ObjectVersion: aws.String("1"),
+	// 	ZipFile:         []byte("fileb://file-path/file.zip"),
+	// }
 }

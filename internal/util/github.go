@@ -1,4 +1,4 @@
-package ghub
+package util
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/Optum/dce-cli/configs"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 )
@@ -15,7 +16,11 @@ import (
 const RepoName = "Redbox"
 const RepoOwner = "Optum"
 
-func DownloadGithubReleaseAsset(assetName string) {
+type GithubUtil struct {
+	Config *configs.Root
+}
+
+func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string) {
 	src := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
 	)

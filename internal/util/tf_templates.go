@@ -1,7 +1,9 @@
-package terra
+package util
 
-// Template for terraform remote state backend
-var RemoteBackend = `provider "aws" {
+// Templates is a map of named terraform templates to be used while deploying DCE
+var Templates = map[string]string{
+
+	"RemoteBackend": `provider "aws" {
 region = "us-east-1"
 }
 
@@ -98,4 +100,5 @@ type = "S"
 output "bucket" {
 value = aws_s3_bucket.local_tfstate.bucket
 }
-`
+`,
+}

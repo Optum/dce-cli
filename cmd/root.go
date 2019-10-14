@@ -20,6 +20,9 @@ import (
 	"os"
 
 	"github.com/Optum/dce-cli/configs"
+	utl "github.com/Optum/dce-cli/internal/util"
+	svc "github.com/Optum/dce-cli/pkg/service"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -27,9 +30,11 @@ import (
 
 var cfgFile string
 var config = &configs.Root{}
+var service *svc.ServiceContainer
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initService)
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dce.yaml)")
 }
 
@@ -72,4 +77,19 @@ func initConfig() {
 	}
 
 	viper.Unmarshal(config)
+}
+
+func initService() {
+	util := initUtil()
+	service = svc.New(config, util)
+}
+
+func initUtil() *utl.UtilContainer {
+	var creds = credentials.NewStaticCredentials(
+		*config.System.MasterAccount.Credentials.AwsAccessKeyID,
+		*config.System.MasterAccount.Credentials.AwsSecretAccessKey,
+		*config.System.MasterAccount.Credentials.AwsSessionToken,
+	)
+	return utl.New(config, creds)
+
 }

@@ -1,4 +1,4 @@
-package deploy
+package service
 
 import (
 	"io/ioutil"
@@ -7,59 +7,65 @@ import (
 	"os"
 	"time"
 
-	"github.com/Optum/dce-cli/internal/util/awshelpers"
-	"github.com/Optum/dce-cli/internal/util/ghub"
-	"github.com/Optum/dce-cli/internal/util/terra"
+	"github.com/Optum/dce-cli/configs"
+	utl "github.com/Optum/dce-cli/internal/util"
 	"github.com/mholt/archiver"
 )
 
 const ArtifactsFileName = "terraform_artifacts.zip"
 const AssetsFileName = "build_artifacts.zip"
 
-func CreateRemoteStateBackend(namespace string) string {
+type DeployService struct {
+	Config *configs.Root
+	Util   *utl.UtilContainer
+}
+
+func (s *DeployService) Deploy(namespace string) {
+	log.Println("Creating terraform remote state backend infrastructure")
+	stateBucket := s.createRemoteStateBackend(namespace)
+
+	log.Println("Creating DCE infrastructure")
+	artifactsBucket := s.createDceInfra(namespace, stateBucket)
+	log.Println("Artifacts bucket = ", artifactsBucket)
+
+	log.Println("Deploying code assets to DCE infrastructure")
+	s.deployCodeAssets(namespace, artifactsBucket)
+}
+
+func (s *DeployService) createRemoteStateBackend(namespace string) string {
 	tmpDir, originDir := mvToTempDir("dce-init-")
 	defer os.RemoveAll(tmpDir)
 	defer os.Chdir(originDir)
 
 	log.Println("Creating terraform remote backend template (init.tf)")
 	fileName := tmpDir + "/" + "init.tf"
-	err := ioutil.WriteFile(fileName, []byte(terra.RemoteBackend), 0644)
+	err := ioutil.WriteFile(fileName, []byte(s.Util.Terraformer.GetTemplate("RemoteBackend")), 0644)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
 	log.Println("Initializing terraform working directory and building remote state infrastructure")
-	terra.Init([]string{})
+	s.Util.Terraformer.Init([]string{})
 	if namespace != "" {
-		terra.Apply(namespace)
+		s.Util.Terraformer.Apply(namespace)
 	} else {
-		terra.Apply("dce-default-" + getRandString(8))
+		s.Util.Terraformer.Apply("dce-default-" + getRandString(8))
 	}
 
 	log.Println("Retrieving remote state bucket name from terraform outputs")
-	stateBucket := terra.GetOutput("bucket")
+	stateBucket := s.Util.Terraformer.GetOutput("bucket")
 	log.Println("Remote state bucket = ", stateBucket)
 
 	return stateBucket
 }
 
-func CreateDceInfra(namespace string, stateBucket string) string {
+func (s *DeployService) createDceInfra(namespace string, stateBucket string) string {
 	tmpDir, originDir := mvToTempDir("dce-")
 	defer os.RemoveAll(tmpDir)
 	defer os.Chdir(originDir)
 
 	log.Println("Downloading DCE terraform modules")
-	ghub.DownloadGithubReleaseAsset(ArtifactsFileName)
-	// TODO:
-	// Protect against zip-slip vulnerability? https://snyk.io/research/zip-slip-vulnerability
-	//
-	// err := z.Walk("/Users/matt/Desktop/test.zip", func(f archiver.File) error {
-	// 	zfh, ok := f.Header.(zip.FileHeader)
-	// 	if ok {
-	// 		fmt.Println("Filename:", zfh.Name)
-	// 	}
-	// 	return nil
-	// })
+	s.Util.Githuber.DownloadGithubReleaseAsset(ArtifactsFileName)
 	err := archiver.Unarchive(ArtifactsFileName, ".")
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -72,29 +78,29 @@ func CreateDceInfra(namespace string, stateBucket string) string {
 	os.Chdir(files[0].Name())
 
 	log.Println("Initializing terraform working directory")
-	terra.Init([]string{"-backend-config=bucket=" + stateBucket, "-backend-config=key=local-tf-state"})
+	s.Util.Terraformer.Init([]string{"-backend-config=bucket=" + stateBucket, "-backend-config=key=local-tf-state"})
 
 	log.Println("Applying DCE infrastructure")
 	if namespace != "" {
-		terra.Apply(namespace)
+		s.Util.Terraformer.Apply(namespace)
 	} else {
-		terra.Apply("dce-" + getRandString(6))
+		s.Util.Terraformer.Apply("dce-" + getRandString(6))
 	}
 
 	log.Println("Retrieving artifacts bucket name from terraform outputs")
-	artifactsBucket := terra.GetOutput("artifacts_bucket_name")
+	artifactsBucket := s.Util.Terraformer.GetOutput("artifacts_bucket_name")
 	log.Println("artifacts bucket name = ", artifactsBucket)
 
 	return artifactsBucket
 }
 
-func DeployCodeAssets(deployNamespace string, artifactsBucket string) {
+func (s *DeployService) deployCodeAssets(deployNamespace string, artifactsBucket string) {
 	tmpDir, originDir := mvToTempDir("dce-")
 	defer os.RemoveAll(tmpDir)
 	defer os.Chdir(originDir)
 
 	log.Println("Downloading DCE code assets")
-	ghub.DownloadGithubReleaseAsset(AssetsFileName)
+	s.Util.Githuber.DownloadGithubReleaseAsset(AssetsFileName)
 	// TODO:
 	// Protect against zip-slip vulnerability? https://snyk.io/research/zip-slip-vulnerability
 	//
@@ -114,16 +120,18 @@ func DeployCodeAssets(deployNamespace string, artifactsBucket string) {
 	if len(files) != 2 || !files[0].IsDir() || !files[1].IsDir() {
 		log.Fatalf("Unexpected content in DCE assets archive")
 	}
-	// os.Chdir(files[0].Name())
 
-	//LEFT OFF HERE, deploy to lambdas and stuff
-
-	// 1. Upload lambda and codebuild zips to s3
-	awshelpers.UploadDirectoryToS3(".", artifactsBucket, "")
-
+	lambdas := s.Util.UploadDirectoryToS3(".", artifactsBucket, "")
+	log.Println("@@@@Lambdas uploaded: ", lambdas)
 	// 2. Point lambdas at the code in s3
+	// aws lambda update-function-code \
+	// --function-name ${fn_name} \
+	// --s3-bucket ${artifactBucket} \
+	// --s3-key lambda/${mod_name}.zip
 
 	// 3. Publish new lambda versions
+	// aws lambda publish-version \
+	// --function-name ${fn_name}
 }
 
 func mvToTempDir(prefix string) (string, string) {

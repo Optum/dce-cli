@@ -1,4 +1,4 @@
-package api
+package util
 
 import (
 	"bytes"
@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Optum/dce-cli/configs"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	awsSession "github.com/aws/aws-sdk-go/aws/session"
 	sigv4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 )
 
@@ -38,14 +40,16 @@ type ApiResponse struct {
 	json interface{}
 }
 
-//Request sends sig4 signed requests to api
-func Request(input *ApiRequestInput) *ApiResponse {
+type APIUtil struct {
+	Config  *configs.Root
+	Session *awsSession.Session
+}
+
+// Request sends sig4 signed requests to api
+func (u *APIUtil) Request(input *ApiRequestInput) *ApiResponse {
 	// Set defaults
 	if input.Creds == nil {
-		input.Creds = credentials.NewChainCredentials([]credentials.Provider{
-			&credentials.EnvProvider{},
-			&credentials.SharedCredentialsProvider{Filename: "", Profile: ""},
-		})
+		input.Creds = u.Session.Config.Credentials
 	}
 	if input.Region == "" {
 		input.Region = "us-east-1"

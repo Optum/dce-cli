@@ -6,7 +6,7 @@ import (
 
 	"encoding/json"
 
-	"github.com/Optum/dce-cli/internal/util/api"
+	"github.com/Optum/dce-cli/internal/util"
 	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 )

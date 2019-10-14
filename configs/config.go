@@ -16,8 +16,8 @@ type Root struct {
 	} `yaml:"system"`
 	API struct {
 		BaseURL *string `yaml:"baseURL"`
-		Region  *string `yaml:"region"`
 	}
+	Region *string `yaml:"region"`
 }
 
 var Regions = []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2"}
