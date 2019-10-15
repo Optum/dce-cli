@@ -65,10 +65,6 @@ func (u *TerraformUtil) GetOutput(key string) string {
 	return *outputCaptorUI.Captor
 }
 
-func (u *TerraformUtil) GetTemplate(name string) string {
-	return Templates[name]
-}
-
 func getTerraformUI() *cli.BasicUi {
 	return &cli.BasicUi{
 		Reader:      os.Stdin,

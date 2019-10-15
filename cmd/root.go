@@ -29,12 +29,12 @@ import (
 )
 
 var cfgFile string
-var config = &configs.Root{}
+var config *configs.Root = &configs.Root{}
 var service *svc.ServiceContainer
+var util *utl.UtilContainer
 
 func init() {
-	cobra.OnInitialize(initConfig)
-	cobra.OnInitialize(initService)
+	cobra.OnInitialize(initConfig, initUtil, initService)
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dce.yaml)")
 }
 
@@ -76,20 +76,24 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 
+	viper.BindEnv("api.credentials.awsaccesskeyid", "AWS_ACCESS_KEY_ID")
+	viper.BindEnv("api.credentials.awssecretaccesskey", "AWS_SECRET_ACCESS_KEY")
+	viper.BindEnv("api.credentials.awssessiontoken", "AWS_SESSION_TOKEN")
+	viper.BindEnv("githubtoken", "GITHUB_TOKEN")
+
 	viper.Unmarshal(config)
 }
 
-func initService() {
-	util := initUtil()
-	service = svc.New(config, util)
-}
-
-func initUtil() *utl.UtilContainer {
-	var creds = credentials.NewStaticCredentials(
+func initUtil() {
+	var masterAcctCreds = credentials.NewStaticCredentials(
 		*config.System.MasterAccount.Credentials.AwsAccessKeyID,
 		*config.System.MasterAccount.Credentials.AwsSecretAccessKey,
-		*config.System.MasterAccount.Credentials.AwsSessionToken,
+		"",
 	)
-	return utl.New(config, creds)
 
+	util = utl.New(config, masterAcctCreds)
+}
+
+func initService() {
+	service = svc.New(config, util)
 }

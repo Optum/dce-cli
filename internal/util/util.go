@@ -32,8 +32,8 @@ func New(config *configs.Root, awsCreds *credentials.Credentials) *UtilContainer
 }
 
 type AWSer interface {
-	UploadDirectoryToS3(localPath string, bucket string, prefix string) []string
-	UpdateLambdasFromS3Assets()
+	UploadDirectoryToS3(localPath string, bucket string, prefix string) ([]string, []string)
+	UpdateLambdasFromS3Assets(lambdaNames []string, bucket string, namespace string)
 }
 
 type APIer interface {
@@ -44,7 +44,6 @@ type Terraformer interface {
 	Init(args []string)
 	Apply(namespace string)
 	GetOutput(key string) string
-	GetTemplate(string) string
 }
 
 type Githuber interface {

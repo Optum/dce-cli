@@ -21,6 +21,15 @@ type DeployService struct {
 }
 
 func (s *DeployService) Deploy(namespace string) {
+
+	// TODO: Pass these directly into terraform
+	os.Setenv("AWS_ACCESS_KEY_ID", *s.Config.System.MasterAccount.Credentials.AwsAccessKeyID)
+	os.Setenv("AWS_SECRET_ACCESS_KEY", *s.Config.System.MasterAccount.Credentials.AwsSecretAccessKey)
+
+	if namespace == "" {
+		namespace = "dce-" + getRandString(6)
+	}
+
 	log.Println("Creating terraform remote state backend infrastructure")
 	stateBucket := s.createRemoteStateBackend(namespace)
 
@@ -39,13 +48,13 @@ func (s *DeployService) createRemoteStateBackend(namespace string) string {
 
 	log.Println("Creating terraform remote backend template (init.tf)")
 	fileName := tmpDir + "/" + "init.tf"
-	err := ioutil.WriteFile(fileName, []byte(s.Util.Terraformer.GetTemplate("RemoteBackend")), 0644)
+	err := ioutil.WriteFile(fileName, []byte(utl.RemoteBackend), 0644)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
 	log.Println("Initializing terraform working directory and building remote state infrastructure")
-	s.Util.Terraformer.Init([]string{})
+	s.Util.Init([]string{})
 	if namespace != "" {
 		s.Util.Terraformer.Apply(namespace)
 	} else {
@@ -81,11 +90,7 @@ func (s *DeployService) createDceInfra(namespace string, stateBucket string) str
 	s.Util.Terraformer.Init([]string{"-backend-config=bucket=" + stateBucket, "-backend-config=key=local-tf-state"})
 
 	log.Println("Applying DCE infrastructure")
-	if namespace != "" {
-		s.Util.Terraformer.Apply(namespace)
-	} else {
-		s.Util.Terraformer.Apply("dce-" + getRandString(6))
-	}
+	s.Util.Terraformer.Apply(namespace)
 
 	log.Println("Retrieving artifacts bucket name from terraform outputs")
 	artifactsBucket := s.Util.Terraformer.GetOutput("artifacts_bucket_name")
@@ -121,9 +126,12 @@ func (s *DeployService) deployCodeAssets(deployNamespace string, artifactsBucket
 		log.Fatalf("Unexpected content in DCE assets archive")
 	}
 
-	lambdas := s.Util.UploadDirectoryToS3(".", artifactsBucket, "")
-	log.Println("@@@@Lambdas uploaded: ", lambdas)
-	// 2. Point lambdas at the code in s3
+	lambdas, codebuilds := s.Util.UploadDirectoryToS3(".", artifactsBucket, "")
+	log.Println("Uploaded lambdas to S3: ", lambdas)
+	log.Println("Uploaded codebuilds to S3: ", codebuilds)
+
+	s.Util.UpdateLambdasFromS3Assets(lambdas, artifactsBucket, deployNamespace)
+
 	// aws lambda update-function-code \
 	// --function-name ${fn_name} \
 	// --s3-bucket ${artifactBucket} \

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -26,11 +25,22 @@ func init() {
 	systemCmd.AddCommand(systemUsersCmd)
 
 	RootCmd.AddCommand(systemCmd)
+
 }
 
 var systemCmd = &cobra.Command{
 	Use:   "system",
 	Short: "Deploy and configure the DCE system",
+	// PersistentPreRun: func(cmd *cobra.Command, args []string) {
+	// 	// Configure util for this command to use master account credentials
+	// 	var creds = credentials.NewStaticCredentials(
+	// 		*config.System.MasterAccount.Credentials.AwsAccessKeyID,
+	// 		*config.System.MasterAccount.Credentials.AwsSecretAccessKey,
+	// 		*config.System.MasterAccount.Credentials.AwsSecretAccessKey,
+	// 	)
+
+	// 	service.Util = utl.New(config, creds)
+	// },
 }
 
 /*
@@ -41,18 +51,7 @@ var systemDeployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Deploy the DCE system",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		
-
-		// log.Println("Creating terraform remote state backend infrastructure")
-		// stateBucket := deploy.CreateRemoteStateBackend(deployNamespace)
-
-		// log.Println("Creating DCE infrastructure")
-		// artifactsBucket := deploy.CreateDceInfra(deployNamespace, stateBucket)
-		// log.Println("Artifacts bucket = ", artifactsBucket)
-
-		// // Deploy code assets to DCE infra
-		// deploy.DeployCodeAssets(deployNamespace, artifactsBucket)
+		service.Deploy(deployNamespace)
 	},
 }
 
@@ -69,7 +68,7 @@ var systemLogsAccountsCmd = &cobra.Command{
 	Use:   "accounts",
 	Short: "View account logs",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Accounts command")
+		log.Println("TODO")
 	},
 }
 
@@ -77,7 +76,7 @@ var systemLogsLeasesCmd = &cobra.Command{
 	Use:   "leases",
 	Short: "View lease logs",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Leases command")
+		log.Println("TODO")
 	},
 }
 
@@ -85,7 +84,7 @@ var systemLogsUsageCmd = &cobra.Command{
 	Use:   "usage",
 	Short: "View usage logs",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Usage command")
+		log.Println("TODO")
 	},
 }
 
@@ -93,7 +92,7 @@ var systemLogsResetCmd = &cobra.Command{
 	Use:   "reset",
 	Short: "View reset logs",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Reset command")
+		log.Println("TODO")
 	},
 }
 
@@ -109,7 +108,7 @@ var systemUsersAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add users",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Add command")
+		log.Println("TODO")
 	},
 }
 
@@ -117,6 +116,6 @@ var systemUsersRemoveCmd = &cobra.Command{
 	Use:   "remove",
 	Short: "Remove users",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Remove command")
+		log.Println("TODO")
 	},
 }

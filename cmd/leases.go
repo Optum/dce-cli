@@ -2,12 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 
-	"encoding/json"
-
-	"github.com/Optum/dce-cli/internal/util"
-	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 )
 
@@ -43,6 +38,8 @@ func init() {
 	leasesCmd.AddCommand(leasesLoginCmd)
 
 	RootCmd.AddCommand(leasesCmd)
+
+	// TODO: Configure util for this command to use local env credentials
 }
 
 var leasesCmd = &cobra.Command{
@@ -54,7 +51,7 @@ var leasesDescribeCmd = &cobra.Command{
 	Use:   "describe",
 	Short: "describe a lease",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Describe command")
+		fmt.Print("TODO")
 	},
 }
 
@@ -62,7 +59,7 @@ var leasesListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "list leases",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("List command")
+		fmt.Print("TODO")
 	},
 }
 
@@ -70,28 +67,7 @@ var leasesCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a lease.",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		requestBody := &api.LeaseRequest{
-			PrincipalID:              principleID,
-			BudgetAmount:             budgetAmount,
-			BudgetCurrency:           budgetCurrency,
-			BudgetNotificationEmails: email,
-		}
-
-		leasesFullURL := *config.API.BaseURL + LeasesPath
-		fmt.Println("Posting to: ", leasesFullURL)
-		fmt.Println("Post body: ", requestBody)
-
-		response := api.Request(&api.ApiRequestInput{
-			Method: "POST",
-			Url:    leasesFullURL,
-			Region: *config.API.Region,
-			Json:   requestBody,
-		})
-
-		body, _ := ioutil.ReadAll(response.Body)
-		fmt.Println("Response: ", response)
-		fmt.Println("Response Body: ", body)
+		service.CreateLease(principleID, budgetAmount, budgetCurrency, email)
 	},
 }
 
@@ -99,25 +75,7 @@ var leasesEndCmd = &cobra.Command{
 	Use:   "end",
 	Short: "Cause a lease to immediately expire",
 	Run: func(cmd *cobra.Command, args []string) {
-		requestBody := &api.LeaseRequest{
-			AccountID:   accountID,
-			PrincipalID: principleID,
-		}
-
-		leasesFullURL := *config.API.BaseURL + LeasesPath
-		fmt.Println("Posting to: ", leasesFullURL)
-		fmt.Println("Post body: ", requestBody)
-
-		response := api.Request(&api.ApiRequestInput{
-			Method: "DELETE",
-			Url:    leasesFullURL,
-			Region: *config.API.Region,
-			Json:   requestBody,
-		})
-
-		body, _ := ioutil.ReadAll(response.Body)
-		fmt.Println("Response: ", response)
-		fmt.Println("Response Body: ", body)
+		service.EndLease(accountID, principleID)
 	},
 }
 
@@ -125,53 +83,6 @@ var leasesLoginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Login to a leased DCE account",
 	Run: func(cmd *cobra.Command, args []string) {
-		if loginAcctID != "" && loginLeaseID != "" {
-			fmt.Println("Please specify either --lease-id or --acctount-id, not both.")
-			return
-		}
-		if loginAcctID == "" && loginLeaseID == "" {
-			fmt.Println("Please specify either --lease-id or --acctount-id")
-			return
-		}
-		fmt.Println("Logging into a leased DCE account")
-
-		var leaseLoginURL string
-		if loginAcctID != "" {
-			leaseLoginURL = *config.API.BaseURL + "?accountID=" + loginAcctID
-		}
-		if loginLeaseID != "" {
-			leaseLoginURL = *config.API.BaseURL + "?leaseID=" + loginLeaseID
-		}
-
-		fmt.Println("Requesting leased account credentials from: ", leaseLoginURL)
-		response := api.Request(&api.ApiRequestInput{
-			Method: "GET",
-			Url:    leaseLoginURL,
-			Region: *config.API.Region,
-		})
-
-		leaseCreds := struct {
-			AwsAccessKeyID     string
-			AwsSecretAccessKey string
-			AwsSessionToken    string
-		}{}
-
-		body, _ := ioutil.ReadAll(response.Body)
-
-		// Some test data. Remove once integrated with api.
-		body = []byte("{\"AwsAccessKeyID\": \"AKD\", \"AwsSecretAccessKey\": \"ASK\", \"AwsSessionToken\": \"AST\" }")
-		json.Unmarshal(body, &leaseCreds)
-
-		if loginOpenBrowser {
-			fmt.Println("Opening AWS Console in Web Browser")
-			var consoleURL string
-
-			// Build aws console url here
-			consoleURL = "https://amazon.com"
-
-			browser.OpenURL(consoleURL)
-		} else {
-			fmt.Println(leaseCreds)
-		}
+		service.LoginToLease(loginAcctID, loginLeaseID, loginOpenBrowser)
 	},
 }

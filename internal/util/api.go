@@ -45,12 +45,17 @@ type APIUtil struct {
 	Session *awsSession.Session
 }
 
-// Request sends sig4 signed requests to api
+//Request sends sig4 signed requests to api
 func (u *APIUtil) Request(input *ApiRequestInput) *ApiResponse {
 	// Set defaults
-	if input.Creds == nil {
-		input.Creds = u.Session.Config.Credentials
-	}
+
+	//TODO: Use a better pattern to set these
+	input.Creds = credentials.NewStaticCredentials(
+		*u.Config.API.Credentials.AwsAccessKeyID,
+		*u.Config.API.Credentials.AwsSecretAccessKey,
+		*u.Config.API.Credentials.AwsSessionToken,
+	)
+
 	if input.Region == "" {
 		input.Region = "us-east-1"
 	}

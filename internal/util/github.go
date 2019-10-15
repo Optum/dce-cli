@@ -22,7 +22,7 @@ type GithubUtil struct {
 
 func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string) {
 	src := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
+		&oauth2.Token{AccessToken: *u.Config.GithubToken},
 	)
 	oauthHTTPClient := oauth2.NewClient(context.Background(), src)
 

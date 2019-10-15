@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 
-	"github.com/Optum/dce-cli/internal/util"
 	"github.com/spf13/cobra"
 )
 
@@ -26,6 +24,8 @@ func init() {
 	accountsCmd.AddCommand(accountsRemoveCmd)
 	accountsCmd.AddCommand(accountsDescribeCmd)
 	RootCmd.AddCommand(accountsCmd)
+
+	// TODO: Configure util for this command to use local env credentials
 }
 
 var accountsCmd = &cobra.Command{
@@ -37,7 +37,7 @@ var accountsDescribeCmd = &cobra.Command{
 	Use:   "describe",
 	Short: "describe an account",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Describe command")
+		fmt.Print("TODO")
 	},
 }
 
@@ -45,7 +45,7 @@ var accountsListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "list accounts",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("List command")
+		fmt.Print("TODO")
 	},
 }
 
@@ -53,27 +53,7 @@ var accountsAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add one or more accounts to the accounts pool.",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		requestBody := &util.CreateAccountRequest{
-			ID:           accountID,
-			AdminRoleArn: adminRoleARN,
-		}
-
-		accountsFullURL := *config.API.BaseURL + accountsPath
-		fmt.Println("Posting to: ", accountsFullURL)
-		fmt.Println("Post body: ", requestBody)
-
-		response := util.Request(&util.ApiRequestInput{
-			Method: "POST",
-			Url:    accountsFullURL,
-			Region: *config.Region,
-			Json:   requestBody,
-		})
-
-		body, _ := ioutil.ReadAll(response.Body)
-		fmt.Println("Response: ", response)
-		fmt.Println("Response Body: ", body)
-
+		service.AddAccount(accountID, adminRoleARN)
 	},
 }
 
@@ -81,17 +61,6 @@ var accountsRemoveCmd = &cobra.Command{
 	Use:   "remove",
 	Short: "Remove one or more accounts from the accounts pool.",
 	Run: func(cmd *cobra.Command, args []string) {
-		accountsFullURL := *config.API.BaseURL + accountsPath + "/" + accountID
-		fmt.Println("Posting to: ", accountsFullURL)
-
-		response := api.Request(&api.ApiRequestInput{
-			Method: "DELETE",
-			Url:    accountsFullURL,
-			Region: *config.API.Region,
-		})
-
-		body, _ := ioutil.ReadAll(response.Body)
-		fmt.Println("Response: ", response)
-		fmt.Println("Response Body: ", body)
+		service.RemoveAccount(accountID)
 	},
 }
