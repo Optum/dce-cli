@@ -2,8 +2,8 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"log"
 
 	"github.com/Optum/dce-cli/configs"
 	utl "github.com/Optum/dce-cli/internal/util"
@@ -26,8 +26,8 @@ func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, bu
 	}
 
 	leasesFullURL := *s.Config.API.BaseURL + LeasesPath
-	fmt.Println("Posting to: ", leasesFullURL)
-	fmt.Println("Post body: ", requestBody)
+	log.Println("Posting to: ", leasesFullURL)
+	log.Println("Post body: ", requestBody)
 
 	response := s.Util.Request(&utl.ApiRequestInput{
 		Method: "POST",
@@ -37,8 +37,8 @@ func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, bu
 	})
 
 	body, _ := ioutil.ReadAll(response.Body)
-	fmt.Println("Response: ", response)
-	fmt.Println("Response Body: ", body)
+	log.Println("Response: ", response)
+	log.Println("Response Body: ", body)
 }
 
 func (s *LeasesService) EndLease(accountID, principleID string) {
@@ -48,8 +48,8 @@ func (s *LeasesService) EndLease(accountID, principleID string) {
 	}
 
 	leasesFullURL := *s.Config.API.BaseURL + LeasesPath
-	fmt.Println("Posting to: ", leasesFullURL)
-	fmt.Println("Post body: ", requestBody)
+	log.Println("Posting to: ", leasesFullURL)
+	log.Println("Post body: ", requestBody)
 
 	response := s.Util.Request(&utl.ApiRequestInput{
 		Method: "DELETE",
@@ -59,20 +59,20 @@ func (s *LeasesService) EndLease(accountID, principleID string) {
 	})
 
 	body, _ := ioutil.ReadAll(response.Body)
-	fmt.Println("Response: ", response)
-	fmt.Println("Response Body: ", body)
+	log.Println("Response: ", response)
+	log.Println("Response Body: ", body)
 }
 
 func (s *LeasesService) LoginToLease(loginAcctID, loginLeaseID string, loginOpenBrowser bool) {
 	if loginAcctID != "" && loginLeaseID != "" {
-		fmt.Println("Please specify either --lease-id or --acctount-id, not both.")
+		log.Println("Please specify either --lease-id or --acctount-id, not both.")
 		return
 	}
 	if loginAcctID == "" && loginLeaseID == "" {
-		fmt.Println("Please specify either --lease-id or --acctount-id")
+		log.Println("Please specify either --lease-id or --acctount-id")
 		return
 	}
-	fmt.Println("Logging into a leased DCE account")
+	log.Println("Logging into a leased DCE account")
 
 	var leaseLoginURL string
 	if loginAcctID != "" {
@@ -82,7 +82,7 @@ func (s *LeasesService) LoginToLease(loginAcctID, loginLeaseID string, loginOpen
 		leaseLoginURL = *s.Config.API.BaseURL + "?leaseID=" + loginLeaseID
 	}
 
-	fmt.Println("Requesting leased account credentials from: ", leaseLoginURL)
+	log.Println("Requesting leased account credentials from: ", leaseLoginURL)
 	response := s.Util.Request(&utl.ApiRequestInput{
 		Method: "GET",
 		Url:    leaseLoginURL,
@@ -102,7 +102,7 @@ func (s *LeasesService) LoginToLease(loginAcctID, loginLeaseID string, loginOpen
 	json.Unmarshal(body, &leaseCreds)
 
 	if loginOpenBrowser {
-		fmt.Println("Opening AWS Console in Web Browser")
+		log.Println("Opening AWS Console in Web Browser")
 		var consoleURL string
 
 		// Build aws console url here
@@ -110,6 +110,6 @@ func (s *LeasesService) LoginToLease(loginAcctID, loginLeaseID string, loginOpen
 
 		browser.OpenURL(consoleURL)
 	} else {
-		fmt.Println(leaseCreds)
+		log.Println(leaseCreds)
 	}
 }

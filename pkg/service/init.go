@@ -36,8 +36,12 @@ func promptUserForConfig() *configs.Root {
 
 	// API Config
 	config.API.BaseURL = promptBasic("What is the base url of the DCE API (example: https://abcde12345.execute-api.us-east-1.amazonaws.com/dev)?", nil)
-	config.Region = promptSelect("What region is DCE deployed in?", configs.Regions)
+	config.API.Credentials.AwsAccessKeyID = promptBasic("AWS ACCESS KEY ID for accessing the DCE API. (This is usually obtained by running DCE auth. Leave blank to use AWS_ACCESS_KEY_ID env variable.)", nil)
+	config.API.Credentials.AwsSecretAccessKey = promptBasic("AWS SECRET ACCESS KEY for accessing the DCE API. (This is usually obtained by running DCE auth. Leave blank to use AWS_SECRET_ACCESS_KEY env variable.)", nil)
+	config.API.Credentials.AwsSessionToken = promptBasic("AWS SESSION TOKEN for accessing the DCE API. (This is usually obtained by running DCE auth. Leave blank to use AWS_SESSION_TOKEN env variable.)", nil)
 
+	config.GithubToken = promptBasic("Github token used to download releases from github. Leave blank to use GITHUB_TOKEN env variable.", nil)
+	config.Region = promptSelect("What region is DCE deployed in?", configs.Regions)
 	return &config
 }
 

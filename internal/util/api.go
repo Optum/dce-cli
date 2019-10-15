@@ -47,7 +47,6 @@ type APIUtil struct {
 
 //Request sends sig4 signed requests to api
 func (u *APIUtil) Request(input *ApiRequestInput) *ApiResponse {
-	// Set defaults
 
 	//TODO: Use a better pattern to set these
 	input.Creds = credentials.NewStaticCredentials(

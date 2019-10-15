@@ -24,7 +24,7 @@ func init() {
 
 	leasesCreateCmd.Flags().StringVarP(&principleID, "principle-id", "p", "", "Principle ID for the user of the leased account")
 	leasesCreateCmd.Flags().Float64VarP(&budgetAmount, "budget-amount", "b", 0, "The leased accounts budget amount")
-	leasesCreateCmd.Flags().StringVarP(&budgetCurrency, "budget-currency", "a", "USD", "The leased accounts budget currency")
+	leasesCreateCmd.Flags().StringVarP(&budgetCurrency, "budget-currency", "c", "USD", "The leased accounts budget currency")
 	leasesCreateCmd.Flags().StringArrayVarP(&email, "email", "e", nil, "The email address that budget notifications will be sent to")
 	leasesCmd.AddCommand(leasesCreateCmd)
 
