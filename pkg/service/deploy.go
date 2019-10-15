@@ -106,16 +106,6 @@ func (s *DeployService) deployCodeAssets(deployNamespace string, artifactsBucket
 
 	log.Println("Downloading DCE code assets")
 	s.Util.Githuber.DownloadGithubReleaseAsset(AssetsFileName)
-	// TODO:
-	// Protect against zip-slip vulnerability? https://snyk.io/research/zip-slip-vulnerability
-	//
-	// err := z.Walk("/Users/matt/Desktop/test.zip", func(f archiver.File) error {
-	// 	zfh, ok := f.Header.(zip.FileHeader)
-	// 	if ok {
-	// 		fmt.Println("Filename:", zfh.Name)
-	// 	}
-	// 	return nil
-	// })
 	err := archiver.Unarchive(AssetsFileName, ".")
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -132,14 +122,7 @@ func (s *DeployService) deployCodeAssets(deployNamespace string, artifactsBucket
 
 	s.Util.UpdateLambdasFromS3Assets(lambdas, artifactsBucket, deployNamespace)
 
-	// aws lambda update-function-code \
-	// --function-name ${fn_name} \
-	// --s3-bucket ${artifactBucket} \
-	// --s3-key lambda/${mod_name}.zip
-
-	// 3. Publish new lambda versions
-	// aws lambda publish-version \
-	// --function-name ${fn_name}
+	// No need to update Codebuild. It will pull from <bucket>/codebuild on its next build.
 }
 
 func mvToTempDir(prefix string) (string, string) {

@@ -53,12 +53,13 @@ func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix st
 			log.Fatalln("Failed to upload", path, err)
 		}
 		log.Println("Uploaded", path, result.Location)
+
 		parent := filepath.Base(filepath.Dir(path))
 		if parent == "lambda" {
 			lambdas = append(lambdas, filepath.Base(path))
 		}
 		if parent == "codebuild" {
-			lambdas = append(lambdas, filepath.Base(path))
+			codebuilds = append(lambdas, filepath.Base(path))
 		}
 	}
 	return lambdas, codebuilds
