@@ -82,7 +82,7 @@ func (u *AWSUtil) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string,
 
 	for _, l := range lambdaNames {
 
-		name := strings.Trim(l, ".zip")
+		name := strings.TrimSuffix(l, ".zip")
 		log.Println("Updating lambda config for: ", name)
 
 		input := &lambda.UpdateFunctionCodeInput{
@@ -90,8 +90,6 @@ func (u *AWSUtil) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string,
 			Publish:      aws.Bool(true),
 			S3Bucket:     aws.String(bucket),
 			S3Key:        aws.String("lambda/" + name + ".zip"),
-			// S3ObjectVersion: aws.String("1"),
-			// ZipFile:         []byte("fileb://file-path/file.zip"),
 		}
 
 		out, err := json.Marshal(input)
