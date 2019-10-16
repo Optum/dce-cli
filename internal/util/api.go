@@ -72,7 +72,6 @@ func (u *APIUtil) Request(input *ApiRequestInput) *ApiResponse {
 	if input.Json != nil {
 
 		payload, err := json.Marshal(input.Json)
-		fmt.Println("Marshalled Payload: ", string(payload))
 
 		if err != nil {
 			fmt.Println("Error marshaling json payload")

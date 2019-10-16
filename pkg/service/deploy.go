@@ -30,7 +30,7 @@ func (s *DeployService) Deploy(namespace string) {
 		namespace = "dce-" + getRandString(6)
 	}
 
-	log.Println("Creating terraform remote state backend infrastructure")
+	// log.Println("Creating terraform remote state backend infrastructure")
 	stateBucket := s.createRemoteStateBackend(namespace)
 
 	log.Println("Creating DCE infrastructure")
@@ -46,7 +46,7 @@ func (s *DeployService) createRemoteStateBackend(namespace string) string {
 	defer os.RemoveAll(tmpDir)
 	defer os.Chdir(originDir)
 
-	log.Println("Creating terraform remote backend template (init.tf)")
+	// log.Println("Creating terraform remote backend template (init.tf)")
 	fileName := tmpDir + "/" + "init.tf"
 	err := ioutil.WriteFile(fileName, []byte(utl.RemoteBackend), 0644)
 	if err != nil {
@@ -126,12 +126,12 @@ func (s *DeployService) deployCodeAssets(deployNamespace string, artifactsBucket
 }
 
 func mvToTempDir(prefix string) (string, string) {
-	log.Println("Creating temporary working directory")
+	// log.Println("Creating temporary working directory")
 	destinationDir, err := ioutil.TempDir("", prefix)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Println("	-->" + destinationDir)
+	// log.Println("	-->" + destinationDir)
 	originDir, err := os.Getwd()
 	if err != nil {
 		log.Fatalln(err)

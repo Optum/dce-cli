@@ -26,8 +26,8 @@ func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, bu
 	}
 
 	leasesFullURL := *s.Config.API.BaseURL + LeasesPath
-	log.Println("Posting to: ", leasesFullURL)
-	log.Println("Post body: ", requestBody)
+	// log.Println("Posting to: ", leasesFullURL)
+	// log.Println("Post body: ", requestBody)
 
 	response := s.Util.Request(&utl.ApiRequestInput{
 		Method: "POST",
@@ -36,9 +36,12 @@ func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, bu
 		Json:   requestBody,
 	})
 
-	body, _ := ioutil.ReadAll(response.Body)
-	log.Println("Response: ", response)
-	log.Println("Response Body: ", body)
+	// body, _ := ioutil.ReadAll(response.Body)
+	if response.StatusCode == 201 {
+		log.Println("Lease created for jdoe99")
+	} else {
+		log.Println("DCE Responded with an error: ", response)
+	}
 }
 
 func (s *LeasesService) EndLease(accountID, principleID string) {
@@ -48,8 +51,6 @@ func (s *LeasesService) EndLease(accountID, principleID string) {
 	}
 
 	leasesFullURL := *s.Config.API.BaseURL + LeasesPath
-	log.Println("Posting to: ", leasesFullURL)
-	log.Println("Post body: ", requestBody)
 
 	response := s.Util.Request(&utl.ApiRequestInput{
 		Method: "DELETE",
@@ -58,9 +59,11 @@ func (s *LeasesService) EndLease(accountID, principleID string) {
 		Json:   requestBody,
 	})
 
-	body, _ := ioutil.ReadAll(response.Body)
-	log.Println("Response: ", response)
-	log.Println("Response Body: ", body)
+	if response.StatusCode == 200 {
+		log.Println("Lease ended")
+	} else {
+		log.Println("DCE Responded with an error: ", response)
+	}
 }
 
 func (s *LeasesService) LoginToLease(loginAcctID, loginLeaseID string, loginOpenBrowser bool) {

@@ -31,16 +31,6 @@ func init() {
 var systemCmd = &cobra.Command{
 	Use:   "system",
 	Short: "Deploy and configure the DCE system",
-	// PersistentPreRun: func(cmd *cobra.Command, args []string) {
-	// 	// Configure util for this command to use master account credentials
-	// 	var creds = credentials.NewStaticCredentials(
-	// 		*config.System.MasterAccount.Credentials.AwsAccessKeyID,
-	// 		*config.System.MasterAccount.Credentials.AwsSecretAccessKey,
-	// 		*config.System.MasterAccount.Credentials.AwsSecretAccessKey,
-	// 	)
-
-	// 	service.Util = utl.New(config, creds)
-	// },
 }
 
 /*
