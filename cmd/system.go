@@ -1,16 +1,17 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 )
 
-var dceVersion string
+var deployNamespace string
+var dceRepoPath string
 
 func init() {
-
-	systemDeployCmd.Flags().StringVarP(&dceVersion, "dce-version", "s", "", "DCE version to deploy (Defaults to latest)")
+	systemDeployCmd.Flags().StringVarP(&deployNamespace, "namespace", "n", "", "Set a custom terraform namespace (Optional)")
+	systemDeployCmd.Flags().StringVarP(&dceRepoPath, "path", "p", "", "Path to local DCE repo")
 	systemCmd.AddCommand(systemDeployCmd)
 
 	systemLogsCmd.AddCommand(systemLogsAccountsCmd)
@@ -23,22 +24,13 @@ func init() {
 	systemUsersCmd.AddCommand(systemUsersRemoveCmd)
 	systemCmd.AddCommand(systemUsersCmd)
 
-	systemCmd.AddCommand(systemInitCmd)
-
 	RootCmd.AddCommand(systemCmd)
+
 }
 
 var systemCmd = &cobra.Command{
 	Use:   "system",
 	Short: "Deploy and configure the DCE system",
-}
-
-var systemInitCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize a DCE configuration file at the specified location (Defaults to ~/.dce.yaml)",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Init command")
-	},
 }
 
 /*
@@ -48,6 +40,9 @@ Deploy Namespace
 var systemDeployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Deploy the DCE system",
+	Run: func(cmd *cobra.Command, args []string) {
+		service.Deploy(deployNamespace)
+	},
 }
 
 /*
@@ -63,7 +58,7 @@ var systemLogsAccountsCmd = &cobra.Command{
 	Use:   "accounts",
 	Short: "View account logs",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Accounts command")
+		log.Println("TODO")
 	},
 }
 
@@ -71,7 +66,7 @@ var systemLogsLeasesCmd = &cobra.Command{
 	Use:   "leases",
 	Short: "View lease logs",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Leases command")
+		log.Println("TODO")
 	},
 }
 
@@ -79,7 +74,7 @@ var systemLogsUsageCmd = &cobra.Command{
 	Use:   "usage",
 	Short: "View usage logs",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Usage command")
+		log.Println("TODO")
 	},
 }
 
@@ -87,7 +82,7 @@ var systemLogsResetCmd = &cobra.Command{
 	Use:   "reset",
 	Short: "View reset logs",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Reset command")
+		log.Println("TODO")
 	},
 }
 
@@ -103,7 +98,7 @@ var systemUsersAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add users",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Add command")
+		log.Println("TODO")
 	},
 }
 
@@ -111,6 +106,6 @@ var systemUsersRemoveCmd = &cobra.Command{
 	Use:   "remove",
 	Short: "Remove users",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print("Remove command")
+		log.Println("TODO")
 	},
 }

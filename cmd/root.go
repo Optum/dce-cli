@@ -20,18 +20,22 @@ import (
 	"os"
 
 	"github.com/Optum/dce-cli/configs"
+	utl "github.com/Optum/dce-cli/internal/util"
+	svc "github.com/Optum/dce-cli/pkg/service"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var cfgFile string
-var config = &configs.Config{}
+var config *configs.Root = &configs.Root{}
+var service *svc.ServiceContainer
+var util *utl.UtilContainer
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initConfig, initUtil, initService)
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dce.yaml)")
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // RootCmd represents the base command when called without any subcommands
@@ -56,7 +60,6 @@ func Execute() {
 
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
 		home, err := homedir.Dir()
@@ -69,11 +72,28 @@ func initConfig() {
 		viper.SetConfigName(".dce")
 	}
 
-	// viper.AutomaticEnv() // read in environment variables that match
-
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 
+	viper.BindEnv("api.credentials.awsaccesskeyid", "AWS_ACCESS_KEY_ID")
+	viper.BindEnv("api.credentials.awssecretaccesskey", "AWS_SECRET_ACCESS_KEY")
+	viper.BindEnv("api.credentials.awssessiontoken", "AWS_SESSION_TOKEN")
+	viper.BindEnv("githubtoken", "GITHUB_TOKEN")
+
 	viper.Unmarshal(config)
+}
+
+func initUtil() {
+	var masterAcctCreds = credentials.NewStaticCredentials(
+		*config.System.MasterAccount.Credentials.AwsAccessKeyID,
+		*config.System.MasterAccount.Credentials.AwsSecretAccessKey,
+		"",
+	)
+
+	util = utl.New(config, masterAcctCreds)
+}
+
+func initService() {
+	service = svc.New(config, util)
 }

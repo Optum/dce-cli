@@ -1,19 +1,28 @@
 package configs
 
-type masterAccount struct {
-	Profile *string
+// Root contains config
+type Root struct {
+	System struct {
+		Auth struct {
+			LoginURL *string
+		}
+		MasterAccount struct {
+			Credentials struct {
+				AwsAccessKeyID     *string
+				AwsSecretAccessKey *string
+			}
+		}
+	}
+	API struct {
+		BaseURL     *string
+		Credentials struct {
+			AwsAccessKeyID     *string
+			AwsSecretAccessKey *string
+			AwsSessionToken    *string
+		}
+	}
+	Region      *string
+	GithubToken *string
 }
 
-type admin struct {
-	MasterAccount *masterAccount
-}
-
-type auth struct {
-	LoginUrl *string
-}
-
-// Config contains config
-type Config struct {
-	Admin *admin
-	Auth  *auth
-}
+var Regions = []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2"}
