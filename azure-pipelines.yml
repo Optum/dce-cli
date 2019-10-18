@@ -54,6 +54,8 @@ steps:
 - task: GithubRelease@0
   displayName: 'Create GitHub Release'
   inputs:
+    action: create
+    tagSource: 'auto'
     gitHubConnection: Github
     repositoryName: Optum/dce-cli
     isDraft: true
