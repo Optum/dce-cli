@@ -44,7 +44,7 @@ steps:
     env GOOS=windows GOARCH=amd64 go build -v -o $(windows64Dist)dce .
     zip $(windows64Dist)dce_windows_amd64.zip $(windows64Dist)dce
     env GOOS=linux GOARCH=amd64 go build -v -o $(linux64Dist)dce .
-    zip (linux64Dist)dce_linux_amd64.zip .(linux64Dist)dce
+    zip $(linux64Dist)dce_linux_amd64.zip $(linux64Dist)dce
     env GOOS=darwin GOARCH=amd64 go build -v -o $(darwin64Dist)dce .
     zip $(darwin64Dist)dce_darwin_amd64.zip $(darwin64Dist)dce
   displayName: 'Build and zip'
