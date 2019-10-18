@@ -25,7 +25,6 @@ variables:
   linux64Dist: ./dist/linux/
   darwin64Dist: ./dist/darwin/
 
-
 steps:
 
 - script: |
