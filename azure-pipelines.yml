@@ -22,14 +22,10 @@ pool:
 
 container: golang:1.13
 
-variables:
-  windows64Dist: ./dist/windows/
-  linux64Dist: ./dist/linux/
-  darwin64Dist: ./dist/darwin/
-
 steps:
 
 - script: |
+    apt-get update && apt-get install zip -y
     go version
     go get -v -t -d ./...
     if [ -f Gopkg.toml ]; then
@@ -38,17 +34,23 @@ steps:
     fi
   displayName: 'Get dependencies'
 
+
+
 - script: |
+    # etcd depdendency bug workaround. See commends in go.mod for more details.
+    go build -v .
+    rm /go/pkg/mod/github.com/coreos/etcd@v3.3.10+incompatible/client/keys.generated.go
     go test -v ./...
   displayName: 'Run tests'
 
 - script: |
-    env GOOS=windows GOARCH=amd64 go build -v -o $(windows64Dist)dce .
-    zip $(windows64Dist)dce_windows_amd64.zip $(windows64Dist)dce
-    env GOOS=linux GOARCH=amd64 go build -v -o $(linux64Dist)dce .
-    zip $(linux64Dist)dce_linux_amd64.zip $(linux64Dist)dce
-    env GOOS=darwin GOARCH=amd64 go build -v -o $(darwin64Dist)dce .
-    zip $(darwin64Dist)dce_darwin_amd64.zip $(darwin64Dist)dce
+    mkdir dist && cd dist
+    env GOOS=windows GOARCH=amd64 go build -v -o ./dce ..
+    zip -m dce_windows_amd64.zip ./dce
+    env GOOS=linux GOARCH=amd64 go build -v -o ./dce ..
+    zip -m dce_linux_amd64.zip ./dce
+    env GOOS=darwin GOARCH=amd64 go build -v -o ./dce ..
+    zip -m dce_darwin_amd64.zip ./dce
   displayName: 'Build and zip'
 
 # Publish a Github Release for tagged commits
@@ -62,6 +64,4 @@ steps:
     repositoryName: Optum/dce-cli
     isDraft: true
     assets: |
-      ./dist/windows/dce_windows_amd64.zip
-      ./dist/linux/dce_linux_amd64.zip
-      ./dist/darwin/dce_darwin_amd64.zip
+      ./dist/*
