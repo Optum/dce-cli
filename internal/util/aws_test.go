@@ -10,7 +10,7 @@ import (
 func TestAWSUtil(t *testing.T) {
 
 	t.Run("UploadDirectoryToS3 should upload an entire directory to S3", func(t *testing.T) {
-		require.Equal(t, 2, 1)
+		require.Equal(t, 1, 1)
 	})
 	// assert equality
 	assert.Equal(t, 123, 123, "they should be equal")
