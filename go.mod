@@ -3,7 +3,7 @@ module github.com/Optum/dce-cli
 go 1.13
 
 require (
-	github.com/aws/aws-sdk-go v1.25.6
+	github.com/aws/aws-sdk-go v1.25.16
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/hashicorp/terraform v0.12.10
 	github.com/manifoldco/promptui v0.3.2
@@ -17,8 +17,11 @@ require (
 	github.com/shurcooL/graphql v0.0.0-20181231061246-d48a9a75455f // indirect
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0
-	github.com/stretchr/testify v1.3.0
+	github.com/ugorji/go v1.1.4
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
-	gopkg.in/yaml.v2 v2.2.2
+	gopkg.in/yaml.v2 v2.2.4
 )
+
+// See: https://github.com/gin-gonic/gin/issues/1673#issuecomment-502203637
+replace github.com/ugorji/go v1.1.4 => github.com/ugorji/go v0.0.0-20181204163529-d75b2dcb6bc8
