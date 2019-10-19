@@ -20,7 +20,7 @@ pr:
 pool:
   vmImage: 'ubuntu-latest'
 
-  container: golang:1.13
+container: golang:1.13
 
 variables:
   windows64Dist: ./dist/windows/
