@@ -20,14 +20,14 @@ pr:
 pool:
   vmImage: 'ubuntu-latest'
 
-container: 
-  image: golang:1.13
-  options: --user root 
+# container: 
+#   image: golang:1.13
+#   options: --user root 
 
 steps:
 
 - script: |
-    apt-get update && apt-get install zip sudo -y
+    apt-get update && apt-get install zip -y
     go version
     go get -v -t -d ./...
     if [ -f Gopkg.toml ]; then
