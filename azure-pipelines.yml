@@ -38,8 +38,7 @@ steps:
 
 - script: |
     # etcd depdendency bug workaround. See commends in go.mod for more details.
-    go build -v .
-    rm /go/pkg/mod/github.com/coreos/etcd@v3.3.10+incompatible/client/keys.generated.go
+    go build -v . && rm /go/pkg/mod/github.com/coreos/etcd@v3.3.10+incompatible/client/keys.generated.go
     go test -v ./...
   displayName: 'Run tests'
 
