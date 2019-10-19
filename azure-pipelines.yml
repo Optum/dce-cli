@@ -27,7 +27,7 @@ pool:
 steps:
 
 - script: |
-    apt-get update && apt-get install zip -y
+    sudo apt-get update && apt-get install zip -y
     go version
     go get -v -t -d ./...
     if [ -f Gopkg.toml ]; then
