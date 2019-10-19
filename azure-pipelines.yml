@@ -20,6 +20,8 @@ pr:
 pool:
   vmImage: 'ubuntu-latest'
 
+  container: golang:1.13
+
 variables:
   windows64Dist: ./dist/windows/
   linux64Dist: ./dist/linux/
@@ -55,7 +57,7 @@ steps:
   displayName: 'Create GitHub Release'
   inputs:
     action: create
-    tagSource: 'auto'
+    tagSource: 'User specified tag'
     gitHubConnection: Github
     repositoryName: Optum/dce-cli
     isDraft: true
