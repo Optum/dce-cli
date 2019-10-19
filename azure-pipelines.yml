@@ -25,7 +25,7 @@ container: golang:1.13
 steps:
 
 - script: |
-    apt-get update && apt-get install zip -y
+    apt-get update && apt-get install zip sudo -y
     go version
     go get -v -t -d ./...
     if [ -f Gopkg.toml ]; then
