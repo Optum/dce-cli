@@ -22,11 +22,11 @@ pool:
 
 container: 
   image: golang:1.13
-  options: --user 0 
 
 steps:
 
 - script: |
+    su -
     apt-get update && apt-get install zip -y
     go version
     go get -v -t -d ./...
