@@ -26,6 +26,7 @@ pool:
 steps:
 
 - script: |
+    set -x
     sudo apt-get update && sudo apt-get install zip -y
     go version
     go get -v -t -d ./...
@@ -39,7 +40,8 @@ steps:
 
 - script: |
     # etcd depdendency bug workaround. See commends in go.mod for more details.
-    go build -v . && rm /go/pkg/mod/github.com/coreos/etcd@v3.3.10+incompatible/client/keys.generated.go
+    go build -v .
+    sudo rm /go/pkg/mod/github.com/coreos/etcd@v3.3.10+incompatible/client/keys.generated.go
     go test -v ./...
   displayName: 'Run tests'
 
