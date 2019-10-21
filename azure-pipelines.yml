@@ -20,9 +20,9 @@ pr:
 pool:
   vmImage: 'ubuntu-latest'
 
-# container: 
-#   image: golang:1.13
-#   options: --user root 
+container: 
+  image: golang:1.13
+  options: --user 0 
 
 steps:
 
