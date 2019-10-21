@@ -5,11 +5,11 @@ go 1.13
 // Two bugs arise during the normal build. The first is the ambiguous import error shown here...
 //
 //	cannot load github.com/ugorji/go/codec: ambiguous import: found github.com/ugorji/go/codec in multiple modules:
-//		github.com/ugorji/go v1.1.1 (/go/pkg/mod/github.com/ugorji/go@v1.1.1/codec)
+//		github.com/ugorji/go v1.1.4 (/go/pkg/mod/github.com/ugorji/go@v1.1.4/codec)
 //		github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8 (/go/pkg/mod/github.com/ugorji/go/codec@v0.0.0-20181204163529-d75b2dcb6bc8)
 //
 // ...which can be fixed by replacing the first module with the second, as suggested in https://github.com/gin-gonic/gin/issues/1673#issuecomment-502203637
-// Fixing the first bug results in the following error...
+// The following error manifests after fixing the first bug...
 //
 //	panic: codecgen version mismatch: current: 8, need 10. Re-generate file: /go/pkg/mod/github.com/coreos/etcd@v3.3.10+incompatible/client/keys.generated.go
 //

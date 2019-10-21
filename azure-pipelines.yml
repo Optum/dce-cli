@@ -20,11 +20,8 @@ pr:
 pool:
   vmImage: 'ubuntu-latest'
 
-# container: 
-#   image: golang:1.13
-#   options: --name ThisContainer
-
 steps:
+
 - task: GoTool@0
   inputs:
     version: '1.13'
@@ -36,8 +33,6 @@ steps:
     go version
     go get -v -t -d ./...
   displayName: 'Get dependencies'
-
-
 
 - script: |
     set -x
