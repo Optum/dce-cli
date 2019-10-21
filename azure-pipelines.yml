@@ -20,20 +20,22 @@ pr:
 pool:
   vmImage: 'ubuntu-latest'
 
-# container: 
-#   image: golang:1.13
+container: 
+  image: golang:1.13
 
 steps:
 
 - script: |
     set -x
-    sudo apt-get update && sudo apt-get install zip -y
+    apt-get update
+    apt-get -y install sudo
+    apt-get install zip -y
     go version
     go get -v -t -d ./...
-    if [ -f Gopkg.toml ]; then
-        curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-        dep ensure
-    fi
+    # if [ -f Gopkg.toml ]; then
+    #     curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+    #     dep ensure
+    # fi
   displayName: 'Get dependencies'
 
 
