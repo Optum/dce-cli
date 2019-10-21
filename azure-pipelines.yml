@@ -49,7 +49,7 @@ steps:
     set -x
     # etcd depdendency bug workaround. See commends in go.mod for more details.
     go build -v .
-    sudo rm /go/pkg/mod/github.com/coreos/etcd@v3.3.10+incompatible/client/keys.generated.go
+    sudo rm /home/vsts/go/pkg/mod/github.com/coreos/etcd@v3.3.10+incompatible/client/keys.generated.go
     go test -v ./...
   displayName: 'Run tests'
 
