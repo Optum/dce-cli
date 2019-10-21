@@ -20,17 +20,20 @@ pr:
 pool:
   vmImage: 'ubuntu-latest'
 
-container: 
-  image: golang:1.13
-  options: --name ThisContainer
+# container: 
+#   image: golang:1.13
+#   options: --name ThisContainer
 
 steps:
+- task: GoTool@0
+  inputs:
+    version: '1.13'
 
 - script: |
     set -x
-    docker exec ThisContainer -u 0
+    # docker exec ThisContainer -u 0
     apt-get update
-    apt-get -y install sudo
+    # apt-get -y install sudo
     apt-get install zip -y
     go version
     go get -v -t -d ./...
