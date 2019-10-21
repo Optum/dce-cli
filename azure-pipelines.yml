@@ -20,6 +20,9 @@ pr:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  TagName: ""
+
 steps:
 
 - task: GoTool@0
@@ -53,6 +56,12 @@ steps:
     zip -m dce_darwin_amd64.zip ./dce
   displayName: 'Build and zip'
 
+- script: |
+    $TagArray= git tag -l v*
+    $TagName = $TagArray[$TagArray.Count – 1]
+  displayName: 'Retrieve Git Tag Name'
+
+
 # Publish a Github Release for tagged commits
 # See https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/github-release?view=azure-devops
 - task: GithubRelease@0
@@ -60,6 +69,7 @@ steps:
   inputs:
     action: create
     tagSource: 'auto'
+    tag: $(TagName)
     gitHubConnection: Github
     repositoryName: Optum/dce-cli
     isDraft: true
