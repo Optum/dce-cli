@@ -31,16 +31,10 @@ steps:
 
 - script: |
     set -x
-    # docker exec ThisContainer -u 0
     apt-get update
-    # apt-get -y install sudo
     apt-get install zip -y
     go version
     go get -v -t -d ./...
-    # if [ -f Gopkg.toml ]; then
-    #     curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-    #     dep ensure
-    # fi
   displayName: 'Get dependencies'
 
 
@@ -70,7 +64,7 @@ steps:
   displayName: 'Create GitHub Release'
   inputs:
     action: create
-    tagSource: 'User specified tag'
+    tagSource: 'auto'
     gitHubConnection: Github
     repositoryName: Optum/dce-cli
     isDraft: true
