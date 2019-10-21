@@ -39,6 +39,7 @@ steps:
 
 
 - script: |
+    set -x
     # etcd depdendency bug workaround. See commends in go.mod for more details.
     go build -v .
     sudo rm /go/pkg/mod/github.com/coreos/etcd@v3.3.10+incompatible/client/keys.generated.go
@@ -46,6 +47,7 @@ steps:
   displayName: 'Run tests'
 
 - script: |
+    set -x
     mkdir dist && cd dist
     env GOOS=windows GOARCH=amd64 go build -v -o ./dce ..
     zip -m dce_windows_amd64.zip ./dce
