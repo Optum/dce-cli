@@ -4,7 +4,7 @@ This is the CLI for [DCE](https://github.com/Optum/Redbox) by Optum. For usage i
 
 # Quick Start
 
-1. Download the appropriate executabl3 for your OS from the [latest release](https://github.com/Optum/dce-cli/releases/latest). e.g. for mac, you should download dce_darwin_amd64.zip
+1. Download the appropriate executable for your OS from the [latest release](https://github.com/Optum/dce-cli/releases/latest). e.g. for mac, you should download dce_darwin_amd64.zip
 
 2. Unzip the artifact and move the executable to a directory on your PATH, e.g.
 
@@ -64,4 +64,4 @@ dce accounts add --account-id XXXXXXXXXXXX --admin-role-arn arn:aws:iam::XXXXXXX
 
 ```
 dce leases create --budget-amount 100.0 --budget-currency USD --email jane.doe@email.com --principle-id jdoe99
-```g
+```
