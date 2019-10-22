@@ -28,8 +28,6 @@ steps:
 
 - script: |
     set -x
-    apt-get update
-    apt-get install zip -y
     go version
     go get -v -t -d ./...
   displayName: 'Get dependencies'
