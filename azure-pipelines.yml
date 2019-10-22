@@ -58,7 +58,7 @@ steps:
 
 - script: |
     set -x
-    $TagName=$(git describe --abbrev=0)
+    TagName=$(git describe --abbrev=0)
   displayName: 'Retrieve Git Tag Name'
 
 
