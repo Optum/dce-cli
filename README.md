@@ -51,8 +51,8 @@ This is the CLI for [DCE](https://github.com/Optum/Redbox) by Optum. For usage i
 6. Edit your dce config file with the api gateway url that was just deployed to your master account. This can be found in the master account under `API Gateway > (The API with "dce" in the title) > Stages`. It is listed as the "Invoke URL".
 
 7. Prepare a second AWS account to be your first "DCE Child Account"
-  - Create an IAM role with `AdministratorAccess` and a trust relationship to your DCE Master Accounts
-  - Create an account alias by clicking the 'customize' link in the IAM dashboard of the child account
+    - Create an IAM role with `AdministratorAccess` and a trust relationship to your DCE Master Accounts
+    - Create an account alias by clicking the 'customize' link in the IAM dashboard of the child account
 
 8. Use the `dce accounts add` command to add your child account to the "DCE Accounts Pool"
 
