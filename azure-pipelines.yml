@@ -69,7 +69,7 @@ steps:
   inputs:
     action: create
     tagSource: 'auto'
-    tag: $(TagName)
+    title: $TagName
     gitHubConnection: Github
     repositoryName: Optum/dce-cli
     isDraft: true
