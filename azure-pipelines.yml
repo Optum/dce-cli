@@ -62,6 +62,5 @@ steps:
     tagSource: 'auto'
     gitHubConnection: Github
     repositoryName: Optum/dce-cli
-    isDraft: true
     assets: |
       ./dist/*
