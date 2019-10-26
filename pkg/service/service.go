@@ -2,13 +2,15 @@ package service
 
 import (
 	"github.com/Optum/dce-cli/configs"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	utl "github.com/Optum/dce-cli/internal/util"
 )
 
 // ServiceContainer is a service that injects its config and util into other services
 type ServiceContainer struct {
-	Config *configs.Root
-	Util   *utl.UtilContainer
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
+	Util        *utl.UtilContainer
 	Deployer
 	Accounter
 	Leaser
@@ -16,10 +18,16 @@ type ServiceContainer struct {
 	Authenticater
 }
 
+var Log observ.Logger
+
 // New returns a new ServiceContainer given config
-func New(config *configs.Root, util *utl.UtilContainer) *ServiceContainer {
+func New(config *configs.Root, observation *observ.ObservationContainer, util *utl.UtilContainer) *ServiceContainer {
+
+	Log = observation.Logger
+
 	return &ServiceContainer{
 		Config:        config,
+		Observation:   observation,
 		Util:          util,
 		Deployer:      &DeployService{Config: config, Util: util},
 		Accounter:     &AccountsService{Config: config, Util: util},

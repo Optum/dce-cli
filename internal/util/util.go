@@ -2,32 +2,45 @@ package util
 
 import (
 	"github.com/Optum/dce-cli/configs"
+	"github.com/Optum/dce-cli/internal/constants"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 )
 
 type UtilContainer struct {
-	Config *configs.Root
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
 	AWSer
 	APIer
 	Terraformer
 	Githuber
+	Prompter
+	FileSystemer
 }
 
+var Log observ.Logger
+
 // New returns a new Util given config
-func New(config *configs.Root, awsCreds *credentials.Credentials) *UtilContainer {
+func New(config *configs.Root, observation *observ.ObservationContainer, awsCreds *credentials.Credentials) *UtilContainer {
+
+	Log = observation.Logger
+
 	var session = session.New(&aws.Config{
 		Credentials: awsCreds,
 		Region:      config.Region,
 	})
 
 	return &UtilContainer{
-		Config:      config,
-		AWSer:       &AWSUtil{Config: config, Session: session},
-		APIer:       &APIUtil{Config: config, Session: session},
-		Terraformer: &TerraformUtil{Config: config},
-		Githuber:    &GithubUtil{Config: config},
+		Config:       config,
+		Observation:  observation,
+		AWSer:        &AWSUtil{Config: config, Session: session},
+		APIer:        &APIUtil{Config: config, Session: session},
+		Terraformer:  &TerraformUtil{Config: config},
+		Githuber:     &GithubUtil{Config: config},
+		Prompter:     &PromptUtil{Config: config},
+		FileSystemer: &FileSystemUtil{Config: config, DefaultConfigFileName: constants.DefaultConfigFileName},
 	}
 }
 
@@ -48,4 +61,19 @@ type Terraformer interface {
 
 type Githuber interface {
 	DownloadGithubReleaseAsset(assetName string)
+}
+
+type Prompter interface {
+	PromptBasic(label string, validator func(input string) error) *string
+	PromptSelect(label string, items []string) *string
+}
+
+type FileSystemer interface {
+	WriteToYAMLFile(path string, _struct interface{})
+	GetDefaultConfigFile() string
+	GetHomeDir() string
+	IsExistingFile(path string) bool
+}
+
+type Logger interface {
 }

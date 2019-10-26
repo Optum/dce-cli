@@ -1,4 +1,4 @@
-package util
+package constants
 
 const RemoteBackend string = `provider "aws" {
 	region = "us-east-1"

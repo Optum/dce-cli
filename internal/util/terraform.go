@@ -1,10 +1,10 @@
 package util
 
 import (
-	"log"
 	"os"
 
 	"github.com/Optum/dce-cli/configs"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	tfBackendInit "github.com/hashicorp/terraform/backend/init"
 	tfCommand "github.com/hashicorp/terraform/command"
 	tfDiscovery "github.com/hashicorp/terraform/svchost/disco"
@@ -13,12 +13,13 @@ import (
 )
 
 type TerraformUtil struct {
-	Config *configs.Root
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
 }
 
 // Init initialized a terraform working directory
 func (u *TerraformUtil) Init(args []string) {
-	log.Println("Running terraform init")
+	Log.Println("Running terraform init")
 
 	services := tfDiscovery.NewWithCredentialsSource(nil)
 	tfBackendInit.Init(services)
@@ -33,7 +34,7 @@ func (u *TerraformUtil) Init(args []string) {
 
 // Apply applies terraform template with given namespace
 func (u *TerraformUtil) Apply(namespace string) {
-	log.Println("Running terraform apply with namespace: " + namespace)
+	Log.Println("Running terraform apply with namespace: " + namespace)
 	tfApply := &tfCommand.ApplyCommand{
 		Meta: tfCommand.Meta{
 			Ui: getTerraformUI(),
@@ -47,7 +48,7 @@ func (u *TerraformUtil) Apply(namespace string) {
 
 // GetOutput gets terraform output value for provided key
 func (u *TerraformUtil) GetOutput(key string) string {
-	log.Println("Retrieving terraform output for: " + key)
+	Log.Println("Retrieving terraform output for: " + key)
 	outputCaptorUI := &UIOutputCaptor{
 		BasicUi: &cli.BasicUi{
 			Reader:      os.Stdin,

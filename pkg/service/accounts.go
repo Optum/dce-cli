@@ -1,9 +1,8 @@
 package service
 
 import (
-	"log"
-
 	"github.com/Optum/dce-cli/configs"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/Optum/dce-cli/internal/util"
 	utl "github.com/Optum/dce-cli/internal/util"
 )
@@ -11,8 +10,9 @@ import (
 const accountsPath = "/accounts"
 
 type AccountsService struct {
-	Config *configs.Root
-	Util   *utl.UtilContainer
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
+	Util        *utl.UtilContainer
 }
 
 func (s *AccountsService) AddAccount(accountID, adminRoleARN string) {
@@ -30,9 +30,9 @@ func (s *AccountsService) AddAccount(accountID, adminRoleARN string) {
 	})
 
 	if response.StatusCode == 201 {
-		log.Println("Account added to DCE accounts pool")
+		Log.Println("Account added to DCE accounts pool")
 	} else {
-		log.Println("DCE Responded with an error: ", response)
+		Log.Println("DCE Responded with an error: ", response)
 	}
 }
 
@@ -45,8 +45,8 @@ func (s *AccountsService) RemoveAccount(accountID string) {
 	})
 
 	if response.StatusCode == 204 {
-		log.Println("Account removed from DCE accounts pool")
+		Log.Println("Account removed from DCE accounts pool")
 	} else {
-		log.Println("DCE Responded with an error: ", response)
+		Log.Println("DCE Responded with an error: ", response)
 	}
 }

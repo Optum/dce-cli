@@ -2,12 +2,12 @@ package util
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/Optum/dce-cli/configs"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/aws/aws-sdk-go/aws"
 	awsSession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
@@ -15,8 +15,9 @@ import (
 )
 
 type AWSUtil struct {
-	Config  *configs.Root
-	Session *awsSession.Session
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
+	Session     *awsSession.Session
 }
 
 func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix string) ([]string, []string) {
@@ -24,7 +25,7 @@ func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix st
 	go func() {
 		// Gather the files to upload by walking the path recursively
 		if err := filepath.Walk(localPath, walker.Walk); err != nil {
-			log.Fatalln("Walk failed:", err)
+			Log.Fatalln("Walk failed:", err)
 		}
 		close(walker)
 	}()
@@ -36,11 +37,11 @@ func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix st
 	for path := range walker {
 		rel, err := filepath.Rel(localPath, path)
 		if err != nil {
-			log.Fatalln("Unable to get relative path:", path, err)
+			Log.Fatalln("Unable to get relative path:", path, err)
 		}
 		file, err := os.Open(path)
 		if err != nil {
-			log.Println("Failed opening file", path, err)
+			Log.Println("Failed opening file", path, err)
 			continue
 		}
 		defer file.Close()
@@ -50,9 +51,9 @@ func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix st
 			Body:   file,
 		})
 		if err != nil {
-			log.Fatalln("Failed to upload", path, err)
+			Log.Fatalln("Failed to upload", path, err)
 		}
-		log.Println("Uploaded", path, result.Location)
+		Log.Println("Uploaded", path, result.Location)
 
 		parent := filepath.Base(filepath.Dir(path))
 		if parent == "lambda" {
@@ -83,7 +84,7 @@ func (u *AWSUtil) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string,
 	for _, l := range lambdaNames {
 
 		name := strings.TrimSuffix(l, ".zip")
-		log.Println("Updating lambda config for: ", name)
+		Log.Println("Updating lambda config for: ", name)
 
 		input := &lambda.UpdateFunctionCodeInput{
 			FunctionName: aws.String(name + "-" + namespace),
@@ -97,7 +98,7 @@ func (u *AWSUtil) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string,
 			panic(err)
 		}
 
-		log.Println("Input: ", string(out))
+		Log.Println("Input: ", string(out))
 
 		updateLambdaConfig, _ := client.UpdateFunctionCode(input)
 
@@ -106,6 +107,6 @@ func (u *AWSUtil) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string,
 			panic(err)
 		}
 
-		log.Println("Updated Lambda Config: ", string(out))
+		Log.Println("Updated Lambda Config: ", string(out))
 	}
 }

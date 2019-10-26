@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Optum/dce-cli/configs"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	awsSession "github.com/aws/aws-sdk-go/aws/session"
 	sigv4 "github.com/aws/aws-sdk-go/aws/signer/v4"
@@ -41,8 +42,9 @@ type ApiResponse struct {
 }
 
 type APIUtil struct {
-	Config  *configs.Root
-	Session *awsSession.Session
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
+	Session     *awsSession.Session
 }
 
 //Request sends sig4 signed requests to api

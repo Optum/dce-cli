@@ -20,10 +20,12 @@ import (
 	"os"
 
 	"github.com/Optum/dce-cli/configs"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	utl "github.com/Optum/dce-cli/internal/util"
 	svc "github.com/Optum/dce-cli/pkg/service"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/mitchellh/go-homedir"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -32,9 +34,11 @@ var cfgFile string
 var config *configs.Root = &configs.Root{}
 var service *svc.ServiceContainer
 var util *utl.UtilContainer
+var observation *observ.ObservationContainer
 
 func init() {
-	cobra.OnInitialize(initConfig, initUtil, initService)
+	initConfig()
+	cobra.OnInitialize(initObservation, initUtil, initService)
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dce.yaml)")
 }
 
@@ -82,6 +86,16 @@ func initConfig() {
 	viper.BindEnv("githubtoken", "GITHUB_TOKEN")
 
 	viper.Unmarshal(config)
+	if config == nil {
+		fmt.Println("No configuration detected, beginning initialization...")
+		service.InitializeDCE(cfgFile)
+	}
+}
+
+func initObservation() {
+	logrusInstance := logrus.New()
+
+	observation = observ.New(logrusInstance)
 }
 
 func initUtil() {
@@ -91,9 +105,9 @@ func initUtil() {
 		"",
 	)
 
-	util = utl.New(config, masterAcctCreds)
+	util = utl.New(config, observation, masterAcctCreds)
 }
 
 func initService() {
-	service = svc.New(config, util)
+	service = svc.New(config, observation, util)
 }

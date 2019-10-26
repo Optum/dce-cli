@@ -1,93 +1,51 @@
 package service
 
 import (
-	"io/ioutil"
-	"log"
-
 	"github.com/Optum/dce-cli/configs"
-	"github.com/manifoldco/promptui"
-	"github.com/mitchellh/go-homedir"
-	"gopkg.in/yaml.v2"
+	"github.com/Optum/dce-cli/internal/constants"
+	observ "github.com/Optum/dce-cli/internal/observation"
+	utl "github.com/Optum/dce-cli/internal/util"
 )
 
-type InitService struct{}
-
-var defaultConfigFileName string = ".dce.yaml"
+type InitService struct {
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
+	Util        *utl.UtilContainer
+}
 
 func (s *InitService) InitializeDCE(cfgFile string) {
 	if cfgFile == "" {
-		cfgFile = getDefaultConfigFile()
+		cfgFile = s.Util.GetDefaultConfigFile()
 	}
 
-	config := promptUserForConfig()
+	config := s.promptUserForConfig()
 
-	writeNewConfigFile(cfgFile, config)
+	if s.Util.IsExistingFile(cfgFile) {
+		if *s.Util.PromptBasic(constants.PromptOverwiteConfig, nil) != "yes" {
+			Log.Endln("Aborting")
+		}
+	}
 
-	log.Println("Config file created at: " + cfgFile)
+	s.Util.WriteToYAMLFile(cfgFile, config)
+
+	Log.Infoln("Config file created at: " + cfgFile)
 }
 
-func promptUserForConfig() *configs.Root {
-	config := configs.Root{}
+func (s *InitService) promptUserForConfig() *configs.Root {
+	newConfig := configs.Root{}
 
 	// System Config
-	config.System.Auth.LoginURL = promptBasic("Authentication URL (SSO)", nil)
-	config.System.MasterAccount.Credentials.AwsAccessKeyID = promptBasic("AWS ACCESS KEY ID for the DCE Master account", nil)
-	config.System.MasterAccount.Credentials.AwsSecretAccessKey = promptBasic("AWS SECRET ACCESS KEY for the DCE Master account", nil)
+	newConfig.System.Auth.LoginURL = s.Util.PromptBasic("Authentication URL (SSO)", nil)
+	newConfig.System.MasterAccount.Credentials.AwsAccessKeyID = s.Util.PromptBasic("AWS ACCESS KEY ID for the DCE Master account", nil)
+	newConfig.System.MasterAccount.Credentials.AwsSecretAccessKey = s.Util.PromptBasic("AWS SECRET ACCESS KEY for the DCE Master account", nil)
 
 	// API Config
-	config.Region = promptSelect("What region is DCE deployed in?", configs.Regions)
-	config.API.BaseURL = promptBasic("What is the base url of the DCE API (example: https://abcde12345.execute-api.us-east-1.amazonaws.com/dev)?", nil)
-	config.API.Credentials.AwsAccessKeyID = promptBasic("AWS ACCESS KEY ID for accessing the DCE API. (This is usually obtained by running DCE auth. Leave blank to use AWS_ACCESS_KEY_ID env variable.)", nil)
-	config.API.Credentials.AwsSecretAccessKey = promptBasic("AWS SECRET ACCESS KEY for accessing the DCE API. (This is usually obtained by running DCE auth. Leave blank to use AWS_SECRET_ACCESS_KEY env variable.)", nil)
-	config.API.Credentials.AwsSessionToken = promptBasic("AWS SESSION TOKEN for accessing the DCE API. (This is usually obtained by running DCE auth. Leave blank to use AWS_SESSION_TOKEN env variable.)", nil)
+	newConfig.Region = s.Util.PromptSelect("What region is DCE deployed in?", configs.Regions)
+	newConfig.API.BaseURL = s.Util.PromptBasic("What is the base url of the DCE API (example: https://abcde12345.execute-api.us-east-1.amazonaws.com/dev)?", nil)
+	newConfig.API.Credentials.AwsAccessKeyID = s.Util.PromptBasic("AWS ACCESS KEY ID for accessing the DCE API. (This is usually obtained by running DCE auth. Leave blank to use AWS_ACCESS_KEY_ID env variable.)", nil)
+	newConfig.API.Credentials.AwsSecretAccessKey = s.Util.PromptBasic("AWS SECRET ACCESS KEY for accessing the DCE API. (This is usually obtained by running DCE auth. Leave blank to use AWS_SECRET_ACCESS_KEY env variable.)", nil)
+	newConfig.API.Credentials.AwsSessionToken = s.Util.PromptBasic("AWS SESSION TOKEN for accessing the DCE API. (This is usually obtained by running DCE auth. Leave blank to use AWS_SESSION_TOKEN env variable.)", nil)
 
-	config.GithubToken = promptBasic("Github token used to download releases from github. Leave blank to use GITHUB_TOKEN env variable.", nil)
-	return &config
-}
-
-func promptBasic(label string, validator func(input string) error) *string {
-	prompt := promptui.Prompt{
-		Label:    label,
-		Validate: validator,
-	}
-	input, err := prompt.Run()
-	if err != nil {
-		log.Fatalf("Prompt failed %v\n", err)
-	}
-
-	return &input
-}
-
-func promptSelect(label string, items []string) *string {
-	prompt := promptui.Select{
-		Label: label,
-		Items: items,
-	}
-	_, input, err := prompt.Run()
-	if err != nil {
-		log.Fatalf("Prompt failed %v\n", err)
-	}
-
-	return &input
-}
-
-func writeNewConfigFile(cfgFile string, config *configs.Root) {
-
-	cfgYaml, err := yaml.Marshal(config)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-
-	err = ioutil.WriteFile(cfgFile, cfgYaml, 0644)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-}
-
-func getDefaultConfigFile() string {
-	parentDir, err := homedir.Dir()
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-	return parentDir + "/" + defaultConfigFileName
+	newConfig.GithubToken = s.Util.PromptBasic("Github token used to download releases from github. Leave blank to use GITHUB_TOKEN env variable.", nil)
+	return &newConfig
 }

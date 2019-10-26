@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 
 	"github.com/Optum/dce-cli/configs"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 )
@@ -17,7 +17,8 @@ const RepoName = "Redbox"
 const RepoOwner = "Optum"
 
 type GithubUtil struct {
-	Config *configs.Root
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
 }
 
 func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string) {
@@ -54,24 +55,24 @@ func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string) {
 	githubClient := githubv4.NewClient(oauthHTTPClient)
 	err := githubClient.Query(context.Background(), &query, variables)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		Log.Fatalf("error: %v", err)
 	}
 	fmt.Println("    Query Response:", query.Repository.Releases.Nodes[0].ReleaseAssets.Nodes[0].URL)
 
 	req, err := http.NewRequest("GET", query.Repository.Releases.Nodes[0].ReleaseAssets.Nodes[0].URL, nil)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		Log.Fatalf("error: %v", err)
 	}
 	defer resp.Body.Close()
 
 	out, err := os.Create(assetName)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		Log.Fatalf("error: %v", err)
 	}
 	defer out.Close()
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		Log.Fatalf("error: %v", err)
 	}
 }
