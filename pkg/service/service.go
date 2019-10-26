@@ -18,12 +18,12 @@ type ServiceContainer struct {
 	Authenticater
 }
 
-var Log observ.Logger
+var log observ.Logger
 
 // New returns a new ServiceContainer given config
 func New(config *configs.Root, observation *observ.ObservationContainer, util *utl.UtilContainer) *ServiceContainer {
 
-	Log = observation.Logger
+	log = observation.Logger
 
 	return &ServiceContainer{
 		Config:        config,

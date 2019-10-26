@@ -32,14 +32,14 @@ func (s *DeployService) Deploy(namespace string) {
 		namespace = "dce-" + s.getRandString(6)
 	}
 
-	// Log.Println("Creating terraform remote state backend infrastructure")
+	// log.Println("Creating terraform remote state backend infrastructure")
 	stateBucket := s.createRemoteStateBackend(namespace)
 
-	Log.Println("Creating DCE infrastructure")
+	log.Println("Creating DCE infrastructure")
 	artifactsBucket := s.createDceInfra(namespace, stateBucket)
-	Log.Println("Artifacts bucket = ", artifactsBucket)
+	log.Println("Artifacts bucket = ", artifactsBucket)
 
-	Log.Println("Deploying code assets to DCE infrastructure")
+	log.Println("Deploying code assets to DCE infrastructure")
 	s.deployCodeAssets(namespace, artifactsBucket)
 }
 
@@ -48,14 +48,14 @@ func (s *DeployService) createRemoteStateBackend(namespace string) string {
 	defer os.RemoveAll(tmpDir)
 	defer os.Chdir(originDir)
 
-	// Log.Println("Creating terraform remote backend template (init.tf)")
+	// log.Println("Creating terraform remote backend template (init.tf)")
 	fileName := tmpDir + "/" + "init.tf"
 	err := ioutil.WriteFile(fileName, []byte(constants.RemoteBackend), 0644)
 	if err != nil {
-		Log.Fatalf("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 
-	Log.Println("Initializing terraform working directory and building remote state infrastructure")
+	log.Println("Initializing terraform working directory and building remote state infrastructure")
 	s.Util.Init([]string{})
 	if namespace != "" {
 		s.Util.Terraformer.Apply(namespace)
@@ -63,9 +63,9 @@ func (s *DeployService) createRemoteStateBackend(namespace string) string {
 		s.Util.Terraformer.Apply("dce-default-" + s.getRandString(8))
 	}
 
-	Log.Println("Retrieving remote state bucket name from terraform outputs")
+	log.Println("Retrieving remote state bucket name from terraform outputs")
 	stateBucket := s.Util.Terraformer.GetOutput("bucket")
-	Log.Println("Remote state bucket = ", stateBucket)
+	log.Println("Remote state bucket = ", stateBucket)
 
 	return stateBucket
 }
@@ -75,28 +75,28 @@ func (s *DeployService) createDceInfra(namespace string, stateBucket string) str
 	defer os.RemoveAll(tmpDir)
 	defer os.Chdir(originDir)
 
-	Log.Println("Downloading DCE terraform modules")
+	log.Println("Downloading DCE terraform modules")
 	s.Util.Githuber.DownloadGithubReleaseAsset(ArtifactsFileName)
 	err := archiver.Unarchive(ArtifactsFileName, ".")
 	if err != nil {
-		Log.Fatalf("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 	os.Remove(ArtifactsFileName)
 	files, err := ioutil.ReadDir("./")
 	if len(files) != 1 || !files[0].IsDir() {
-		Log.Fatalf("Unexpected content in DCE assets archive")
+		log.Fatalf("Unexpected content in DCE assets archive")
 	}
 	os.Chdir(files[0].Name())
 
-	Log.Println("Initializing terraform working directory")
+	log.Println("Initializing terraform working directory")
 	s.Util.Terraformer.Init([]string{"-backend-config=bucket=" + stateBucket, "-backend-config=key=local-tf-state"})
 
-	Log.Println("Applying DCE infrastructure")
+	log.Println("Applying DCE infrastructure")
 	s.Util.Terraformer.Apply(namespace)
 
-	Log.Println("Retrieving artifacts bucket name from terraform outputs")
+	log.Println("Retrieving artifacts bucket name from terraform outputs")
 	artifactsBucket := s.Util.Terraformer.GetOutput("artifacts_bucket_name")
-	Log.Println("artifacts bucket name = ", artifactsBucket)
+	log.Println("artifacts bucket name = ", artifactsBucket)
 
 	return artifactsBucket
 }
@@ -106,21 +106,21 @@ func (s *DeployService) deployCodeAssets(deployNamespace string, artifactsBucket
 	defer os.RemoveAll(tmpDir)
 	defer os.Chdir(originDir)
 
-	Log.Println("Downloading DCE code assets")
+	log.Println("Downloading DCE code assets")
 	s.Util.Githuber.DownloadGithubReleaseAsset(AssetsFileName)
 	err := archiver.Unarchive(AssetsFileName, ".")
 	if err != nil {
-		Log.Fatalf("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 	os.Remove(AssetsFileName)
 	files, err := ioutil.ReadDir("./")
 	if len(files) != 2 || !files[0].IsDir() || !files[1].IsDir() {
-		Log.Fatalf("Unexpected content in DCE assets archive")
+		log.Fatalf("Unexpected content in DCE assets archive")
 	}
 
 	lambdas, codebuilds := s.Util.UploadDirectoryToS3(".", artifactsBucket, "")
-	Log.Println("Uploaded lambdas to S3: ", lambdas)
-	Log.Println("Uploaded codebuilds to S3: ", codebuilds)
+	log.Println("Uploaded lambdas to S3: ", lambdas)
+	log.Println("Uploaded codebuilds to S3: ", codebuilds)
 
 	s.Util.UpdateLambdasFromS3Assets(lambdas, artifactsBucket, deployNamespace)
 
@@ -128,15 +128,15 @@ func (s *DeployService) deployCodeAssets(deployNamespace string, artifactsBucket
 }
 
 func (s *DeployService) mvToTempDir(prefix string) (string, string) {
-	// Log.Println("Creating temporary working directory")
+	// log.Println("Creating temporary working directory")
 	destinationDir, err := ioutil.TempDir("", prefix)
 	if err != nil {
-		Log.Fatalln(err)
+		log.Fatalln(err)
 	}
-	// Log.Println("	-->" + destinationDir)
+	// log.Println("	-->" + destinationDir)
 	originDir, err := os.Getwd()
 	if err != nil {
-		Log.Fatalln(err)
+		log.Fatalln(err)
 	}
 	os.Chdir(destinationDir)
 	return destinationDir, originDir

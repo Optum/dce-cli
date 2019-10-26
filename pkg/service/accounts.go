@@ -30,9 +30,9 @@ func (s *AccountsService) AddAccount(accountID, adminRoleARN string) {
 	})
 
 	if response.StatusCode == 201 {
-		Log.Println("Account added to DCE accounts pool")
+		log.Println("Account added to DCE accounts pool")
 	} else {
-		Log.Println("DCE Responded with an error: ", response)
+		log.Println("DCE Responded with an error: ", response)
 	}
 }
 
@@ -45,8 +45,8 @@ func (s *AccountsService) RemoveAccount(accountID string) {
 	})
 
 	if response.StatusCode == 204 {
-		Log.Println("Account removed from DCE accounts pool")
+		log.Println("Account removed from DCE accounts pool")
 	} else {
-		Log.Println("DCE Responded with an error: ", response)
+		log.Println("DCE Responded with an error: ", response)
 	}
 }

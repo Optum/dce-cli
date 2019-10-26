@@ -18,7 +18,7 @@ func (u *PromptUtil) PromptBasic(label string, validator func(input string) erro
 	}
 	input, err := prompt.Run()
 	if err != nil {
-		Log.Fatalf("Prompt failed %v\n", err)
+		log.Fatalf("Prompt failed %v\n", err)
 	}
 
 	return &input
@@ -31,7 +31,7 @@ func (u *PromptUtil) PromptSelect(label string, items []string) *string {
 	}
 	_, input, err := prompt.Run()
 	if err != nil {
-		Log.Fatalf("Prompt failed %v\n", err)
+		log.Fatalf("Prompt failed %v\n", err)
 	}
 
 	return &input

@@ -27,8 +27,8 @@ func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, bu
 	}
 
 	leasesFullURL := *s.Config.API.BaseURL + LeasesPath
-	// Log.Println("Posting to: ", leasesFullURL)
-	// Log.Println("Post body: ", requestBody)
+	// log.Println("Posting to: ", leasesFullURL)
+	// log.Println("Post body: ", requestBody)
 
 	response := s.Util.Request(&utl.ApiRequestInput{
 		Method: "POST",
@@ -39,9 +39,9 @@ func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, bu
 
 	// body, _ := ioutil.ReadAll(response.Body)
 	if response.StatusCode == 201 {
-		Log.Println("Lease created for jdoe99")
+		log.Println("Lease created for jdoe99")
 	} else {
-		Log.Println("DCE Responded with an error: ", response)
+		log.Println("DCE Responded with an error: ", response)
 	}
 }
 
@@ -61,22 +61,22 @@ func (s *LeasesService) EndLease(accountID, principleID string) {
 	})
 
 	if response.StatusCode == 200 {
-		Log.Println("Lease ended")
+		log.Println("Lease ended")
 	} else {
-		Log.Println("DCE Responded with an error: ", response)
+		log.Println("DCE Responded with an error: ", response)
 	}
 }
 
 func (s *LeasesService) LoginToLease(loginAcctID, loginLeaseID string, loginOpenBrowser bool) {
 	if loginAcctID != "" && loginLeaseID != "" {
-		Log.Println("Please specify either --lease-id or --acctount-id, not both.")
+		log.Println("Please specify either --lease-id or --acctount-id, not both.")
 		return
 	}
 	if loginAcctID == "" && loginLeaseID == "" {
-		Log.Println("Please specify either --lease-id or --acctount-id")
+		log.Println("Please specify either --lease-id or --acctount-id")
 		return
 	}
-	Log.Println("Logging into a leased DCE account")
+	log.Println("Logging into a leased DCE account")
 
 	var leaseLoginURL string
 	if loginAcctID != "" {
@@ -86,7 +86,7 @@ func (s *LeasesService) LoginToLease(loginAcctID, loginLeaseID string, loginOpen
 		leaseLoginURL = *s.Config.API.BaseURL + "?leaseID=" + loginLeaseID
 	}
 
-	Log.Println("Requesting leased account credentials from: ", leaseLoginURL)
+	log.Println("Requesting leased account credentials from: ", leaseLoginURL)
 	response := s.Util.Request(&utl.ApiRequestInput{
 		Method: "GET",
 		Url:    leaseLoginURL,
@@ -106,7 +106,7 @@ func (s *LeasesService) LoginToLease(loginAcctID, loginLeaseID string, loginOpen
 	json.Unmarshal(body, &leaseCreds)
 
 	if loginOpenBrowser {
-		Log.Println("Opening AWS Console in Web Browser")
+		log.Println("Opening AWS Console in Web Browser")
 		var consoleURL string
 
 		// Build aws console url here
@@ -114,6 +114,6 @@ func (s *LeasesService) LoginToLease(loginAcctID, loginLeaseID string, loginOpen
 
 		browser.OpenURL(consoleURL)
 	} else {
-		Log.Println(leaseCreds)
+		log.Println(leaseCreds)
 	}
 }

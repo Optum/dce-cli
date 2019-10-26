@@ -19,7 +19,7 @@ type TerraformUtil struct {
 
 // Init initialized a terraform working directory
 func (u *TerraformUtil) Init(args []string) {
-	Log.Println("Running terraform init")
+	log.Println("Running terraform init")
 
 	services := tfDiscovery.NewWithCredentialsSource(nil)
 	tfBackendInit.Init(services)
@@ -34,7 +34,7 @@ func (u *TerraformUtil) Init(args []string) {
 
 // Apply applies terraform template with given namespace
 func (u *TerraformUtil) Apply(namespace string) {
-	Log.Println("Running terraform apply with namespace: " + namespace)
+	log.Println("Running terraform apply with namespace: " + namespace)
 	tfApply := &tfCommand.ApplyCommand{
 		Meta: tfCommand.Meta{
 			Ui: getTerraformUI(),
@@ -48,7 +48,7 @@ func (u *TerraformUtil) Apply(namespace string) {
 
 // GetOutput gets terraform output value for provided key
 func (u *TerraformUtil) GetOutput(key string) string {
-	Log.Println("Retrieving terraform output for: " + key)
+	log.Println("Retrieving terraform output for: " + key)
 	outputCaptorUI := &UIOutputCaptor{
 		BasicUi: &cli.BasicUi{
 			Reader:      os.Stdin,

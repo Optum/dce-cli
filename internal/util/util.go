@@ -20,12 +20,12 @@ type UtilContainer struct {
 	FileSystemer
 }
 
-var Log observ.Logger
+var log observ.Logger
 
 // New returns a new Util given config
 func New(config *configs.Root, observation *observ.ObservationContainer, awsCreds *credentials.Credentials) *UtilContainer {
 
-	Log = observation.Logger
+	log = observation.Logger
 
 	var session = session.New(&aws.Config{
 		Credentials: awsCreds,

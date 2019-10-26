@@ -22,13 +22,13 @@ func (s *InitService) InitializeDCE(cfgFile string) {
 
 	if s.Util.IsExistingFile(cfgFile) {
 		if *s.Util.PromptBasic(constants.PromptOverwiteConfig, nil) != "yes" {
-			Log.Endln("Aborting")
+			log.Endln("Aborting")
 		}
 	}
 
 	s.Util.WriteToYAMLFile(cfgFile, config)
 
-	Log.Infoln("Config file created at: " + cfgFile)
+	log.Infoln("Config file created at: " + cfgFile)
 }
 
 func (s *InitService) promptUserForConfig() *configs.Root {

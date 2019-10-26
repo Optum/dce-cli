@@ -94,7 +94,6 @@ func initConfig() {
 
 func initObservation() {
 	logrusInstance := logrus.New()
-
 	observation = observ.New(logrusInstance)
 }
 
@@ -104,7 +103,6 @@ func initUtil() {
 		*config.System.MasterAccount.Credentials.AwsSecretAccessKey,
 		"",
 	)
-
 	util = utl.New(config, observation, masterAcctCreds)
 }
 

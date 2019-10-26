@@ -55,24 +55,24 @@ func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string) {
 	githubClient := githubv4.NewClient(oauthHTTPClient)
 	err := githubClient.Query(context.Background(), &query, variables)
 	if err != nil {
-		Log.Fatalf("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 	fmt.Println("    Query Response:", query.Repository.Releases.Nodes[0].ReleaseAssets.Nodes[0].URL)
 
 	req, err := http.NewRequest("GET", query.Repository.Releases.Nodes[0].ReleaseAssets.Nodes[0].URL, nil)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		Log.Fatalf("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 	defer resp.Body.Close()
 
 	out, err := os.Create(assetName)
 	if err != nil {
-		Log.Fatalf("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 	defer out.Close()
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		Log.Fatalf("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 }

@@ -12,7 +12,7 @@ type AuthService struct {
 }
 
 func (s *AuthService) Authenticate(authUrl string) {
-	Log.Println("Opening web browser. Please u.Observationin and copy/paste the provided credentials into this terminal.")
+	log.Println("Opening web browser. Please u.Observationin and copy/paste the provided credentials into this terminal.")
 
 	if authUrl == "" {
 		authUrl = *s.Config.System.Auth.LoginURL

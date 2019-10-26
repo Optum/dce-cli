@@ -19,12 +19,12 @@ type FileSystemUtil struct {
 func (u *FileSystemUtil) WriteToYAMLFile(path string, _struct interface{}) {
 	_yaml, err := yaml.Marshal(_struct)
 	if err != nil {
-		Log.Fatalf("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 
 	err = ioutil.WriteFile(path, _yaml, 0644)
 	if err != nil {
-		Log.Fatalf("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 }
 
@@ -35,7 +35,7 @@ func (u *FileSystemUtil) GetDefaultConfigFile() string {
 func (u *FileSystemUtil) GetHomeDir() string {
 	homeDir, err := homedir.Dir()
 	if err != nil {
-		Log.Fatalf("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 	return homeDir
 }
