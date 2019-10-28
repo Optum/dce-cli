@@ -32,8 +32,8 @@ func New(config *configs.Root, observation *observ.ObservationContainer, util *u
 		Deployer:      &DeployService{Config: config, Util: util},
 		Accounter:     &AccountsService{Config: config, Util: util},
 		Leaser:        &LeasesService{Config: config, Util: util},
-		Initer:        &InitService{},
-		Authenticater: &AuthService{Config: config},
+		Initer:        &InitService{Config: config, Util: util},
+		Authenticater: &AuthService{Config: config, Util: util},
 	}
 }
 

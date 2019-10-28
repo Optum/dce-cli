@@ -27,8 +27,6 @@ func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, bu
 	}
 
 	leasesFullURL := *s.Config.API.BaseURL + LeasesPath
-	// log.Println("Posting to: ", leasesFullURL)
-	// log.Println("Post body: ", requestBody)
 
 	response := s.Util.Request(&utl.ApiRequestInput{
 		Method: "POST",
@@ -37,7 +35,6 @@ func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, bu
 		Json:   requestBody,
 	})
 
-	// body, _ := ioutil.ReadAll(response.Body)
 	if response.StatusCode == 201 {
 		log.Println("Lease created for jdoe99")
 	} else {

@@ -19,6 +19,7 @@ replace github.com/ugorji/go v1.1.4 => github.com/ugorji/go v0.0.0-2018120416352
 
 require (
 	github.com/aws/aws-sdk-go v1.25.16
+	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/golang/example v0.0.0-20170904185048-46695d81d1fa // indirect
 	github.com/hashicorp/terraform v0.12.10

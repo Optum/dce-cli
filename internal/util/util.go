@@ -18,29 +18,40 @@ type UtilContainer struct {
 	Githuber
 	Prompter
 	FileSystemer
+	Weber
 }
 
 var log observ.Logger
 
 // New returns a new Util given config
-func New(config *configs.Root, observation *observ.ObservationContainer, awsCreds *credentials.Credentials) *UtilContainer {
+func New(config *configs.Root, observation *observ.ObservationContainer) *UtilContainer {
 
 	log = observation.Logger
 
+	var masterAcctCreds *credentials.Credentials
+	if config.System.MasterAccount.Credentials.AwsAccessKeyID != nil &&
+		config.System.MasterAccount.Credentials.AwsSecretAccessKey != nil {
+		masterAcctCreds = credentials.NewStaticCredentials(
+			*config.System.MasterAccount.Credentials.AwsAccessKeyID,
+			*config.System.MasterAccount.Credentials.AwsSecretAccessKey,
+			"",
+		)
+	}
 	var session = session.New(&aws.Config{
-		Credentials: awsCreds,
+		Credentials: masterAcctCreds,
 		Region:      config.Region,
 	})
 
 	return &UtilContainer{
 		Config:       config,
 		Observation:  observation,
-		AWSer:        &AWSUtil{Config: config, Session: session},
-		APIer:        &APIUtil{Config: config, Session: session},
-		Terraformer:  &TerraformUtil{Config: config},
-		Githuber:     &GithubUtil{Config: config},
-		Prompter:     &PromptUtil{Config: config},
-		FileSystemer: &FileSystemUtil{Config: config, DefaultConfigFileName: constants.DefaultConfigFileName},
+		AWSer:        &AWSUtil{Config: config, Observation: observation, Session: session},
+		APIer:        &APIUtil{Config: config, Observation: observation, Session: session},
+		Terraformer:  &TerraformUtil{Config: config, Observation: observation},
+		Githuber:     &GithubUtil{Config: config, Observation: observation},
+		Prompter:     &PromptUtil{Config: config, Observation: observation},
+		FileSystemer: &FileSystemUtil{Config: config, Observation: observation, DefaultConfigFileName: constants.DefaultConfigFileName},
+		Weber:        &WebUtil{Observation: observation},
 	}
 }
 
@@ -75,5 +86,6 @@ type FileSystemer interface {
 	IsExistingFile(path string) bool
 }
 
-type Logger interface {
+type Weber interface {
+	OpenURL(url string)
 }

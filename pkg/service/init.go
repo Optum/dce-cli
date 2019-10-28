@@ -5,6 +5,7 @@ import (
 	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	utl "github.com/Optum/dce-cli/internal/util"
+	"gopkg.in/yaml.v2"
 )
 
 type InitService struct {
@@ -19,11 +20,13 @@ func (s *InitService) InitializeDCE(cfgFile string) {
 	}
 
 	config := s.promptUserForConfig()
-
-	if s.Util.IsExistingFile(cfgFile) {
-		if *s.Util.PromptBasic(constants.PromptOverwiteConfig, nil) != "yes" {
-			log.Endln("Aborting")
-		}
+	yamlConfig, err := yaml.Marshal(config)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Infoln("You have entered the following configuration:\n" + string(yamlConfig))
+	if *s.Util.PromptBasic(constants.PromptChangeConfigConfirmation, nil) != "yes" {
+		log.Endln("Aborting")
 	}
 
 	s.Util.WriteToYAMLFile(cfgFile, config)

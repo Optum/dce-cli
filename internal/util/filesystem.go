@@ -4,22 +4,32 @@ import (
 	"io/ioutil"
 	"os"
 
-	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/Optum/dce-cli/configs"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
 )
 
 type FileSystemUtil struct {
 	Config                *configs.Root
-	Observation *observ.ObservationContainer
+	Observation           *observ.ObservationContainer
 	DefaultConfigFileName string
 }
 
 func (u *FileSystemUtil) WriteToYAMLFile(path string, _struct interface{}) {
+
 	_yaml, err := yaml.Marshal(_struct)
 	if err != nil {
 		log.Fatalf("error: %v", err)
+	}
+
+	if !u.IsExistingFile(path) {
+		var file *os.File
+		file, err = os.Create(path)
+		if err != nil {
+			log.Fatalf("error: %v", err)
+		}
+		defer file.Close()
 	}
 
 	err = ioutil.WriteFile(path, _yaml, 0644)

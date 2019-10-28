@@ -18,13 +18,13 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/Optum/dce-cli/configs"
+	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	utl "github.com/Optum/dce-cli/internal/util"
 	svc "github.com/Optum/dce-cli/pkg/service"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -37,8 +37,7 @@ var util *utl.UtilContainer
 var observation *observ.ObservationContainer
 
 func init() {
-	initConfig()
-	cobra.OnInitialize(initObservation, initUtil, initService)
+	cobra.OnInitialize(initObservation, initConfig, initUtil, initService)
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dce.yaml)")
 }
 
@@ -62,50 +61,53 @@ func Execute() {
 	}
 }
 
-func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".dce")
-	}
-
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
-
-	viper.BindEnv("api.credentials.awsaccesskeyid", "AWS_ACCESS_KEY_ID")
-	viper.BindEnv("api.credentials.awssecretaccesskey", "AWS_SECRET_ACCESS_KEY")
-	viper.BindEnv("api.credentials.awssessiontoken", "AWS_SESSION_TOKEN")
-	viper.BindEnv("githubtoken", "GITHUB_TOKEN")
-
-	viper.Unmarshal(config)
-	if config == nil {
-		fmt.Println("No configuration detected, beginning initialization...")
-		service.InitializeDCE(cfgFile)
-	}
-}
-
+// initialize anything related to logging, metrics, or tracing
 func initObservation() {
 	logrusInstance := logrus.New()
 	observation = observ.New(logrusInstance)
 }
 
-func initUtil() {
-	var masterAcctCreds = credentials.NewStaticCredentials(
-		*config.System.MasterAccount.Credentials.AwsAccessKeyID,
-		*config.System.MasterAccount.Credentials.AwsSecretAccessKey,
-		"",
-	)
-	util = utl.New(config, observation, masterAcctCreds)
+// Utils we need before they are normally instantiated
+var log observ.Logger
+var fsUtil utl.FileSystemer
+
+// initialize config from file or tell user to run 'dce init' if none exists
+func initConfig() {
+	tempUtil := utl.New(config, observation)
+	fsUtil = tempUtil.FileSystemer
+	log = observation.Logger
+
+	var configFileUsed string
+	if cfgFile != "" {
+		configFileUsed = cfgFile
+		viper.SetConfigFile(configFileUsed)
+	} else {
+		home := fsUtil.GetHomeDir()
+		configFileUsed = filepath.Join(home, constants.DefaultConfigFileName)
+		viper.SetConfigFile(configFileUsed)
+	}
+
+	if !fsUtil.IsExistingFile(configFileUsed) {
+		if len(os.Args) < 2 || os.Args[1] != initCmd.Name() {
+			log.Endln("Config file not found. Please type 'dce init' to generate one.")
+		}
+	} else {
+		if err := viper.ReadInConfig(); err == nil {
+			viper.BindEnv("api.credentials.awsaccesskeyid", "AWS_ACCESS_KEY_ID")
+			viper.BindEnv("api.credentials.awssecretaccesskey", "AWS_SECRET_ACCESS_KEY")
+			viper.BindEnv("api.credentials.awssessiontoken", "AWS_SESSION_TOKEN")
+			viper.BindEnv("githubtoken", "GITHUB_TOKEN")
+			viper.Unmarshal(config)
+		}
+	}
 }
 
+// initialize utilities and interfaces to external things
+func initUtil() {
+	util = utl.New(config, observation)
+}
+
+// initialize business logic
 func initService() {
 	service = svc.New(config, observation, util)
 }
