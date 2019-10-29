@@ -1,9 +1,11 @@
 package service
 
 import (
+	"time"
+
+	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
 	observ "github.com/Optum/dce-cli/internal/observation"
-	"github.com/Optum/dce-cli/internal/util"
 	utl "github.com/Optum/dce-cli/internal/util"
 )
 
@@ -16,24 +18,19 @@ type AccountsService struct {
 }
 
 func (s *AccountsService) AddAccount(accountID, adminRoleARN string) {
-	requestBody := &utl.CreateAccountRequest{
-		ID:           accountID,
-		AdminRoleArn: adminRoleARN,
+	client := s.Util.SwaggerAPIClient
+	params := &operations.PostAccountsParams{
+		Account: operations.PostAccountsBody{
+			ID:           &accountID,
+			AdminRoleArn: &adminRoleARN,
+		},
+	}
+	params.SetTimeout(5 * time.Second)
+	_, err := client.PostAccounts(params, nil)
+	if err != nil {
+		log.Fatalln("err: ", err)
 	}
 
-	accountsFullURL := *s.Config.API.BaseURL + accountsPath
-	response := s.Util.Request(&util.ApiRequestInput{
-		Method: "POST",
-		Url:    accountsFullURL,
-		Region: *s.Config.Region,
-		Json:   requestBody,
-	})
-
-	if response.StatusCode == 201 {
-		log.Println("Account added to DCE accounts pool")
-	} else {
-		log.Println("DCE Responded with an error: ", response)
-	}
 }
 
 func (s *AccountsService) RemoveAccount(accountID string) {

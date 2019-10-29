@@ -21,6 +21,12 @@ require (
 	github.com/aws/aws-sdk-go v1.25.16
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/dsnet/compress v0.0.1 // indirect
+	github.com/go-openapi/errors v0.19.2
+	github.com/go-openapi/runtime v0.19.7
+	github.com/go-openapi/spec v0.19.3
+	github.com/go-openapi/strfmt v0.19.3
+	github.com/go-openapi/swag v0.19.5
+	github.com/go-openapi/validate v0.19.3
 	github.com/golang/example v0.0.0-20170904185048-46695d81d1fa // indirect
 	github.com/hashicorp/terraform v0.12.10
 	github.com/manifoldco/promptui v0.3.2
@@ -35,7 +41,7 @@ require (
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0
-	github.com/stretchr/testify v1.3.0
+	github.com/stretchr/testify v1.4.0
 	github.com/ugorji/go v1.1.7 // indirect
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect

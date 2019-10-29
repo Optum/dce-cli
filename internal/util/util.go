@@ -1,6 +1,7 @@
 package util
 
 import (
+	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
@@ -19,6 +20,7 @@ type UtilContainer struct {
 	Prompter
 	FileSystemer
 	Weber
+	SwaggerAPIClient *operations.Client
 }
 
 var log observ.Logger
@@ -42,7 +44,7 @@ func New(config *configs.Root, observation *observ.ObservationContainer) *UtilCo
 		Region:      config.Region,
 	})
 
-	return &UtilContainer{
+	utilContainer := UtilContainer{
 		Config:       config,
 		Observation:  observation,
 		AWSer:        &AWSUtil{Config: config, Observation: observation, Session: session},
@@ -53,6 +55,12 @@ func New(config *configs.Root, observation *observ.ObservationContainer) *UtilCo
 		FileSystemer: &FileSystemUtil{Config: config, Observation: observation, DefaultConfigFileName: constants.DefaultConfigFileName},
 		Weber:        &WebUtil{Observation: observation},
 	}
+
+	if config.API.Credentials.AwsAccessKeyID != nil {
+		utilContainer.SwaggerAPIClient = utilContainer.InitApiClient()
+	}
+
+	return &utilContainer
 }
 
 type AWSer interface {
@@ -62,6 +70,7 @@ type AWSer interface {
 
 type APIer interface {
 	Request(input *ApiRequestInput) *ApiResponse
+	InitApiClient() *operations.Client
 }
 
 type Terraformer interface {

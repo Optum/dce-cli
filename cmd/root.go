@@ -64,6 +64,9 @@ func Execute() {
 // initialize anything related to logging, metrics, or tracing
 func initObservation() {
 	logrusInstance := logrus.New()
+
+	logrusInstance.SetLevel(logrus.DebugLevel)
+
 	observation = observ.New(logrusInstance)
 }
 
@@ -73,6 +76,7 @@ var fsUtil utl.FileSystemer
 
 // initialize config from file or tell user to run 'dce init' if none exists
 func initConfig() {
+
 	tempUtil := utl.New(config, observation)
 	fsUtil = tempUtil.FileSystemer
 	log = observation.Logger
