@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/Optum/dce-cli/client/operations"
@@ -18,7 +19,6 @@ type AccountsService struct {
 }
 
 func (s *AccountsService) AddAccount(accountID, adminRoleARN string) {
-	client := s.Util.SwaggerAPIClient
 	params := &operations.PostAccountsParams{
 		Account: operations.PostAccountsBody{
 			ID:           &accountID,
@@ -26,24 +26,51 @@ func (s *AccountsService) AddAccount(accountID, adminRoleARN string) {
 		},
 	}
 	params.SetTimeout(5 * time.Second)
-	_, err := client.PostAccounts(params, nil)
+	_, err := apiClient.PostAccounts(params, nil)
 	if err != nil {
-		log.Fatalln("err: ", err)
+		log.Errorln("err: ", err)
+	} else {
+		log.Infoln("Account added to DCE accounts pool")
 	}
-
 }
 
 func (s *AccountsService) RemoveAccount(accountID string) {
-	accountsFullURL := *s.Config.API.BaseURL + accountsPath + "/" + accountID
-	response := s.Util.Request(&utl.ApiRequestInput{
-		Method: "DELETE",
-		Url:    accountsFullURL,
-		Region: *s.Config.Region,
-	})
-
-	if response.StatusCode == 204 {
-		log.Println("Account removed from DCE accounts pool")
+	params := &operations.DeleteAccountsIDParams{
+		ID: accountID,
+	}
+	params.SetTimeout(5 * time.Second)
+	_, err := apiClient.DeleteAccountsID(params, nil)
+	if err != nil {
+		log.Errorln("err: ", err)
 	} else {
-		log.Println("DCE Responded with an error: ", response)
+		log.Infoln("Account removed from DCE accounts pool")
+	}
+}
+
+func (s *AccountsService) GetAccount(accountID string) {
+	params := &operations.GetAccountsIDParams{
+		ID: accountID,
+	}
+	params.SetTimeout(5 * time.Second)
+	res, err := apiClient.GetAccountsID(params, nil)
+	if err != nil {
+		log.Errorln("err: ", err)
+	} else {
+		log.Infoln(res)
+	}
+}
+
+func (s *AccountsService) ListAccounts() {
+	params := &operations.GetAccountsParams{}
+	params.SetTimeout(5 * time.Second)
+	res, err := apiClient.GetAccounts(params, nil)
+	if err != nil {
+		log.Errorln("err: ", err)
+	} else {
+		jsonPayload, err := json.Marshal(res.GetPayload())
+		if err != nil {
+			log.Fatalln("err: ", err)
+		}
+		log.Infoln(string(jsonPayload))
 	}
 }

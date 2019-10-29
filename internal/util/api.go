@@ -25,6 +25,48 @@ type Sig4RoundTripper struct {
 	Logger  observation.Logger
 }
 
+func (srt Sig4RoundTripper) RoundTrip(req *http.Request) (res *http.Response, e error) {
+	log := srt.Logger
+	dumpedReq, err := httputil.DumpRequest(req, true)
+	if err != nil {
+		srt.Logger.Fatalf(err.Error())
+	}
+	log.Debugln("V4 Signing Request %v\n", string(dumpedReq))
+
+	signer := sigv4.NewSigner(srt.Creds)
+	now := time.Now().Add(time.Duration(30) * time.Second)
+
+	// If there's a json provided, add it when signing
+	// Body does not matter if added before the signing, it will be overwritten
+
+	executeAPI := "execute-api"
+	if req.Body != nil {
+		body, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			log.Fatalln("Error reading payload for v4 signing. ", err)
+		}
+
+		if err != nil {
+			log.Fatalln("Error marshaling payload. ", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		_, err = signer.Sign(req, bytes.NewReader(body),
+			executeAPI, srt.Region, now)
+
+	} else {
+		_, err := signer.Sign(req, nil,
+			executeAPI, srt.Region, now)
+		if err != nil {
+			log.Fatalln("Error while v4 signing request. ", err)
+		}
+	}
+
+	res, e = srt.Proxied.RoundTrip(req)
+
+	log.Debugln("Response: ", res)
+	return res, e
+}
+
 func (u *APIUtil) InitApiClient() *operations.Client {
 
 	sig4RoundTripper := Sig4RoundTripper{
@@ -38,51 +80,7 @@ func (u *APIUtil) InitApiClient() *operations.Client {
 		Logger: log,
 	}
 	sig4HTTTPClient := http.Client{Transport: &sig4RoundTripper}
-	httpTransport := httptransport.NewWithClient("fclnx81mwi.execute-api.us-east-1.amazonaws.com", "/redbox-dce-nfoxrp", nil, &sig4HTTTPClient)
+	httpTransport := httptransport.NewWithClient(*u.Config.API.Host, *u.Config.API.BasePath, nil, &sig4HTTTPClient)
 	client := apiclient.New(httpTransport, strfmt.Default)
-
 	return client.Operations
-}
-
-func (srt Sig4RoundTripper) RoundTrip(req *http.Request) (res *http.Response, e error) {
-	log := srt.Logger
-	dumpedReq, err := httputil.DumpRequest(req, true)
-	if err != nil {
-		srt.Logger.Fatalf(err.Error())
-	}
-	log.Debugln("V4 Signing Request %v\n", string(dumpedReq))
-
-	// Sign our API request, using sigv4
-	// See https://docs.aws.amazon.com/general/latest/gr/sigv4_signing.html
-	signer := sigv4.NewSigner(srt.Creds)
-	now := time.Now().Add(time.Duration(30) * time.Second)
-
-	// If there's a json provided, add it when signing
-	// Body does not matter if added before the signing, it will be overwritten
-
-	if req.Body != nil {
-		body, err := ioutil.ReadAll(req.Body)
-		if err != nil {
-			log.Fatalln("Error reading payload for v4 signing. ", err)
-		}
-
-		if err != nil {
-			log.Fatalln("Error marshaling payload. ", err)
-		}
-		req.Header.Set("Content-Type", "application/json")
-		_, err = signer.Sign(req, bytes.NewReader(body),
-			"execute-api", srt.Region, now)
-
-	} else {
-		_, err := signer.Sign(req, nil, "execute-api",
-			srt.Region, now)
-		if err != nil {
-			log.Fatalln("Error while v4 signing request. ", err)
-		}
-	}
-
-	res, e = srt.Proxied.RoundTrip(req)
-
-	log.Infoln("res: ", res)
-	return res, e
 }

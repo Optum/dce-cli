@@ -14,7 +14,8 @@ type Root struct {
 		}
 	}
 	API struct {
-		BaseURL     *string
+		Host        *string
+		BasePath    *string
 		Credentials struct {
 			AwsAccessKeyID     *string
 			AwsSecretAccessKey *string

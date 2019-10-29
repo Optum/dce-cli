@@ -43,12 +43,13 @@ func (s *InitService) promptUserForConfig() *configs.Root {
 	newConfig.System.MasterAccount.Credentials.AwsSecretAccessKey = s.Util.PromptBasic("AWS SECRET ACCESS KEY for the DCE Master account", nil)
 
 	// API Config
-	newConfig.Region = s.Util.PromptSelect("What region is DCE deployed in?", configs.Regions)
-	newConfig.API.BaseURL = s.Util.PromptBasic("What is the base url of the DCE API (example: https://abcde12345.execute-api.us-east-1.amazonaws.com/dev)?", nil)
-	newConfig.API.Credentials.AwsAccessKeyID = s.Util.PromptBasic("AWS ACCESS KEY ID for accessing the DCE API. (This is usually obtained by running DCE auth. Leave blank to use AWS_ACCESS_KEY_ID env variable.)", nil)
-	newConfig.API.Credentials.AwsSecretAccessKey = s.Util.PromptBasic("AWS SECRET ACCESS KEY for accessing the DCE API. (This is usually obtained by running DCE auth. Leave blank to use AWS_SECRET_ACCESS_KEY env variable.)", nil)
-	newConfig.API.Credentials.AwsSessionToken = s.Util.PromptBasic("AWS SESSION TOKEN for accessing the DCE API. (This is usually obtained by running DCE auth. Leave blank to use AWS_SESSION_TOKEN env variable.)", nil)
+	newConfig.Region = s.Util.PromptSelect("Region is DCE deployed in", configs.Regions)
+	newConfig.API.Host = s.Util.PromptBasic("Host name of the DCE API (example: abcde12345.execute-api.us-east-1.amazonaws.com)", nil)
+	newConfig.API.BasePath = s.Util.PromptBasic("Base path of the DCE API (example: /apigw-stage-name)", nil)
+	newConfig.API.Credentials.AwsAccessKeyID = s.Util.PromptBasic("AWS ACCESS KEY ID for accessing the DCE API (This is usually obtained by running DCE auth. Leave blank to use AWS_ACCESS_KEY_ID env variable.)", nil)
+	newConfig.API.Credentials.AwsSecretAccessKey = s.Util.PromptBasic("AWS SECRET ACCESS KEY for accessing the DCE API (This is usually obtained by running DCE auth. Leave blank to use AWS_SECRET_ACCESS_KEY env variable.)", nil)
+	newConfig.API.Credentials.AwsSessionToken = s.Util.PromptBasic("AWS SESSION TOKEN for accessing the DCE API (This is usually obtained by running DCE auth. Leave blank to use AWS_SESSION_TOKEN env variable.)", nil)
 
-	newConfig.GithubToken = s.Util.PromptBasic("Github token used to download releases from github. Leave blank to use GITHUB_TOKEN env variable.", nil)
+	newConfig.GithubToken = s.Util.PromptBasic("Github token used to download releases from github (Leave blank to use GITHUB_TOKEN env variable)", nil)
 	return &newConfig
 }

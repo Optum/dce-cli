@@ -65,6 +65,7 @@ func Execute() {
 func initObservation() {
 	logrusInstance := logrus.New()
 
+	//TODO: Make configurable
 	logrusInstance.SetLevel(logrus.DebugLevel)
 
 	observation = observ.New(logrusInstance)
