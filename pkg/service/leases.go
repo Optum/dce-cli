@@ -3,11 +3,14 @@ package service
 import (
 	"encoding/json"
 	"io/ioutil"
+	"time"
 
+	"path/filepath"
+
+	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	utl "github.com/Optum/dce-cli/internal/util"
-	"github.com/pkg/browser"
 )
 
 const LeasesPath = "/leases"
@@ -19,71 +22,88 @@ type LeasesService struct {
 }
 
 func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, budgetCurrency string, email []string) {
-	requestBody := &utl.LeaseRequest{
-		PrincipalID:              principleID,
-		BudgetAmount:             budgetAmount,
-		BudgetCurrency:           budgetCurrency,
-		BudgetNotificationEmails: email,
+	params := &operations.PostLeasesParams{
+		Lease: operations.PostLeasesBody{
+			PrincipalID:              &principleID,
+			BudgetAmount:             &budgetAmount,
+			BudgetCurrency:           &budgetCurrency,
+			BudgetNotificationEmails: email,
+		},
 	}
-
-	leasesFullURL := *s.Config.API.BaseURL + LeasesPath
-
-	response := s.Util.Request(&utl.ApiRequestInput{
-		Method: "POST",
-		Url:    leasesFullURL,
-		Region: *s.Config.Region,
-		Json:   requestBody,
-	})
-
-	if response.StatusCode == 201 {
-		log.Println("Lease created for jdoe99")
+	params.SetTimeout(5 * time.Second)
+	res, err := apiClient.PostLeases(params, nil)
+	if err != nil {
+		log.Errorln("err: ", err)
 	} else {
-		log.Println("DCE Responded with an error: ", response)
+		jsonPayload, err := json.Marshal(res)
+		if err != nil {
+			log.Fatalln("err: ", err)
+		}
+		log.Infoln(string(jsonPayload))
 	}
 }
 
 func (s *LeasesService) EndLease(accountID, principleID string) {
-	requestBody := &utl.LeaseRequest{
-		AccountID:   accountID,
-		PrincipalID: principleID,
+	params := &operations.DeleteLeasesParams{
+		Lease: operations.DeleteLeasesBody{
+			AccountID:   &accountID,
+			PrincipalID: &principleID,
+		},
 	}
-
-	leasesFullURL := *s.Config.API.BaseURL + LeasesPath
-
-	response := s.Util.Request(&utl.ApiRequestInput{
-		Method: "DELETE",
-		Url:    leasesFullURL,
-		Region: *s.Config.Region,
-		Json:   requestBody,
-	})
-
-	if response.StatusCode == 200 {
-		log.Println("Lease ended")
+	params.SetTimeout(5 * time.Second)
+	res, err := apiClient.DeleteLeases(params, nil)
+	if err != nil {
+		log.Errorln("err: ", err)
 	} else {
-		log.Println("DCE Responded with an error: ", response)
+		jsonPayload, err := json.Marshal(res)
+		if err != nil {
+			log.Fatalln("err: ", err)
+		}
+		log.Infoln(string(jsonPayload))
 	}
 }
 
-func (s *LeasesService) LoginToLease(loginAcctID, loginLeaseID string, loginOpenBrowser bool) {
-	if loginAcctID != "" && loginLeaseID != "" {
-		log.Println("Please specify either --lease-id or --acctount-id, not both.")
-		return
+func (s *LeasesService) GetLease(leaseID string) {
+	params := &operations.GetLeasesIDParams{
+		ID: leaseID,
 	}
-	if loginAcctID == "" && loginLeaseID == "" {
-		log.Println("Please specify either --lease-id or --acctount-id")
-		return
+	params.SetTimeout(5 * time.Second)
+	res, err := apiClient.GetLeasesID(params, nil)
+	if err != nil {
+		log.Errorln("err: ", err)
+	} else {
+		log.Infoln(res)
 	}
-	log.Println("Logging into a leased DCE account")
+}
 
-	var leaseLoginURL string
-	if loginAcctID != "" {
-		leaseLoginURL = *s.Config.API.BaseURL + "?accountID=" + loginAcctID
+func (s *LeasesService) ListLeases(acctID, principleID, nextAcctID, nextPrincipalID, leaseStatus string, pagLimit int64) {
+	params := &operations.GetLeasesParams{
+		AccountID:       &acctID,
+		Limit:           &pagLimit,
+		NextAccountID:   &nextAcctID,
+		NextPrincipalID: &nextPrincipalID,
+		PrincipalID:     &principleID,
+		Status:          &leaseStatus,
 	}
-	if loginLeaseID != "" {
-		leaseLoginURL = *s.Config.API.BaseURL + "?leaseID=" + loginLeaseID
+	params.SetTimeout(5 * time.Second)
+	res, err := apiClient.GetLeases(params, nil)
+	if err != nil {
+		log.Errorln("err: ", err)
+	} else {
+		jsonPayload, err := json.Marshal(res.GetPayload())
+		if err != nil {
+			log.Fatalln("err: ", err)
+		}
+		log.Infoln(string(jsonPayload))
 	}
+}
 
-	log.Println("Requesting leased account credentials from: ", leaseLoginURL)
+func (s *LeasesService) LoginToLease(args []string, loginOpenBrowser bool) {
+
+	loginLeaseID := args[0]
+	leaseLoginURL := filepath.Join(*s.Config.API.Host, LeasesPath, loginLeaseID, "auth")
+
+	log.Debugln("Requesting leased account credentials from: ", leaseLoginURL)
 	response := s.Util.Request(&utl.ApiRequestInput{
 		Method: "GET",
 		Url:    leaseLoginURL,
@@ -109,7 +129,7 @@ func (s *LeasesService) LoginToLease(loginAcctID, loginLeaseID string, loginOpen
 		// Build aws console url here
 		consoleURL = "https://amazon.com"
 
-		browser.OpenURL(consoleURL)
+		s.Util.OpenURL(consoleURL)
 	} else {
 		log.Println(leaseCreds)
 	}
