@@ -31,7 +31,7 @@ func (srt Sig4RoundTripper) RoundTrip(req *http.Request) (res *http.Response, e 
 	if err != nil {
 		srt.Logger.Fatalf(err.Error())
 	}
-	log.Debugln("V4 Signing Request %v\n", string(dumpedReq))
+	log.Debugln("V4 Signing Request:\n", string(dumpedReq))
 
 	signer := sigv4.NewSigner(srt.Creds)
 	now := time.Now().Add(time.Duration(30) * time.Second)

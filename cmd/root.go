@@ -68,6 +68,9 @@ func initObservation() {
 	//TODO: Make configurable
 	logrusInstance.SetLevel(logrus.DebugLevel)
 
+	// TODO: If log level is INFO, only print message
+	// logrusInstance.SetFormatter(&JSONLogFormatter{})
+
 	observation = observ.New(logrusInstance)
 }
 

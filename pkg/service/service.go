@@ -17,6 +17,7 @@ type ServiceContainer struct {
 	Leaser
 	Initer
 	Authenticater
+	Usager
 }
 
 var log observ.Logger
@@ -37,6 +38,7 @@ func New(config *configs.Root, observation *observ.ObservationContainer, util *u
 		Leaser:        &LeasesService{Config: config, Util: util},
 		Initer:        &InitService{Config: config, Util: util},
 		Authenticater: &AuthService{Config: config, Util: util},
+		Usager:        &UsageService{Config: config, Util: util},
 	}
 
 	return &serviceContainer
@@ -45,6 +47,10 @@ func New(config *configs.Root, observation *observ.ObservationContainer, util *u
 // Deployer deploys the DCE application
 type Deployer interface {
 	Deploy(namespace string)
+}
+
+type Usager interface {
+	GetUsage(startDate, endDate float64)
 }
 
 type Accounter interface {
