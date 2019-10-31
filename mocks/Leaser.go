@@ -19,7 +19,17 @@ func (_m *Leaser) EndLease(accountID string, principleID string) {
 	_m.Called(accountID, principleID)
 }
 
-// LoginToLease provides a mock function with given fields: loginAcctID, loginLeaseID, loginOpenBrowser
-func (_m *Leaser) LoginToLease(loginAcctID string, loginLeaseID string, loginOpenBrowser bool) {
-	_m.Called(loginAcctID, loginLeaseID, loginOpenBrowser)
+// GetLease provides a mock function with given fields: leaseID
+func (_m *Leaser) GetLease(leaseID string) {
+	_m.Called(leaseID)
+}
+
+// ListLeases provides a mock function with given fields: acctID, principleID, nextAcctID, nextPrincipalID, leaseStatus, pagLimit
+func (_m *Leaser) ListLeases(acctID string, principleID string, nextAcctID string, nextPrincipalID string, leaseStatus string, pagLimit int64) {
+	_m.Called(acctID, principleID, nextAcctID, nextPrincipalID, leaseStatus, pagLimit)
+}
+
+// LoginToLease provides a mock function with given fields: args, loginOpenBrowser
+func (_m *Leaser) LoginToLease(args []string, loginOpenBrowser bool) {
+	_m.Called(args, loginOpenBrowser)
 }

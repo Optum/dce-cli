@@ -9,7 +9,7 @@ type Deployer struct {
 	mock.Mock
 }
 
-// Deploy provides a mock function with given fields: namespace
-func (_m *Deployer) Deploy(namespace string) {
-	_m.Called(namespace)
+// Deploy provides a mock function with given fields: namespace, deployLocal
+func (_m *Deployer) Deploy(namespace string, deployLocal string) {
+	_m.Called(namespace, deployLocal)
 }

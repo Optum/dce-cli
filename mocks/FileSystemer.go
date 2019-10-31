@@ -51,6 +51,20 @@ func (_m *FileSystemer) IsExistingFile(path string) bool {
 	return r0
 }
 
+// ReadFromFile provides a mock function with given fields: path
+func (_m *FileSystemer) ReadFromFile(path string) string {
+	ret := _m.Called(path)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(path)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // WriteToYAMLFile provides a mock function with given fields: path, _struct
 func (_m *FileSystemer) WriteToYAMLFile(path string, _struct interface{}) {
 	_m.Called(path, _struct)

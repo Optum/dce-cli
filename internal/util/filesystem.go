@@ -57,3 +57,11 @@ func (u *FileSystemUtil) IsExistingFile(path string) bool {
 	}
 	return isExists
 }
+
+func (u *FileSystemUtil) ReadFromFile(path string) string {
+	contents, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	return string(contents)
+}

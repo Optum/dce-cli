@@ -14,6 +14,16 @@ func (_m *Accounter) AddAccount(accountID string, adminRoleARN string) {
 	_m.Called(accountID, adminRoleARN)
 }
 
+// GetAccount provides a mock function with given fields: accountID
+func (_m *Accounter) GetAccount(accountID string) {
+	_m.Called(accountID)
+}
+
+// ListAccounts provides a mock function with given fields:
+func (_m *Accounter) ListAccounts() {
+	_m.Called()
+}
+
 // RemoveAccount provides a mock function with given fields: accountID
 func (_m *Accounter) RemoveAccount(accountID string) {
 	_m.Called(accountID)

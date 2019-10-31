@@ -46,7 +46,7 @@ func New(config *configs.Root, observation *observ.ObservationContainer, util *u
 
 // Deployer deploys the DCE application
 type Deployer interface {
-	Deploy(namespace string)
+	Deploy(namespace, deployLocal string)
 }
 
 type Usager interface {

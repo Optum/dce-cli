@@ -93,6 +93,7 @@ type FileSystemer interface {
 	GetDefaultConfigFile() string
 	GetHomeDir() string
 	IsExistingFile(path string) bool
+	ReadFromFile(path string) string
 }
 
 type Weber interface {

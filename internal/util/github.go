@@ -2,7 +2,6 @@ package util
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -34,14 +33,14 @@ func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string) {
 	}
 
 	var query struct {
-		Viewer struct {
-			Login     githubv4.String
-			CreatedAt githubv4.DateTime
-		}
+		// Viewer struct {
+		// 	Login     githubv4.String
+		// 	CreatedAt githubv4.DateTime
+		// }
 		Repository struct {
 			Releases struct {
 				Nodes []struct {
-					TagName       githubv4.String
+					// TagName       githubv4.String
 					ReleaseAssets struct {
 						Nodes []struct {
 							URL string
@@ -57,7 +56,7 @@ func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string) {
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	fmt.Println("    Query Response:", query.Repository.Releases.Nodes[0].ReleaseAssets.Nodes[0].URL)
+	log.Debug("Github Query Response:", query.Repository.Releases.Nodes[0].ReleaseAssets.Nodes[0].URL)
 
 	req, err := http.NewRequest("GET", query.Repository.Releases.Nodes[0].ReleaseAssets.Nodes[0].URL, nil)
 	resp, err := http.DefaultClient.Do(req)
