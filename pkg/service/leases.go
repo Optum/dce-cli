@@ -2,10 +2,7 @@ package service
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"time"
-
-	"path/filepath"
 
 	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
@@ -98,39 +95,31 @@ func (s *LeasesService) ListLeases(acctID, principleID, nextAcctID, nextPrincipa
 	}
 }
 
-func (s *LeasesService) LoginToLease(args []string, loginOpenBrowser bool) {
-
-	loginLeaseID := args[0]
-	leaseLoginURL := filepath.Join(*s.Config.API.Host, LeasesPath, loginLeaseID, "auth")
-
-	log.Debugln("Requesting leased account credentials from: ", leaseLoginURL)
-	response := s.Util.Request(&utl.ApiRequestInput{
-		Method: "GET",
-		Url:    leaseLoginURL,
-		Region: *s.Config.Region,
-	})
-
-	leaseCreds := struct {
-		AwsAccessKeyID     string
-		AwsSecretAccessKey string
-		AwsSessionToken    string
-	}{}
-
-	body, _ := ioutil.ReadAll(response.Body)
-
-	// Some test data. Remove once integrated with api.
-	body = []byte("{\"AwsAccessKeyID\": \"AKD\", \"AwsSecretAccessKey\": \"ASK\", \"AwsSessionToken\": \"AST\" }")
-	json.Unmarshal(body, &leaseCreds)
-
-	if loginOpenBrowser {
-		log.Println("Opening AWS Console in Web Browser")
-		var consoleURL string
-
-		// Build aws console url here
-		consoleURL = "https://amazon.com"
-
-		s.Util.OpenURL(consoleURL)
+func (s *LeasesService) LoginToLease(leaseID string, loginOpenBrowser bool) {
+	log.Debugln("Requesting leased account credentials")
+	params := &operations.PostLeasesIDAuthParams{
+		ID: leaseID,
+	}
+	params.SetTimeout(5 * time.Second)
+	res, err := apiClient.PostLeasesIDAuth(params, nil)
+	if err != nil {
+		log.Errorln("err: ", err)
 	} else {
-		log.Println(leaseCreds)
+		jsonPayload, err := json.Marshal(res)
+		if err != nil {
+			log.Fatalln("err: ", err)
+		}
+		log.Debug(string(jsonPayload))
+	}
+
+	responsePayload := res.GetPayload()
+	if loginOpenBrowser {
+		log.Infoln("Opening AWS Console in Web Browser")
+		s.Util.OpenURL(responsePayload.ConsoleURL)
+	} else {
+		creds := "aws configure set aws_access_key_id " + responsePayload.AccessKeyID +
+			"\naws configure set aws_secret_access_key" + responsePayload.SecretAccessKey +
+			"\naws configure set aws_session_token" + responsePayload.SessionToken
+		log.Infoln(creds)
 	}
 }

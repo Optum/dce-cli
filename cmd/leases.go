@@ -103,6 +103,6 @@ var leasesLoginCmd = &cobra.Command{
 	Short: "Login to a leased DCE account",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		service.LoginToLease(args, loginOpenBrowser)
+		service.LoginToLease(args[0], loginOpenBrowser)
 	},
 }
