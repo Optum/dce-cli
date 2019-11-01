@@ -61,16 +61,50 @@ func Execute() {
 	}
 }
 
+type PlainOutputFormatter struct {
+}
+
+func (f *PlainOutputFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+	var serialized []byte
+	var err error
+	serialized = []byte(entry.Message)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to marshal fields to JSON, %v", err)
+	}
+	return append(serialized, '\n'), nil
+}
+
 // initialize anything related to logging, metrics, or tracing
 func initObservation() {
 	logrusInstance := logrus.New()
 
 	//TODO: Make configurable
-	logrusInstance.SetLevel(logrus.DebugLevel)
-	logrusInstance.SetReportCaller(true)
+	var logLevel logrus.Level
+	switch os.Getenv("DCE_LOG_LEVEL") {
+	case "TRACE":
+		logLevel = logrus.TraceLevel
+	case "DEBUG":
+		logLevel = logrus.DebugLevel
+	case "INFO":
+		logLevel = logrus.InfoLevel
+	case "WARN":
+		logLevel = logrus.WarnLevel
+	case "ERROR":
+		logLevel = logrus.ErrorLevel
+	case "FATAL":
+		logLevel = logrus.FatalLevel
+	case "PANIC":
+		logLevel = logrus.PanicLevel
+	default:
+		logLevel = logrus.InfoLevel
+	}
 
-	// TODO: If log level is INFO, only print message
-	// logrusInstance.SetFormatter(&JSONLogFormatter{})
+	logrusInstance.SetLevel(logLevel)
+	if logLevel == logrus.InfoLevel {
+		logrusInstance.SetFormatter(&PlainOutputFormatter{})
+	} else {
+		logrusInstance.SetFormatter(&logrus.TextFormatter{})
+	}
 
 	observation = observ.New(logrusInstance)
 }

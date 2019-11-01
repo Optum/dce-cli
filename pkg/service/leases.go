@@ -118,8 +118,8 @@ func (s *LeasesService) LoginToLease(leaseID string, loginOpenBrowser bool) {
 		s.Util.OpenURL(responsePayload.ConsoleURL)
 	} else {
 		creds := "aws configure set aws_access_key_id " + responsePayload.AccessKeyID +
-			"\naws configure set aws_secret_access_key" + responsePayload.SecretAccessKey +
-			"\naws configure set aws_session_token" + responsePayload.SessionToken
+			"\naws configure set aws_secret_access_key " + responsePayload.SecretAccessKey +
+			"\naws configure set aws_session_token " + responsePayload.SessionToken
 		log.Infoln(creds)
 	}
 }
