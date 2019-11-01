@@ -28,7 +28,7 @@ func (s *AccountsService) AddAccount(accountID, adminRoleARN string) {
 	params.SetTimeout(5 * time.Second)
 	_, err := apiClient.PostAccounts(params, nil)
 	if err != nil {
-		log.Errorln("err: ", err)
+		log.Fatalln("err: ", err)
 	} else {
 		log.Infoln("Account added to DCE accounts pool")
 	}
@@ -41,7 +41,7 @@ func (s *AccountsService) RemoveAccount(accountID string) {
 	params.SetTimeout(5 * time.Second)
 	_, err := apiClient.DeleteAccountsID(params, nil)
 	if err != nil {
-		log.Errorln("err: ", err)
+		log.Fatalln("err: ", err)
 	} else {
 		log.Infoln("Account removed from DCE accounts pool")
 	}
@@ -54,7 +54,7 @@ func (s *AccountsService) GetAccount(accountID string) {
 	params.SetTimeout(5 * time.Second)
 	res, err := apiClient.GetAccountsID(params, nil)
 	if err != nil {
-		log.Errorln("err: ", err)
+		log.Fatalln("err: ", err)
 	} else {
 		log.Infoln(res)
 	}
@@ -65,7 +65,7 @@ func (s *AccountsService) ListAccounts() {
 	params.SetTimeout(5 * time.Second)
 	res, err := apiClient.GetAccounts(params, nil)
 	if err != nil {
-		log.Errorln("err: ", err)
+		log.Fatalln("err: ", err)
 	} else {
 		jsonPayload, err := json.Marshal(res.GetPayload())
 		if err != nil {

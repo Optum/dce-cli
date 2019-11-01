@@ -14,6 +14,8 @@ func init() {
 
 	accountsAddCmd.Flags().StringVarP(&accountID, "account-id", "a", "", "The ID of the existing account to add to the DCE accounts pool (WARNING: Account will be nuked.)")
 	accountsAddCmd.Flags().StringVarP(&adminRoleARN, "admin-role-arn", "r", "", "The admin role arn to be assumed by the DCE master account. Trust policy must be configured with DCE master account as trusted entity.")
+	accountsAddCmd.MarkFlagRequired("account-id")
+	accountsAddCmd.MarkFlagRequired("admin-role-arn")
 	accountsCmd.AddCommand(accountsAddCmd)
 
 	accountsCmd.AddCommand(accountsRemoveCmd)
@@ -38,6 +40,7 @@ var accountsDescribeCmd = &cobra.Command{
 var accountsListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "list accounts",
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		service.ListAccounts()
 	},
@@ -46,13 +49,14 @@ var accountsListCmd = &cobra.Command{
 var accountsAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add an account to the accounts pool",
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		service.AddAccount(accountID, adminRoleARN)
 	},
 }
 
 var accountsRemoveCmd = &cobra.Command{
-	Use:   "remove",
+	Use:   "remove [Account ID]",
 	Short: "Remove an account from the accounts pool.",
 	Args:  cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

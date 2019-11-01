@@ -8,7 +8,6 @@ import (
 const LeasesPath = "/leases"
 
 var acctID string
-var loginLeaseID string
 var loginOpenBrowser bool
 
 var principleID string
@@ -49,13 +48,10 @@ func init() {
 	leasesEndCmd.MarkFlagRequired("account-id")
 	leasesCmd.AddCommand(leasesEndCmd)
 
-	leasesLoginCmd.Flags().StringVarP(&loginLeaseID, "lease-id", "l", "", "Lease ID for the account to login to")
 	leasesLoginCmd.Flags().BoolVarP(&loginOpenBrowser, "open-browser", "b", false, "Opens web broswer to AWS console instead of printing credentials")
 	leasesCmd.AddCommand(leasesLoginCmd)
 
 	RootCmd.AddCommand(leasesCmd)
-
-	// TODO: Configure util for this command to use local env credentials
 }
 
 var leasesCmd = &cobra.Command{
@@ -93,6 +89,7 @@ var leasesCreateCmd = &cobra.Command{
 var leasesEndCmd = &cobra.Command{
 	Use:   "end [Lease ID]",
 	Short: "Cause a lease to immediately expire",
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		service.EndLease(accountID, principleID)
 	},

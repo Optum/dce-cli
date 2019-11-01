@@ -30,7 +30,7 @@ func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, bu
 	params.SetTimeout(5 * time.Second)
 	res, err := apiClient.PostLeases(params, nil)
 	if err != nil {
-		log.Errorln("err: ", err)
+		log.Fatalln("err: ", err)
 	} else {
 		jsonPayload, err := json.Marshal(res)
 		if err != nil {
@@ -50,7 +50,7 @@ func (s *LeasesService) EndLease(accountID, principleID string) {
 	params.SetTimeout(5 * time.Second)
 	res, err := apiClient.DeleteLeases(params, nil)
 	if err != nil {
-		log.Errorln("err: ", err)
+		log.Fatalln("err: ", err)
 	} else {
 		jsonPayload, err := json.Marshal(res)
 		if err != nil {
@@ -67,7 +67,7 @@ func (s *LeasesService) GetLease(leaseID string) {
 	params.SetTimeout(5 * time.Second)
 	res, err := apiClient.GetLeasesID(params, nil)
 	if err != nil {
-		log.Errorln("err: ", err)
+		log.Fatalln("err: ", err)
 	} else {
 		log.Infoln(res)
 	}
@@ -85,7 +85,7 @@ func (s *LeasesService) ListLeases(acctID, principleID, nextAcctID, nextPrincipa
 	params.SetTimeout(5 * time.Second)
 	res, err := apiClient.GetLeases(params, nil)
 	if err != nil {
-		log.Errorln("err: ", err)
+		log.Fatalln("err: ", err)
 	} else {
 		jsonPayload, err := json.Marshal(res.GetPayload())
 		if err != nil {
@@ -103,7 +103,7 @@ func (s *LeasesService) LoginToLease(leaseID string, loginOpenBrowser bool) {
 	params.SetTimeout(5 * time.Second)
 	res, err := apiClient.PostLeasesIDAuth(params, nil)
 	if err != nil {
-		log.Errorln("err: ", err)
+		log.Fatalln("err: ", err)
 	} else {
 		jsonPayload, err := json.Marshal(res)
 		if err != nil {
