@@ -88,6 +88,7 @@ var dceInitWritesToConfig = func(t *testing.T) {
 	input.types(*config.System.Auth.LoginURL)
 	input.types(*config.System.MasterAccount.Credentials.AwsAccessKeyID)
 	input.types(*config.System.MasterAccount.Credentials.AwsSecretAccessKey)
+	input.types(*config.System.MasterAccount.Credentials.AwsSessionToken)
 	input.pressesEnter()
 	input.types(*config.API.Host)
 	input.types(*config.API.BasePath)
