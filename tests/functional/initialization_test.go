@@ -78,20 +78,19 @@ var dceInitWritesToConfig = func(t *testing.T) {
 	config.System.MasterAccount.Credentials.AwsAccessKeyID = &doesntMatter
 	config.System.MasterAccount.Credentials.AwsSecretAccessKey = &doesntMatter
 	config.Region = &usEast1
-	config.API.BaseURL = &doesntMatter
-	config.API.Credentials.AwsAccessKeyID = &doesntMatter
-	config.API.Credentials.AwsSecretAccessKey = &doesntMatter
-	config.API.Credentials.AwsSessionToken = &doesntMatter
+	config.API.Host = &doesntMatter
+	config.API.BasePath = &doesntMatter
+	config.System.MasterAccount.Credentials.AwsAccessKeyID = &doesntMatter
+	config.System.MasterAccount.Credentials.AwsSecretAccessKey = &doesntMatter
+	config.System.MasterAccount.Credentials.AwsSessionToken = &doesntMatter
 	config.GithubToken = &doesntMatter
 
 	input.types(*config.System.Auth.LoginURL)
 	input.types(*config.System.MasterAccount.Credentials.AwsAccessKeyID)
 	input.types(*config.System.MasterAccount.Credentials.AwsSecretAccessKey)
 	input.pressesEnter()
-	input.types(*config.API.BaseURL)
-	input.types(*config.API.Credentials.AwsAccessKeyID)
-	input.types(*config.API.Credentials.AwsSecretAccessKey)
-	input.types(*config.API.Credentials.AwsSessionToken)
+	input.types(*config.API.Host)
+	input.types(*config.API.BasePath)
 	input.types(*config.GithubToken)
 	input.types("yes")
 

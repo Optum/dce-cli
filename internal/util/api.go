@@ -72,9 +72,9 @@ func (u *APIUtil) InitApiClient() *operations.Client {
 	sig4RoundTripper := Sig4RoundTripper{
 		Proxied: http.DefaultTransport,
 		Creds: credentials.NewStaticCredentials(
-			*u.Config.API.Credentials.AwsAccessKeyID,
-			*u.Config.API.Credentials.AwsSecretAccessKey,
-			*u.Config.API.Credentials.AwsSessionToken,
+			*u.Config.System.MasterAccount.Credentials.AwsAccessKeyID,
+			*u.Config.System.MasterAccount.Credentials.AwsSecretAccessKey,
+			*u.Config.System.MasterAccount.Credentials.AwsSessionToken,
 		),
 		Region: *u.Config.Region,
 		Logger: log,

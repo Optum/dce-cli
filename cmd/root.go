@@ -136,9 +136,9 @@ func initConfig() {
 		}
 	} else {
 		if err := viper.ReadInConfig(); err == nil {
-			viper.BindEnv("api.credentials.awsaccesskeyid", "AWS_ACCESS_KEY_ID")
-			viper.BindEnv("api.credentials.awssecretaccesskey", "AWS_SECRET_ACCESS_KEY")
-			viper.BindEnv("api.credentials.awssessiontoken", "AWS_SESSION_TOKEN")
+			viper.BindEnv("system.masteraccount.credentials.awsaccesskeyid", "AWS_ACCESS_KEY_ID")
+			viper.BindEnv("system.masteraccount.credentials.awssecretaccesskey", "AWS_SECRET_ACCESS_KEY")
+			viper.BindEnv("system.masteraccount.credentials.awssessiontoken", "AWS_SESSION_TOKEN")
 			viper.BindEnv("githubtoken", "GITHUB_TOKEN")
 			viper.Unmarshal(config)
 		}

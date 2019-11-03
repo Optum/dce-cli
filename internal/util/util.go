@@ -56,7 +56,7 @@ func New(config *configs.Root, observation *observ.ObservationContainer) *UtilCo
 		Weber:        &WebUtil{Observation: observation},
 	}
 
-	if config.API.Credentials.AwsAccessKeyID != nil {
+	if config.System.MasterAccount.Credentials.AwsAccessKeyID != nil {
 		utilContainer.SwaggerAPIClient = utilContainer.InitApiClient()
 	}
 
