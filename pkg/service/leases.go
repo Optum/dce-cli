@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/Optum/dce-cli/client/operations"
@@ -48,15 +49,11 @@ func (s *LeasesService) EndLease(accountID, principleID string) {
 		},
 	}
 	params.SetTimeout(5 * time.Second)
-	res, err := apiClient.DeleteLeases(params, nil)
+	_, err := apiClient.DeleteLeases(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
 	} else {
-		jsonPayload, err := json.Marshal(res)
-		if err != nil {
-			log.Fatalln("err: ", err)
-		}
-		log.Infoln(string(jsonPayload))
+		log.Infoln("Lease ended")
 	}
 }
 
@@ -118,8 +115,10 @@ func (s *LeasesService) LoginToLease(leaseID string, loginOpenBrowser bool) {
 		s.Util.OpenURL(responsePayload.ConsoleURL)
 	} else {
 		creds := "aws configure set aws_access_key_id " + responsePayload.AccessKeyID +
-			"\naws configure set aws_secret_access_key " + responsePayload.SecretAccessKey +
-			"\naws configure set aws_session_token " + responsePayload.SessionToken
-		log.Infoln(creds)
+			";aws configure set aws_secret_access_key " + responsePayload.SecretAccessKey +
+			";aws configure set aws_session_token " + responsePayload.SessionToken
+
+		// output from log.Info() cannot be piped to other bash commands
+		fmt.Print(creds)
 	}
 }
