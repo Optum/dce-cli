@@ -69,7 +69,6 @@ type AWSer interface {
 }
 
 type APIer interface {
-	Request(input *ApiRequestInput) *ApiResponse
 	InitApiClient() *operations.Client
 }
 

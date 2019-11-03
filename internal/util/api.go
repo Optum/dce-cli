@@ -7,8 +7,11 @@ import (
 
 	apiclient "github.com/Optum/dce-cli/client"
 	"github.com/Optum/dce-cli/client/operations"
+	"github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/observation"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	awsSession "github.com/aws/aws-sdk-go/aws/session"
 	sigv4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
@@ -65,6 +68,12 @@ func (srt Sig4RoundTripper) RoundTrip(req *http.Request) (res *http.Response, e 
 
 	log.Debugln("Response: ", res)
 	return res, e
+}
+
+type APIUtil struct {
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
+	Session     *awsSession.Session
 }
 
 func (u *APIUtil) InitApiClient() *operations.Client {

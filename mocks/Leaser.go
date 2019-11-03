@@ -29,7 +29,7 @@ func (_m *Leaser) ListLeases(acctID string, principleID string, nextAcctID strin
 	_m.Called(acctID, principleID, nextAcctID, nextPrincipalID, leaseStatus, pagLimit)
 }
 
-// LoginToLease provides a mock function with given fields: args, loginOpenBrowser
-func (_m *Leaser) LoginToLease(args []string, loginOpenBrowser bool) {
-	_m.Called(args, loginOpenBrowser)
+// LoginToLease provides a mock function with given fields: leaseID, loginOpenBrowser
+func (_m *Leaser) LoginToLease(leaseID string, loginOpenBrowser bool) {
+	_m.Called(leaseID, loginOpenBrowser)
 }
