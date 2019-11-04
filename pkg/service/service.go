@@ -45,8 +45,18 @@ func New(config *configs.Root, observation *observ.ObservationContainer, util *u
 }
 
 // Deployer deploys the DCE application
+type DeployOverrides struct {
+	AWSRegion                         string
+	GlobalTags                        []string
+	Namespace                         string
+	BudgetNotificationFromEmail       string
+	BudgetNotificationBCCEmails       []string
+	BudgetNotificationTemplateHTML    string
+	BudgetNotificationTemplateText    string
+	BudgetNotificationTemplateSubject string
+}
 type Deployer interface {
-	Deploy(namespace, deployLocal string)
+	Deploy(deployLocal string, overrides *DeployOverrides)
 }
 
 type Usager interface {

@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/Optum/dce-cli/configs"
@@ -24,32 +25,30 @@ type DeployService struct {
 	LocalRepo   string
 }
 
-func (s *DeployService) Deploy(namespace, deployLocal string) {
-
-	// TODO: Pass these directly into terraform
+func (s *DeployService) Deploy(deployLocal string, overrides *DeployOverrides) {
 	os.Setenv("AWS_ACCESS_KEY_ID", *s.Config.System.MasterAccount.Credentials.AwsAccessKeyID)
 	os.Setenv("AWS_SECRET_ACCESS_KEY", *s.Config.System.MasterAccount.Credentials.AwsSecretAccessKey)
 
-	if namespace == "" {
-		namespace = "dce-" + s.getRandString(6)
+	if overrides.Namespace == "" {
+		overrides.Namespace = "dce-" + s.getRandString(8)
 	}
 
 	if deployLocal != "" {
 		s.LocalRepo = deployLocal
 	}
 
-	stateBucket := s.createRemoteStateBackend(namespace)
+	stateBucket := s.createRemoteStateBackend(overrides)
 
 	log.Infoln("Creating DCE infrastructure")
-	artifactsBucket := s.createDceInfra(namespace, stateBucket)
+	artifactsBucket := s.createDceInfra(stateBucket, overrides)
 	log.Infoln("Artifacts bucket = ", artifactsBucket)
 
 	log.Infoln("Deploying code assets to DCE infrastructure")
-	s.deployCodeAssets(namespace, artifactsBucket)
+	s.deployCodeAssets(artifactsBucket, overrides)
 }
 
-func (s *DeployService) createRemoteStateBackend(namespace string) string {
-	tmpDir, originDir := s.mvToTempDir("dce-init-")
+func (s *DeployService) createRemoteStateBackend(overrides *DeployOverrides) string {
+	tmpDir, originDir := s.mvToTempDir("dce-")
 	defer os.RemoveAll(tmpDir)
 	defer os.Chdir(originDir)
 
@@ -63,11 +62,9 @@ func (s *DeployService) createRemoteStateBackend(namespace string) string {
 
 	log.Infoln("Initializing terraform working directory and building remote state infrastructure")
 	s.Util.Init([]string{})
-	if namespace != "" {
-		s.Util.Terraformer.Apply(namespace)
-	} else {
-		s.Util.Terraformer.Apply("dce-default-" + s.getRandString(8))
-	}
+
+	args := []string{"namespace=" + overrides.Namespace}
+	s.Util.Terraformer.Apply(args)
 
 	log.Infoln("Retrieving remote state bucket name from terraform outputs")
 	stateBucket := s.Util.Terraformer.GetOutput("bucket")
@@ -76,7 +73,7 @@ func (s *DeployService) createRemoteStateBackend(namespace string) string {
 	return stateBucket
 }
 
-func (s *DeployService) createDceInfra(namespace string, stateBucket string) string {
+func (s *DeployService) createDceInfra(stateBucket string, overrides *DeployOverrides) string {
 	tmpDir, originDir := s.mvToTempDir("dce-")
 	defer os.RemoveAll(tmpDir)
 	defer os.Chdir(originDir)
@@ -96,7 +93,8 @@ func (s *DeployService) createDceInfra(namespace string, stateBucket string) str
 	s.Util.Terraformer.Init([]string{"-backend-config=bucket=" + stateBucket, "-backend-config=key=local-tf-state"})
 
 	log.Infoln("Applying DCE infrastructure")
-	s.Util.Terraformer.Apply(namespace)
+	args := argsFromOverrides(overrides)
+	s.Util.Terraformer.Apply(args)
 
 	log.Infoln("Retrieving artifacts bucket name from terraform outputs")
 	artifactsBucket := s.Util.Terraformer.GetOutput("artifacts_bucket_name")
@@ -105,7 +103,7 @@ func (s *DeployService) createDceInfra(namespace string, stateBucket string) str
 	return artifactsBucket
 }
 
-func (s *DeployService) deployCodeAssets(deployNamespace string, artifactsBucket string) {
+func (s *DeployService) deployCodeAssets(artifactsBucket string, overrides *DeployOverrides) {
 	tmpDir, originDir := s.mvToTempDir("dce-")
 	defer os.RemoveAll(tmpDir)
 	defer os.Chdir(originDir)
@@ -124,7 +122,7 @@ func (s *DeployService) deployCodeAssets(deployNamespace string, artifactsBucket
 	log.Infoln("Uploaded lambdas to S3: ", lambdas)
 	log.Infoln("Uploaded codebuilds to S3: ", codebuilds)
 
-	s.Util.UpdateLambdasFromS3Assets(lambdas, artifactsBucket, deployNamespace)
+	s.Util.UpdateLambdasFromS3Assets(lambdas, artifactsBucket, overrides.Namespace)
 
 	// No need to update Codebuild. It will pull from <bucket>/codebuild on its next build.
 }
@@ -220,4 +218,60 @@ func (s *DeployService) getAssetsDir() string {
 	}
 
 	return workingDir
+}
+
+func argsFromOverrides(overrides *DeployOverrides) []string {
+	args := []string{}
+
+	if overrides.AWSRegion != "" {
+		args = append(args, "aws_region=", overrides.AWSRegion)
+	}
+	if overrides.GlobalTags != nil {
+		globalTags := ""
+		for index, tag := range overrides.GlobalTags {
+			if index == 0 {
+				globalTags = "global_tags={" + constants.GlobalTFTagDefaults
+			}
+
+			globalTags += "\"" + strings.ReplaceAll(tag, ":", "\":\"") + "\""
+			if index < len(overrides.GlobalTags)-1 {
+				globalTags += ","
+			} else {
+				globalTags += "}"
+			}
+		}
+		args = append(args, globalTags)
+	}
+	if overrides.Namespace != "" {
+		args = append(args, "namespace="+overrides.Namespace)
+	}
+	if overrides.BudgetNotificationFromEmail != "" {
+		args = append(args, "budget_notification_from_email="+overrides.BudgetNotificationFromEmail)
+	}
+	if overrides.BudgetNotificationBCCEmails != nil {
+		budgetBCCEnails := ""
+		for index, email := range overrides.BudgetNotificationBCCEmails {
+			if index == 0 {
+				budgetBCCEnails = "budget_notification_bcc_emails=["
+			}
+			budgetBCCEnails += "\"" + email + "\""
+			if index < len(overrides.BudgetNotificationBCCEmails)-1 {
+				budgetBCCEnails += ","
+			} else {
+				budgetBCCEnails += "]"
+			}
+		}
+		args = append(args, budgetBCCEnails)
+	}
+	if overrides.BudgetNotificationTemplateHTML != "" {
+		args = append(args, "budget_notification_template_html=", overrides.BudgetNotificationTemplateHTML)
+	}
+	if overrides.BudgetNotificationTemplateText != "" {
+		args = append(args, "budget_notification_template_text=", overrides.BudgetNotificationTemplateText)
+	}
+	if overrides.BudgetNotificationTemplateSubject != "" {
+		args = append(args, "budget_notification_template_subject=", overrides.BudgetNotificationTemplateSubject)
+	}
+
+	return args
 }

@@ -33,17 +33,20 @@ func (u *TerraformUtil) Init(args []string) {
 }
 
 // Apply applies terraform template with given namespace
-func (u *TerraformUtil) Apply(namespace string) {
-	log.Println("Running terraform apply with namespace: " + namespace)
+func (u *TerraformUtil) Apply(tfVars []string) {
 	tfApply := &tfCommand.ApplyCommand{
 		Meta: tfCommand.Meta{
 			Ui: getTerraformUI(),
 		},
 	}
-	namespaceKey := "-var"
-	namespaceValue := "namespace=" + namespace
 
-	tfApply.Run([]string{namespaceKey, namespaceValue})
+	runArgs := []string{}
+	for _, tfVar := range tfVars {
+		runArgs = append(runArgs, "-var", tfVar)
+	}
+
+	log.Debugln("Args for Apply command: ", runArgs)
+	tfApply.Run(runArgs)
 }
 
 // GetOutput gets terraform output value for provided key

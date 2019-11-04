@@ -74,7 +74,7 @@ type APIer interface {
 
 type Terraformer interface {
 	Init(args []string)
-	Apply(namespace string)
+	Apply(tfVars []string)
 	GetOutput(key string) string
 }
 
