@@ -4,9 +4,13 @@ test:
 	go test -count=1 -v ./...
 
 test_functional:
-	go test -count=1 -v tests/functional/*
+	go test -count=1 -v tests/functional/
 
-update_mocks:
+test_unit:
+	go test -count=1 -v tests/unit/
+
+.PHONY: mocks
+mocks:
 	rm -rf mocks/*
 	mockery -all
 
