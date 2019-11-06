@@ -31,13 +31,12 @@ func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, bu
 	res, err := apiClient.PostLeases(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
-	} else {
-		jsonPayload, err := json.Marshal(res)
-		if err != nil {
-			log.Fatalln("err: ", err)
-		}
-		log.Infoln(string(jsonPayload))
 	}
+	jsonPayload, err := json.Marshal(res.GetPayload())
+	if err != nil {
+		log.Fatalln("err: ", err)
+	}
+	log.Infoln("Lease created:", string(jsonPayload))
 }
 
 func (s *LeasesService) EndLease(accountID, principleID string) {
@@ -51,9 +50,8 @@ func (s *LeasesService) EndLease(accountID, principleID string) {
 	_, err := apiClient.DeleteLeases(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
-	} else {
-		log.Infoln("Lease ended")
 	}
+	log.Infoln("Lease ended")
 }
 
 func (s *LeasesService) GetLease(leaseID string) {
@@ -64,9 +62,13 @@ func (s *LeasesService) GetLease(leaseID string) {
 	res, err := apiClient.GetLeasesID(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
-	} else {
-		log.Infoln(res)
 	}
+	jsonPayload, err := json.Marshal(res.GetPayload())
+	if err != nil {
+		log.Fatalln("err: ", err)
+	}
+	log.Infoln(string(jsonPayload))
+
 }
 
 func (s *LeasesService) ListLeases(acctID, principleID, nextAcctID, nextPrincipalID, leaseStatus string, pagLimit int64) {
@@ -82,13 +84,12 @@ func (s *LeasesService) ListLeases(acctID, principleID, nextAcctID, nextPrincipa
 	res, err := apiClient.GetLeases(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
-	} else {
-		jsonPayload, err := json.Marshal(res.GetPayload())
-		if err != nil {
-			log.Fatalln("err: ", err)
-		}
-		log.Infoln(string(jsonPayload))
 	}
+	jsonPayload, err := json.Marshal(res.GetPayload())
+	if err != nil {
+		log.Fatalln("err: ", err)
+	}
+	log.Infoln(string(jsonPayload))
 }
 
 func (s *LeasesService) LoginToLease(leaseID string, loginOpenBrowser bool) {

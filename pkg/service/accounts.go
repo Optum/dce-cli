@@ -55,9 +55,12 @@ func (s *AccountsService) GetAccount(accountID string) {
 	res, err := apiClient.GetAccountsID(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
-	} else {
-		log.Infoln(res)
 	}
+	jsonPayload, err := json.Marshal(res.GetPayload())
+	if err != nil {
+		log.Fatalln("err: ", err)
+	}
+	log.Infoln(string(jsonPayload))
 }
 
 func (s *AccountsService) ListAccounts() {
@@ -66,11 +69,10 @@ func (s *AccountsService) ListAccounts() {
 	res, err := apiClient.GetAccounts(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
-	} else {
-		jsonPayload, err := json.Marshal(res.GetPayload())
-		if err != nil {
-			log.Fatalln("err: ", err)
-		}
-		log.Infoln(string(jsonPayload))
 	}
+	jsonPayload, err := json.Marshal(res.GetPayload())
+	if err != nil {
+		log.Fatalln("err: ", err)
+	}
+	log.Infoln(string(jsonPayload))
 }

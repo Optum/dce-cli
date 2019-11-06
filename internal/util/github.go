@@ -7,13 +7,11 @@ import (
 	"os"
 
 	"github.com/Optum/dce-cli/configs"
+	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 )
-
-const RepoName = "Redbox"
-const RepoOwner = "Optum"
 
 type GithubUtil struct {
 	Config      *configs.Root
@@ -28,19 +26,14 @@ func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string) {
 
 	variables := map[string]interface{}{
 		"assetName": githubv4.String(assetName),
-		"repoName":  githubv4.String(RepoName),
-		"repoOwner": githubv4.String(RepoOwner),
+		"repoName":  githubv4.String(constants.RepoName),
+		"repoOwner": githubv4.String(constants.RepoOwner),
 	}
 
 	var query struct {
-		// Viewer struct {
-		// 	Login     githubv4.String
-		// 	CreatedAt githubv4.DateTime
-		// }
 		Repository struct {
 			Releases struct {
 				Nodes []struct {
-					// TagName       githubv4.String
 					ReleaseAssets struct {
 						Nodes []struct {
 							URL string

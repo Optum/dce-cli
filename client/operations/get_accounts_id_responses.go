@@ -6,9 +6,14 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -46,7 +51,7 @@ func NewGetAccountsIDOK() *GetAccountsIDOK {
 
 /*GetAccountsIDOK handles this case with default header values.
 
-Account Details
+GetAccountsIDOK get accounts Id o k
 */
 type GetAccountsIDOK struct {
 	AccessControlAllowHeaders string
@@ -54,10 +59,16 @@ type GetAccountsIDOK struct {
 	AccessControlAllowMethods string
 
 	AccessControlAllowOrigin string
+
+	Payload *GetAccountsIDOKBody
 }
 
 func (o *GetAccountsIDOK) Error() string {
-	return fmt.Sprintf("[GET /accounts/{id}][%d] getAccountsIdOK ", 200)
+	return fmt.Sprintf("[GET /accounts/{id}][%d] getAccountsIdOK  %+v", 200, o.Payload)
+}
+
+func (o *GetAccountsIDOK) GetPayload() *GetAccountsIDOKBody {
+	return o.Payload
 }
 
 func (o *GetAccountsIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -70,6 +81,13 @@ func (o *GetAccountsIDOK) readResponse(response runtime.ClientResponse, consumer
 
 	// response header Access-Control-Allow-Origin
 	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+
+	o.Payload = new(GetAccountsIDOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }
@@ -92,5 +110,118 @@ func (o *GetAccountsIDForbidden) Error() string {
 
 func (o *GetAccountsIDForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	return nil
+}
+
+/*GetAccountsIDOKBody Account Details
+swagger:model GetAccountsIDOKBody
+*/
+type GetAccountsIDOKBody struct {
+
+	// Status of the Account.
+	// "Ready": The account is clean and ready for lease
+	// "NotReady": The account is in "dirty" state, and needs to be reset before it may be leased.
+	// "Leased": The account is leased to a principal
+	//
+	// Enum: [Ready NotReady Leased]
+	AccountStatus string `json:"accountStatus,omitempty"`
+
+	// ARN for an IAM role within this AWS account. The DCE master account will assume this IAM role to execute operations within this AWS account. This IAM role is configured by the client, and must be configured with [a Trust Relationship with the DCE master account.](/https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html)
+	AdminRoleArn string `json:"adminRoleArn,omitempty"`
+
+	// Epoch timestamp, when account record was created
+	CreatedOn int64 `json:"createdOn,omitempty"`
+
+	// AWS Account ID
+	ID string `json:"id,omitempty"`
+
+	// Epoch timestamp, when account record was last modified
+	LastModifiedOn int64 `json:"lastModifiedOn,omitempty"`
+
+	// Any organization specific data pertaining to the account that needs to be persisted
+	Metadata interface{} `json:"metadata,omitempty"`
+
+	// The S3 object ETag used to apply the Principal IAM Policy within this AWS account.  This policy is created by the DCE master account, and is assumed by people with access to principalRoleArn.
+	PrincipalPolicyHash string `json:"principalPolicyHash,omitempty"`
+
+	// ARN for an IAM role within this AWS account. This role is created by the DCE master account, and may be assumed by principals to login to their AWS child account.
+	PrincipalRoleArn string `json:"principalRoleArn,omitempty"`
+}
+
+// Validate validates this get accounts ID o k body
+func (o *GetAccountsIDOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateAccountStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAccountsIdOKBodyTypeAccountStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["Ready","NotReady","Leased"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAccountsIdOKBodyTypeAccountStatusPropEnum = append(getAccountsIdOKBodyTypeAccountStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAccountsIDOKBodyAccountStatusReady captures enum value "Ready"
+	GetAccountsIDOKBodyAccountStatusReady string = "Ready"
+
+	// GetAccountsIDOKBodyAccountStatusNotReady captures enum value "NotReady"
+	GetAccountsIDOKBodyAccountStatusNotReady string = "NotReady"
+
+	// GetAccountsIDOKBodyAccountStatusLeased captures enum value "Leased"
+	GetAccountsIDOKBodyAccountStatusLeased string = "Leased"
+)
+
+// prop value enum
+func (o *GetAccountsIDOKBody) validateAccountStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getAccountsIdOKBodyTypeAccountStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAccountsIDOKBody) validateAccountStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AccountStatus) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateAccountStatusEnum("getAccountsIdOK"+"."+"accountStatus", "body", o.AccountStatus); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAccountsIDOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAccountsIDOKBody) UnmarshalBinary(b []byte) error {
+	var res GetAccountsIDOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }

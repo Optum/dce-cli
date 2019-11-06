@@ -6,7 +6,9 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -61,16 +63,28 @@ func NewDeleteLeasesOK() *DeleteLeasesOK {
 
 /*DeleteLeasesOK handles this case with default header values.
 
-Lease Details
+DeleteLeasesOK delete leases o k
 */
 type DeleteLeasesOK struct {
+	Payload *DeleteLeasesOKBody
 }
 
 func (o *DeleteLeasesOK) Error() string {
-	return fmt.Sprintf("[DELETE /leases][%d] deleteLeasesOK ", 200)
+	return fmt.Sprintf("[DELETE /leases][%d] deleteLeasesOK  %+v", 200, o.Payload)
+}
+
+func (o *DeleteLeasesOK) GetPayload() *DeleteLeasesOKBody {
+	return o.Payload
 }
 
 func (o *DeleteLeasesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(DeleteLeasesOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }
@@ -200,6 +214,194 @@ func (o *DeleteLeasesBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *DeleteLeasesBody) UnmarshalBinary(b []byte) error {
 	var res DeleteLeasesBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*DeleteLeasesOKBody Lease Details
+swagger:model DeleteLeasesOKBody
+*/
+type DeleteLeasesOKBody struct {
+
+	// accountId of the AWS account
+	AccountID string `json:"accountId,omitempty"`
+
+	// budget amount
+	BudgetAmount float64 `json:"budgetAmount,omitempty"`
+
+	// budget currency
+	BudgetCurrency string `json:"budgetCurrency,omitempty"`
+
+	// budget notification emails
+	BudgetNotificationEmails []string `json:"budgetNotificationEmails"`
+
+	// creation date in epoch seconds
+	CreatedOn float64 `json:"createdOn,omitempty"`
+
+	// date lease should expire in epoch seconds
+	ExpiresOn float64 `json:"expiresOn,omitempty"`
+
+	// Lease ID
+	ID string `json:"id,omitempty"`
+
+	// date last modified in epoch seconds
+	LastModifiedOn float64 `json:"lastModifiedOn,omitempty"`
+
+	// Status of the Lease.
+	// "Active": The principal is leased and has access to the account
+	// "Inactive": The lease has become inactive, either through expiring, exceeding budget, or by request.
+	//
+	// Enum: [Active Inactive]
+	LeaseStatus string `json:"leaseStatus,omitempty"`
+
+	// date lease status was last modified in epoch seconds
+	LeaseStatusModifiedOn float64 `json:"leaseStatusModifiedOn,omitempty"`
+
+	// A reason behind the lease status.
+	// "LeaseExpired": The lease exceeded its expiration time ("expiresOn") and
+	// the associated account was reset and returned to the account pool.
+	// "LeaseOverBudget": The lease exceeded its budgeted amount and the
+	// associated account was reset and returned to the account pool.
+	// "LeaseDestroyed": The lease was adminstratively ended, which can be done
+	// via the leases API.
+	// "LeaseActive": The lease is active.
+	// "LeaseRolledBack": A system error occurred while provisioning the lease.
+	// and it was rolled back.
+	//
+	// Enum: [LeaseExpired LeaseOverBudget LeaseDestroyed LeaseActive LeaseRolledBack]
+	LeaseStatusReason string `json:"leaseStatusReason,omitempty"`
+
+	// principalId of the lease to get
+	PrincipalID string `json:"principalId,omitempty"`
+}
+
+// Validate validates this delete leases o k body
+func (o *DeleteLeasesOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLeaseStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLeaseStatusReason(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var deleteLeasesOKBodyTypeLeaseStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["Active","Inactive"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		deleteLeasesOKBodyTypeLeaseStatusPropEnum = append(deleteLeasesOKBodyTypeLeaseStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// DeleteLeasesOKBodyLeaseStatusActive captures enum value "Active"
+	DeleteLeasesOKBodyLeaseStatusActive string = "Active"
+
+	// DeleteLeasesOKBodyLeaseStatusInactive captures enum value "Inactive"
+	DeleteLeasesOKBodyLeaseStatusInactive string = "Inactive"
+)
+
+// prop value enum
+func (o *DeleteLeasesOKBody) validateLeaseStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, deleteLeasesOKBodyTypeLeaseStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *DeleteLeasesOKBody) validateLeaseStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LeaseStatus) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLeaseStatusEnum("deleteLeasesOK"+"."+"leaseStatus", "body", o.LeaseStatus); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var deleteLeasesOKBodyTypeLeaseStatusReasonPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LeaseExpired","LeaseOverBudget","LeaseDestroyed","LeaseActive","LeaseRolledBack"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		deleteLeasesOKBodyTypeLeaseStatusReasonPropEnum = append(deleteLeasesOKBodyTypeLeaseStatusReasonPropEnum, v)
+	}
+}
+
+const (
+
+	// DeleteLeasesOKBodyLeaseStatusReasonLeaseExpired captures enum value "LeaseExpired"
+	DeleteLeasesOKBodyLeaseStatusReasonLeaseExpired string = "LeaseExpired"
+
+	// DeleteLeasesOKBodyLeaseStatusReasonLeaseOverBudget captures enum value "LeaseOverBudget"
+	DeleteLeasesOKBodyLeaseStatusReasonLeaseOverBudget string = "LeaseOverBudget"
+
+	// DeleteLeasesOKBodyLeaseStatusReasonLeaseDestroyed captures enum value "LeaseDestroyed"
+	DeleteLeasesOKBodyLeaseStatusReasonLeaseDestroyed string = "LeaseDestroyed"
+
+	// DeleteLeasesOKBodyLeaseStatusReasonLeaseActive captures enum value "LeaseActive"
+	DeleteLeasesOKBodyLeaseStatusReasonLeaseActive string = "LeaseActive"
+
+	// DeleteLeasesOKBodyLeaseStatusReasonLeaseRolledBack captures enum value "LeaseRolledBack"
+	DeleteLeasesOKBodyLeaseStatusReasonLeaseRolledBack string = "LeaseRolledBack"
+)
+
+// prop value enum
+func (o *DeleteLeasesOKBody) validateLeaseStatusReasonEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, deleteLeasesOKBodyTypeLeaseStatusReasonPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *DeleteLeasesOKBody) validateLeaseStatusReason(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LeaseStatusReason) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLeaseStatusReasonEnum("deleteLeasesOK"+"."+"leaseStatusReason", "body", o.LeaseStatusReason); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DeleteLeasesOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DeleteLeasesOKBody) UnmarshalBinary(b []byte) error {
+	var res DeleteLeasesOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
