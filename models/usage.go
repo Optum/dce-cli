@@ -28,6 +28,7 @@ type Usage struct {
 	EndDate float64 `json:"endDate,omitempty"`
 
 	// principalId of the user who owns the lease of the AWS account
+	//
 	PrincipalID string `json:"principalId,omitempty"`
 
 	// usage start date as Epoch Timestamp

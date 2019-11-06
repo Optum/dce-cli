@@ -124,7 +124,7 @@ type GetAccountsOKBodyItems0 struct {
 	// Enum: [Ready NotReady Leased]
 	AccountStatus string `json:"accountStatus,omitempty"`
 
-	// ARN for an IAM role within this AWS account. The Redbox master account will assume this IAM role to execute operations within this AWS account. This IAM role is configured by the client, and must be configured with [a Trust Relationship with the Redbox master account.](/https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html)
+	// ARN for an IAM role within this AWS account. The DCE master account will assume this IAM role to execute operations within this AWS account. This IAM role is configured by the client, and must be configured with [a Trust Relationship with the DCE master account.](/https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html)
 	AdminRoleArn string `json:"adminRoleArn,omitempty"`
 
 	// Epoch timestamp, when account record was created
@@ -139,10 +139,10 @@ type GetAccountsOKBodyItems0 struct {
 	// Any organization specific data pertaining to the account that needs to be persisted
 	Metadata interface{} `json:"metadata,omitempty"`
 
-	// The S3 object ETag used to apply the Principal IAM Policy within this AWS account.  This policy is created by the Redbox master account, and is assumed by people with access to principalRoleArn.
+	// The S3 object ETag used to apply the Principal IAM Policy within this AWS account.  This policy is created by the DCE master account, and is assumed by people with access to principalRoleArn.
 	PrincipalPolicyHash string `json:"principalPolicyHash,omitempty"`
 
-	// ARN for an IAM role within this AWS account. This role is created by the Redbox master account, and may be assumed by principals to login to their AWS Redbox account.
+	// ARN for an IAM role within this AWS account. This role is created by the DCE master account, and may be assumed by principals to login to their AWS child account.
 	PrincipalRoleArn string `json:"principalRoleArn,omitempty"`
 }
 

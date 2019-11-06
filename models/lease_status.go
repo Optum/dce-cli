@@ -16,10 +16,7 @@ import (
 
 // LeaseStatus Status of the Lease.
 // "Active": The principal is leased and has access to the account
-// "Decommissioned": The principal was previously leased to the account, but now is not.
-// "FinanceLock": The principal is leased to the account, but has hit a budget threshold, and is locked out of the account.
-// "ResetLock": The principal is leased to the account, but the account is being reset. The principal's access is temporarily revoked, and will be given back after the reset process is complete.
-// "ResetFinanceLock": The principal is leased to the account, but has been locked out for hitting a budget threshold. Additionally, the account is being reset. After reset, the principal's access will _not_ be restored, and the LeaseStatus will be set back to `ResetLock`.
+// "Inactive": The lease has become inactive, either through expiring, exceeding budget, or by request.
 //
 // swagger:model leaseStatus
 type LeaseStatus string
@@ -29,17 +26,8 @@ const (
 	// LeaseStatusActive captures enum value "Active"
 	LeaseStatusActive LeaseStatus = "Active"
 
-	// LeaseStatusDecommissioned captures enum value "Decommissioned"
-	LeaseStatusDecommissioned LeaseStatus = "Decommissioned"
-
-	// LeaseStatusFinanceLock captures enum value "FinanceLock"
-	LeaseStatusFinanceLock LeaseStatus = "FinanceLock"
-
-	// LeaseStatusResetLock captures enum value "ResetLock"
-	LeaseStatusResetLock LeaseStatus = "ResetLock"
-
-	// LeaseStatusResetFinanceLock captures enum value "ResetFinanceLock"
-	LeaseStatusResetFinanceLock LeaseStatus = "ResetFinanceLock"
+	// LeaseStatusInactive captures enum value "Inactive"
+	LeaseStatusInactive LeaseStatus = "Inactive"
 )
 
 // for schema
@@ -47,7 +35,7 @@ var leaseStatusEnum []interface{}
 
 func init() {
 	var res []LeaseStatus
-	if err := json.Unmarshal([]byte(`["Active","Decommissioned","FinanceLock","ResetLock","ResetFinanceLock"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["Active","Inactive"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

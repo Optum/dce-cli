@@ -35,15 +35,15 @@ func (_m *APIer) DeleteAccountsID(_a0 *operations.DeleteAccountsIDParams, _a1 ru
 }
 
 // DeleteLeases provides a mock function with given fields: _a0, _a1
-func (_m *APIer) DeleteLeases(_a0 *operations.DeleteLeasesParams, _a1 runtime.ClientAuthInfoWriter) (*operations.DeleteLeasesCreated, error) {
+func (_m *APIer) DeleteLeases(_a0 *operations.DeleteLeasesParams, _a1 runtime.ClientAuthInfoWriter) (*operations.DeleteLeasesOK, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 *operations.DeleteLeasesCreated
-	if rf, ok := ret.Get(0).(func(*operations.DeleteLeasesParams, runtime.ClientAuthInfoWriter) *operations.DeleteLeasesCreated); ok {
+	var r0 *operations.DeleteLeasesOK
+	if rf, ok := ret.Get(0).(func(*operations.DeleteLeasesParams, runtime.ClientAuthInfoWriter) *operations.DeleteLeasesOK); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*operations.DeleteLeasesCreated)
+			r0 = ret.Get(0).(*operations.DeleteLeasesOK)
 		}
 	}
 

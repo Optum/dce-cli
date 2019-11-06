@@ -34,6 +34,9 @@ type Lease struct {
 	// creation date in epoch seconds
 	CreatedOn float64 `json:"createdOn,omitempty"`
 
+	// date lease should expire in epoch seconds
+	ExpiresOn float64 `json:"expiresOn,omitempty"`
+
 	// Lease ID
 	ID string `json:"id,omitempty"`
 
@@ -42,22 +45,30 @@ type Lease struct {
 
 	// Status of the Lease.
 	// "Active": The principal is leased and has access to the account
-	// "Decommissioned": The principal was previously leased to the account, but now is not.
-	// "FinanceLock": The principal is leased to the account, but has hit a budget threshold, and is locked out of the account.
-	// "ResetLock": The principal is leased to the account, but the account is being reset. The principal's access is temporarily revoked, and will be given back after the reset process is complete.
-	// "ResetFinanceLock": The principal is leased to the account, but has been locked out for hitting a budget threshold. Additionally, the account is being reset. After reset, the principal's access will _not_ be restored, and the LeaseStatus will be set back to `ResetLock`.
+	// "Inactive": The lease has become inactive, either through expiring, exceeding budget, or by request.
 	//
-	// Enum: [Active Decommissioned FinanceLock ResetLock ResetFinanceLock]
+	// Enum: [Active Inactive]
 	LeaseStatus string `json:"leaseStatus,omitempty"`
 
 	// date lease status was last modified in epoch seconds
 	LeaseStatusModifiedOn float64 `json:"leaseStatusModifiedOn,omitempty"`
 
+	// A reason behind the lease status.
+	// "LeaseExpired": The lease exceeded its expiration time ("expiresOn") and
+	// the associated account was reset and returned to the account pool.
+	// "LeaseOverBudget": The lease exceeded its budgeted amount and the
+	// associated account was reset and returned to the account pool.
+	// "LeaseDestroyed": The lease was adminstratively ended, which can be done
+	// via the leases API.
+	// "LeaseActive": The lease is active.
+	// "LeaseRolledBack": A system error occurred while provisioning the lease.
+	// and it was rolled back.
+	//
+	// Enum: [LeaseExpired LeaseOverBudget LeaseDestroyed LeaseActive LeaseRolledBack]
+	LeaseStatusReason string `json:"leaseStatusReason,omitempty"`
+
 	// principalId of the lease to get
 	PrincipalID string `json:"principalId,omitempty"`
-
-	// date lease should expire in epoch seconds
-	RequestedLeaseEnd float64 `json:"requestedLeaseEnd,omitempty"`
 }
 
 // Validate validates this lease
@@ -65,6 +76,10 @@ func (m *Lease) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateLeaseStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLeaseStatusReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -78,7 +93,7 @@ var leaseTypeLeaseStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["Active","Decommissioned","FinanceLock","ResetLock","ResetFinanceLock"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["Active","Inactive"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -91,17 +106,8 @@ const (
 	// LeaseLeaseStatusActive captures enum value "Active"
 	LeaseLeaseStatusActive string = "Active"
 
-	// LeaseLeaseStatusDecommissioned captures enum value "Decommissioned"
-	LeaseLeaseStatusDecommissioned string = "Decommissioned"
-
-	// LeaseLeaseStatusFinanceLock captures enum value "FinanceLock"
-	LeaseLeaseStatusFinanceLock string = "FinanceLock"
-
-	// LeaseLeaseStatusResetLock captures enum value "ResetLock"
-	LeaseLeaseStatusResetLock string = "ResetLock"
-
-	// LeaseLeaseStatusResetFinanceLock captures enum value "ResetFinanceLock"
-	LeaseLeaseStatusResetFinanceLock string = "ResetFinanceLock"
+	// LeaseLeaseStatusInactive captures enum value "Inactive"
+	LeaseLeaseStatusInactive string = "Inactive"
 )
 
 // prop value enum
@@ -120,6 +126,58 @@ func (m *Lease) validateLeaseStatus(formats strfmt.Registry) error {
 
 	// value enum
 	if err := m.validateLeaseStatusEnum("leaseStatus", "body", m.LeaseStatus); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var leaseTypeLeaseStatusReasonPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LeaseExpired","LeaseOverBudget","LeaseDestroyed","LeaseActive","LeaseRolledBack"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		leaseTypeLeaseStatusReasonPropEnum = append(leaseTypeLeaseStatusReasonPropEnum, v)
+	}
+}
+
+const (
+
+	// LeaseLeaseStatusReasonLeaseExpired captures enum value "LeaseExpired"
+	LeaseLeaseStatusReasonLeaseExpired string = "LeaseExpired"
+
+	// LeaseLeaseStatusReasonLeaseOverBudget captures enum value "LeaseOverBudget"
+	LeaseLeaseStatusReasonLeaseOverBudget string = "LeaseOverBudget"
+
+	// LeaseLeaseStatusReasonLeaseDestroyed captures enum value "LeaseDestroyed"
+	LeaseLeaseStatusReasonLeaseDestroyed string = "LeaseDestroyed"
+
+	// LeaseLeaseStatusReasonLeaseActive captures enum value "LeaseActive"
+	LeaseLeaseStatusReasonLeaseActive string = "LeaseActive"
+
+	// LeaseLeaseStatusReasonLeaseRolledBack captures enum value "LeaseRolledBack"
+	LeaseLeaseStatusReasonLeaseRolledBack string = "LeaseRolledBack"
+)
+
+// prop value enum
+func (m *Lease) validateLeaseStatusReasonEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, leaseTypeLeaseStatusReasonPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Lease) validateLeaseStatusReason(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.LeaseStatusReason) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateLeaseStatusReasonEnum("leaseStatusReason", "body", m.LeaseStatusReason); err != nil {
 		return err
 	}
 

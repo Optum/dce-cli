@@ -30,8 +30,26 @@ func (o *PostLeasesReader) ReadResponse(response runtime.ClientResponse, consume
 			return nil, err
 		}
 		return result, nil
+	case 400:
+		result := NewPostLeasesBadRequest()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 403:
 		result := NewPostLeasesForbidden()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
+	case 409:
+		result := NewPostLeasesConflict()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
+	case 500:
+		result := NewPostLeasesInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -77,6 +95,28 @@ func (o *PostLeasesCreated) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
+// NewPostLeasesBadRequest creates a PostLeasesBadRequest with default headers values
+func NewPostLeasesBadRequest() *PostLeasesBadRequest {
+	return &PostLeasesBadRequest{}
+}
+
+/*PostLeasesBadRequest handles this case with default header values.
+
+If the "expiresOn" date specified is non-zero but less than the current epoch date,  "Requested lease has a desired expiry date less than today: <date>" or "Failed to Parse Request Body" if the request body is blank or incorrectly formatted.
+
+*/
+type PostLeasesBadRequest struct {
+}
+
+func (o *PostLeasesBadRequest) Error() string {
+	return fmt.Sprintf("[POST /leases][%d] postLeasesBadRequest ", 400)
+}
+
+func (o *PostLeasesBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	return nil
+}
+
 // NewPostLeasesForbidden creates a PostLeasesForbidden with default headers values
 func NewPostLeasesForbidden() *PostLeasesForbidden {
 	return &PostLeasesForbidden{}
@@ -98,6 +138,48 @@ func (o *PostLeasesForbidden) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
+// NewPostLeasesConflict creates a PostLeasesConflict with default headers values
+func NewPostLeasesConflict() *PostLeasesConflict {
+	return &PostLeasesConflict{}
+}
+
+/*PostLeasesConflict handles this case with default header values.
+
+Conflict if there is an existing lease already active with the provided principal and account.
+*/
+type PostLeasesConflict struct {
+}
+
+func (o *PostLeasesConflict) Error() string {
+	return fmt.Sprintf("[POST /leases][%d] postLeasesConflict ", 409)
+}
+
+func (o *PostLeasesConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	return nil
+}
+
+// NewPostLeasesInternalServerError creates a PostLeasesInternalServerError with default headers values
+func NewPostLeasesInternalServerError() *PostLeasesInternalServerError {
+	return &PostLeasesInternalServerError{}
+}
+
+/*PostLeasesInternalServerError handles this case with default header values.
+
+Server errors if the database cannot be reached.
+*/
+type PostLeasesInternalServerError struct {
+}
+
+func (o *PostLeasesInternalServerError) Error() string {
+	return fmt.Sprintf("[POST /leases][%d] postLeasesInternalServerError ", 500)
+}
+
+func (o *PostLeasesInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	return nil
+}
+
 /*PostLeasesBody post leases body
 swagger:model PostLeasesBody
 */
@@ -114,6 +196,9 @@ type PostLeasesBody struct {
 	// budget notification emails
 	// Required: true
 	BudgetNotificationEmails []string `json:"budgetNotificationEmails"`
+
+	// expires on
+	ExpiresOn float64 `json:"expiresOn,omitempty"`
 
 	// principal Id
 	// Required: true

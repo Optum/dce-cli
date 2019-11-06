@@ -7,10 +7,10 @@ import (
 	"github.com/go-openapi/runtime"
 )
 
-// APIer is an interface generated for "./client/operations.Client".
+// APIer is an interface generated for "github.com/Optum/dce-cli/client/operations.Client".
 type APIer interface {
 	DeleteAccountsID(*operations.DeleteAccountsIDParams, runtime.ClientAuthInfoWriter) (*operations.DeleteAccountsIDNoContent, error)
-	DeleteLeases(*operations.DeleteLeasesParams, runtime.ClientAuthInfoWriter) (*operations.DeleteLeasesCreated, error)
+	DeleteLeases(*operations.DeleteLeasesParams, runtime.ClientAuthInfoWriter) (*operations.DeleteLeasesOK, error)
 	GetAccounts(*operations.GetAccountsParams, runtime.ClientAuthInfoWriter) (*operations.GetAccountsOK, error)
 	GetAccountsID(*operations.GetAccountsIDParams, runtime.ClientAuthInfoWriter) (*operations.GetAccountsIDOK, error)
 	GetLeases(*operations.GetLeasesParams, runtime.ClientAuthInfoWriter) (*operations.GetLeasesOK, error)

@@ -32,6 +32,12 @@ func (o *GetLeasesReader) ReadResponse(response runtime.ClientResponse, consumer
 			return nil, err
 		}
 		return result, nil
+	case 400:
+		result := NewGetLeasesBadRequest()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 403:
 		result := NewGetLeasesForbidden()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -96,6 +102,28 @@ func (o *GetLeasesOK) readResponse(response runtime.ClientResponse, consumer run
 	return nil
 }
 
+// NewGetLeasesBadRequest creates a GetLeasesBadRequest with default headers values
+func NewGetLeasesBadRequest() *GetLeasesBadRequest {
+	return &GetLeasesBadRequest{}
+}
+
+/*GetLeasesBadRequest handles this case with default header values.
+
+"Failed to Parse Request Body" if the request body is blank or incorrectly formatted.
+
+*/
+type GetLeasesBadRequest struct {
+}
+
+func (o *GetLeasesBadRequest) Error() string {
+	return fmt.Sprintf("[GET /leases][%d] getLeasesBadRequest ", 400)
+}
+
+func (o *GetLeasesBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	return nil
+}
+
 // NewGetLeasesForbidden creates a GetLeasesForbidden with default headers values
 func NewGetLeasesForbidden() *GetLeasesForbidden {
 	return &GetLeasesForbidden{}
@@ -137,6 +165,9 @@ type GetLeasesOKBodyItems0 struct {
 	// creation date in epoch seconds
 	CreatedOn float64 `json:"createdOn,omitempty"`
 
+	// date lease should expire in epoch seconds
+	ExpiresOn float64 `json:"expiresOn,omitempty"`
+
 	// Lease ID
 	ID string `json:"id,omitempty"`
 
@@ -145,22 +176,30 @@ type GetLeasesOKBodyItems0 struct {
 
 	// Status of the Lease.
 	// "Active": The principal is leased and has access to the account
-	// "Decommissioned": The principal was previously leased to the account, but now is not.
-	// "FinanceLock": The principal is leased to the account, but has hit a budget threshold, and is locked out of the account.
-	// "ResetLock": The principal is leased to the account, but the account is being reset. The principal's access is temporarily revoked, and will be given back after the reset process is complete.
-	// "ResetFinanceLock": The principal is leased to the account, but has been locked out for hitting a budget threshold. Additionally, the account is being reset. After reset, the principal's access will _not_ be restored, and the LeaseStatus will be set back to `ResetLock`.
+	// "Inactive": The lease has become inactive, either through expiring, exceeding budget, or by request.
 	//
-	// Enum: [Active Decommissioned FinanceLock ResetLock ResetFinanceLock]
+	// Enum: [Active Inactive]
 	LeaseStatus string `json:"leaseStatus,omitempty"`
 
 	// date lease status was last modified in epoch seconds
 	LeaseStatusModifiedOn float64 `json:"leaseStatusModifiedOn,omitempty"`
 
+	// A reason behind the lease status.
+	// "LeaseExpired": The lease exceeded its expiration time ("expiresOn") and
+	// the associated account was reset and returned to the account pool.
+	// "LeaseOverBudget": The lease exceeded its budgeted amount and the
+	// associated account was reset and returned to the account pool.
+	// "LeaseDestroyed": The lease was adminstratively ended, which can be done
+	// via the leases API.
+	// "LeaseActive": The lease is active.
+	// "LeaseRolledBack": A system error occurred while provisioning the lease.
+	// and it was rolled back.
+	//
+	// Enum: [LeaseExpired LeaseOverBudget LeaseDestroyed LeaseActive LeaseRolledBack]
+	LeaseStatusReason string `json:"leaseStatusReason,omitempty"`
+
 	// principalId of the lease to get
 	PrincipalID string `json:"principalId,omitempty"`
-
-	// date lease should expire in epoch seconds
-	RequestedLeaseEnd float64 `json:"requestedLeaseEnd,omitempty"`
 }
 
 // Validate validates this get leases o k body items0
@@ -168,6 +207,10 @@ func (o *GetLeasesOKBodyItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateLeaseStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLeaseStatusReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -181,7 +224,7 @@ var getLeasesOKBodyItems0TypeLeaseStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["Active","Decommissioned","FinanceLock","ResetLock","ResetFinanceLock"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["Active","Inactive"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -194,17 +237,8 @@ const (
 	// GetLeasesOKBodyItems0LeaseStatusActive captures enum value "Active"
 	GetLeasesOKBodyItems0LeaseStatusActive string = "Active"
 
-	// GetLeasesOKBodyItems0LeaseStatusDecommissioned captures enum value "Decommissioned"
-	GetLeasesOKBodyItems0LeaseStatusDecommissioned string = "Decommissioned"
-
-	// GetLeasesOKBodyItems0LeaseStatusFinanceLock captures enum value "FinanceLock"
-	GetLeasesOKBodyItems0LeaseStatusFinanceLock string = "FinanceLock"
-
-	// GetLeasesOKBodyItems0LeaseStatusResetLock captures enum value "ResetLock"
-	GetLeasesOKBodyItems0LeaseStatusResetLock string = "ResetLock"
-
-	// GetLeasesOKBodyItems0LeaseStatusResetFinanceLock captures enum value "ResetFinanceLock"
-	GetLeasesOKBodyItems0LeaseStatusResetFinanceLock string = "ResetFinanceLock"
+	// GetLeasesOKBodyItems0LeaseStatusInactive captures enum value "Inactive"
+	GetLeasesOKBodyItems0LeaseStatusInactive string = "Inactive"
 )
 
 // prop value enum
@@ -223,6 +257,58 @@ func (o *GetLeasesOKBodyItems0) validateLeaseStatus(formats strfmt.Registry) err
 
 	// value enum
 	if err := o.validateLeaseStatusEnum("leaseStatus", "body", o.LeaseStatus); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getLeasesOKBodyItems0TypeLeaseStatusReasonPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LeaseExpired","LeaseOverBudget","LeaseDestroyed","LeaseActive","LeaseRolledBack"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getLeasesOKBodyItems0TypeLeaseStatusReasonPropEnum = append(getLeasesOKBodyItems0TypeLeaseStatusReasonPropEnum, v)
+	}
+}
+
+const (
+
+	// GetLeasesOKBodyItems0LeaseStatusReasonLeaseExpired captures enum value "LeaseExpired"
+	GetLeasesOKBodyItems0LeaseStatusReasonLeaseExpired string = "LeaseExpired"
+
+	// GetLeasesOKBodyItems0LeaseStatusReasonLeaseOverBudget captures enum value "LeaseOverBudget"
+	GetLeasesOKBodyItems0LeaseStatusReasonLeaseOverBudget string = "LeaseOverBudget"
+
+	// GetLeasesOKBodyItems0LeaseStatusReasonLeaseDestroyed captures enum value "LeaseDestroyed"
+	GetLeasesOKBodyItems0LeaseStatusReasonLeaseDestroyed string = "LeaseDestroyed"
+
+	// GetLeasesOKBodyItems0LeaseStatusReasonLeaseActive captures enum value "LeaseActive"
+	GetLeasesOKBodyItems0LeaseStatusReasonLeaseActive string = "LeaseActive"
+
+	// GetLeasesOKBodyItems0LeaseStatusReasonLeaseRolledBack captures enum value "LeaseRolledBack"
+	GetLeasesOKBodyItems0LeaseStatusReasonLeaseRolledBack string = "LeaseRolledBack"
+)
+
+// prop value enum
+func (o *GetLeasesOKBodyItems0) validateLeaseStatusReasonEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getLeasesOKBodyItems0TypeLeaseStatusReasonPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetLeasesOKBodyItems0) validateLeaseStatusReason(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LeaseStatusReason) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLeaseStatusReasonEnum("leaseStatusReason", "body", o.LeaseStatusReason); err != nil {
 		return err
 	}
 

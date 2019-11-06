@@ -64,7 +64,7 @@ func (a *Client) DeleteAccountsID(params *DeleteAccountsIDParams, authInfo runti
 /*
 DeleteLeases removes a lease
 */
-func (a *Client) DeleteLeases(params *DeleteLeasesParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteLeasesCreated, error) {
+func (a *Client) DeleteLeases(params *DeleteLeasesParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteLeasesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteLeasesParams()
@@ -86,7 +86,7 @@ func (a *Client) DeleteLeases(params *DeleteLeasesParams, authInfo runtime.Clien
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*DeleteLeasesCreated)
+	success, ok := result.(*DeleteLeasesOK)
 	if ok {
 		return success, nil
 	}
@@ -272,7 +272,7 @@ func (a *Client) GetUsage(params *GetUsageParams, authInfo runtime.ClientAuthInf
 }
 
 /*
-PostAccounts adds an a w s account to the redbox account pool
+PostAccounts adds an a w s account to the account pool
 */
 func (a *Client) PostAccounts(params *PostAccountsParams, authInfo runtime.ClientAuthInfoWriter) (*PostAccountsCreated, error) {
 	// TODO: Validate the params before sending

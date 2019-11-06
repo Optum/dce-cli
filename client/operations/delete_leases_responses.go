@@ -24,14 +24,26 @@ type DeleteLeasesReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *DeleteLeasesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-	case 201:
-		result := NewDeleteLeasesCreated()
+	case 200:
+		result := NewDeleteLeasesOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
+	case 400:
+		result := NewDeleteLeasesBadRequest()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 403:
 		result := NewDeleteLeasesForbidden()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
+	case 500:
+		result := NewDeleteLeasesInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -42,37 +54,45 @@ func (o *DeleteLeasesReader) ReadResponse(response runtime.ClientResponse, consu
 	}
 }
 
-// NewDeleteLeasesCreated creates a DeleteLeasesCreated with default headers values
-func NewDeleteLeasesCreated() *DeleteLeasesCreated {
-	return &DeleteLeasesCreated{}
+// NewDeleteLeasesOK creates a DeleteLeasesOK with default headers values
+func NewDeleteLeasesOK() *DeleteLeasesOK {
+	return &DeleteLeasesOK{}
 }
 
-/*DeleteLeasesCreated handles this case with default header values.
+/*DeleteLeasesOK handles this case with default header values.
 
-Lease successfully removed
+Lease Details
 */
-type DeleteLeasesCreated struct {
-	AccessControlAllowHeaders string
-
-	AccessControlAllowMethods string
-
-	AccessControlAllowOrigin string
+type DeleteLeasesOK struct {
 }
 
-func (o *DeleteLeasesCreated) Error() string {
-	return fmt.Sprintf("[DELETE /leases][%d] deleteLeasesCreated ", 201)
+func (o *DeleteLeasesOK) Error() string {
+	return fmt.Sprintf("[DELETE /leases][%d] deleteLeasesOK ", 200)
 }
 
-func (o *DeleteLeasesCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *DeleteLeasesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	return nil
+}
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+// NewDeleteLeasesBadRequest creates a DeleteLeasesBadRequest with default headers values
+func NewDeleteLeasesBadRequest() *DeleteLeasesBadRequest {
+	return &DeleteLeasesBadRequest{}
+}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+/*DeleteLeasesBadRequest handles this case with default header values.
+
+"Failed to Parse Request Body" if the request body is blank or incorrectly formatted. or if there are no account leases found for the specified accountId or if the account specified is not already Active.
+
+*/
+type DeleteLeasesBadRequest struct {
+}
+
+func (o *DeleteLeasesBadRequest) Error() string {
+	return fmt.Sprintf("[DELETE /leases][%d] deleteLeasesBadRequest ", 400)
+}
+
+func (o *DeleteLeasesBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	return nil
 }
@@ -94,6 +114,27 @@ func (o *DeleteLeasesForbidden) Error() string {
 }
 
 func (o *DeleteLeasesForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	return nil
+}
+
+// NewDeleteLeasesInternalServerError creates a DeleteLeasesInternalServerError with default headers values
+func NewDeleteLeasesInternalServerError() *DeleteLeasesInternalServerError {
+	return &DeleteLeasesInternalServerError{}
+}
+
+/*DeleteLeasesInternalServerError handles this case with default header values.
+
+Server errors if the database cannot be reached.
+*/
+type DeleteLeasesInternalServerError struct {
+}
+
+func (o *DeleteLeasesInternalServerError) Error() string {
+	return fmt.Sprintf("[DELETE /leases][%d] deleteLeasesInternalServerError ", 500)
+}
+
+func (o *DeleteLeasesInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	return nil
 }
