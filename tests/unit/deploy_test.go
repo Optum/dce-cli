@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/Optum/dce-cli/configs"
+	"github.com/Optum/dce-cli/internal/constants"
 	svc "github.com/Optum/dce-cli/pkg/service"
 	"github.com/stretchr/testify/mock"
 )
@@ -69,7 +70,7 @@ func TestDeployTFOverrides(t *testing.T) {
 				mockTerraformer.AssertCalled(t, "Apply", mock.MatchedBy(func(args []string) bool {
 					isMatch := false
 					if len(args) == 2 {
-						isMatch = (args[0] == `global_tags={"Terraform":"True","AppName":"AWS Redbox Management","Source":"github.com/Optum/Redbox//modules","a":"b","c":"d"}`) &&
+						isMatch = (args[0] == `global_tags={`+constants.GlobalTFTagDefaults+`,"a":"b","c":"d"}`) &&
 							strings.Contains(args[1], `namespace=`)
 					}
 					if len(args) == 1 {
@@ -99,7 +100,7 @@ func TestDeployTFOverrides(t *testing.T) {
 				mockTerraformer.AssertCalled(t, "Apply", mock.MatchedBy(func(args []string) bool {
 					isMatch := false
 					if len(args) == 2 {
-						isMatch = (args[0] == `global_tags={"Terraform":"True","AppName":"AWS Redbox Management","Source":"github.com/Optum/Redbox//modules"}`) &&
+						isMatch = (args[0] == `global_tags={`+constants.GlobalTFTagDefaults+`}`) &&
 							strings.Contains(args[1], `namespace=`+expectedNamspace)
 					}
 					if len(args) == 1 {
