@@ -12,6 +12,12 @@ import (
 type TestLogObservation struct {
 	observ.LevelLogger
 	Ended bool
+	Msg   string
+}
+
+func (l *TestLogObservation) Infoln(args ...interface{}) {
+	l.Msg = args[0].(string)
+	l.Ended = true
 }
 
 func (l *TestLogObservation) Endf(format string, args ...interface{}) {
@@ -47,6 +53,7 @@ func initMocks(config configs.Root) {
 	spyLogger = TestLogObservation{
 		logrus.New(),
 		false,
+		"",
 	}
 	spyObservation := observ.ObservationContainer{
 		Logger: &spyLogger,

@@ -14,7 +14,7 @@ import (
 
 	"github.com/Optum/dce-cli/configs"
 	"github.com/manifoldco/promptui"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 )
 
@@ -72,7 +72,7 @@ var dceInitWritesToConfig = func(t *testing.T) {
 	}
 	t.Run("THEN config is written to file at specified path", func(t *testing.T) {
 		fullConfigPath := filepath.Join(destinationDir, configFileName)
-		require.FileExists(t, fullConfigPath, "Config file not found")
+		assert.FileExists(t, fullConfigPath, "Config file not found")
 		t.Run("AND it matches the configuration provided by the user", func(t *testing.T) {
 			actualStruct := configs.Root{}
 			actualConfigFile, _ := ioutil.ReadFile(fullConfigPath)
@@ -91,7 +91,7 @@ var dceInitWritesToConfig = func(t *testing.T) {
 				t.Log(err)
 			}
 
-			require.Equal(t, expectedJSON, actualJSON)
+			assert.Equal(t, expectedJSON, actualJSON)
 		})
 	})
 }

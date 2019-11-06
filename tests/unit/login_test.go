@@ -6,6 +6,8 @@ import (
 
 	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestLeaseLogin(t *testing.T) {
@@ -33,12 +35,17 @@ func TestLeaseLogin(t *testing.T) {
 					ConsoleURL:      exprectedConsoleURL,
 				},
 			}, nil)
-			mockWeber.AssertNotCalled(t, "OpenURL", exprectedConsoleURL)
 
 			service.LoginToLease(leaseID, openBrowser)
-			t.Run("THEN don't open web browser", func(t *testing.T) {
+			t.Run("THEN print credentials and don't open web browser", func(t *testing.T) {
 				mockWeber.AssertExpectations(t)
 				mockAPIer.AssertExpectations(t)
+				mockWeber.AssertNotCalled(t, "OpenURL", mock.Anything)
+
+				expectedOutput := "aws configure set aws_access_key_id " + expectedAccessKeyID +
+					";aws configure set aws_secret_access_key " + expectedSecretAccessKey +
+					";aws configure set aws_session_token " + expectedSessionToken
+				assert.Equal(t, expectedOutput, spyLogger.Msg)
 			})
 		})
 	})
@@ -68,9 +75,10 @@ func TestLeaseLogin(t *testing.T) {
 			mockWeber.On("OpenURL", exprectedConsoleURL)
 
 			service.LoginToLease(leaseID, openBrowser)
-			t.Run("THEN open browser to URL from api response", func(t *testing.T) {
+			t.Run("THEN open browser to URL from api response and don't print credentials", func(t *testing.T) {
 				mockWeber.AssertExpectations(t)
 				mockAPIer.AssertExpectations(t)
+				assert.Equal(t, "Opening AWS Console in Web Browser", spyLogger.Msg)
 			})
 		})
 	})

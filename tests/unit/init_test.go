@@ -5,8 +5,8 @@ import (
 
 	"github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/constants"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 )
 
 func TestInitializeDCE(t *testing.T) {
@@ -56,7 +56,7 @@ func TestInitializeDCE(t *testing.T) {
 				t.Skip()
 			}
 			t.Run("THEN end process", func(t *testing.T) {
-				require.True(t, spyLogger.Ended, "Process not ended")
+				assert.True(t, spyLogger.Ended, "Process not ended")
 			})
 		})
 	})
@@ -92,7 +92,7 @@ func TestInitializeDCE(t *testing.T) {
 					t.Skip()
 				}
 				t.Run("THEN end process", func(t *testing.T) {
-					require.True(t, spyLogger.Ended, "Process not ended")
+					assert.True(t, spyLogger.Ended, "Process not ended")
 				})
 			})
 
