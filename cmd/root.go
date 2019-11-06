@@ -61,17 +61,18 @@ func Execute() {
 	}
 }
 
-type PlainOutputFormatter struct {
+type FmtOutputFormatter struct {
 }
 
-func (f *PlainOutputFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+func (f *FmtOutputFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	var serialized []byte
 	var err error
 	serialized = []byte(entry.Message)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to marshal fields to JSON, %v", err)
 	}
-	return append(serialized, '\n'), nil
+	fmt.Println(string(serialized))
+	return nil, nil
 }
 
 // initialize anything related to logging, metrics, or tracing
@@ -101,7 +102,7 @@ func initObservation() {
 
 	logrusInstance.SetLevel(logLevel)
 	if logLevel == logrus.InfoLevel {
-		logrusInstance.SetFormatter(&PlainOutputFormatter{})
+		logrusInstance.SetFormatter(&FmtOutputFormatter{})
 	} else {
 		logrusInstance.SetFormatter(&logrus.TextFormatter{})
 	}

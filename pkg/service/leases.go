@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/Optum/dce-cli/client/operations"
@@ -117,8 +116,6 @@ func (s *LeasesService) LoginToLease(leaseID string, loginOpenBrowser bool) {
 		creds := "aws configure set aws_access_key_id " + responsePayload.AccessKeyID +
 			";aws configure set aws_secret_access_key " + responsePayload.SecretAccessKey +
 			";aws configure set aws_session_token " + responsePayload.SessionToken
-
-		// output from log.Info() cannot be piped to other bash commands
-		fmt.Print(creds)
+		log.Infoln(creds)
 	}
 }
