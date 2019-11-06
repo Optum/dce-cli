@@ -1,6 +1,8 @@
 package util
 
 import (
+	"os"
+
 	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/constants"
@@ -93,6 +95,12 @@ type FileSystemer interface {
 	GetHomeDir() string
 	IsExistingFile(path string) bool
 	ReadFromFile(path string) string
+	Unarchive(source string, destination string)
+	MvToTempDir(prefix string) (string, string)
+	RemoveAll(path string)
+	Chdir(path string)
+	ReadDir(path string) []os.FileInfo
+	WriteFile(fileName string, data string)
 }
 
 type Weber interface {

@@ -9,9 +9,9 @@ type Terraformer struct {
 	mock.Mock
 }
 
-// Apply provides a mock function with given fields: namespace
-func (_m *Terraformer) Apply(namespace string) {
-	_m.Called(namespace)
+// Apply provides a mock function with given fields: tfVars
+func (_m *Terraformer) Apply(tfVars []string) {
+	_m.Called(tfVars)
 }
 
 // GetOutput provides a mock function with given fields: key

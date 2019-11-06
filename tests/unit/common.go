@@ -1,10 +1,11 @@
-package service
+package unit
 
 import (
 	"github.com/Optum/dce-cli/configs"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	utl "github.com/Optum/dce-cli/internal/util"
 	"github.com/Optum/dce-cli/mocks"
+	svc "github.com/Optum/dce-cli/pkg/service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,13 +29,19 @@ func (l *TestLogObservation) Endln(args ...interface{}) {
 var mockPrompter mocks.Prompter
 var mockFileSystemer mocks.FileSystemer
 var mockWeber mocks.Weber
+var mockGithuber mocks.Githuber
+var mockAwser mocks.AWSer
+var mockTerraformer mocks.Terraformer
 var spyLogger TestLogObservation
-var service *ServiceContainer
+var service *svc.ServiceContainer
 
 func initMocks(config configs.Root) {
 	mockPrompter = mocks.Prompter{}
 	mockFileSystemer = mocks.FileSystemer{}
 	mockWeber = mocks.Weber{}
+	mockGithuber = mocks.Githuber{}
+	mockAwser = mocks.AWSer{}
+	mockTerraformer = mocks.Terraformer{}
 	spyLogger = TestLogObservation{
 		logrus.New(),
 		false,
@@ -48,6 +55,9 @@ func initMocks(config configs.Root) {
 		FileSystemer: &mockFileSystemer,
 		Weber:        &mockWeber,
 		Observation:  &spyObservation,
+		Githuber:     &mockGithuber,
+		AWSer:        &mockAwser,
+		Terraformer:  &mockTerraformer,
 	}
-	service = New(&config, &spyObservation, &mockUtil)
+	service = svc.New(&config, &spyObservation, &mockUtil)
 }

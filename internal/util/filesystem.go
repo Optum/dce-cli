@@ -6,6 +6,7 @@ import (
 
 	"github.com/Optum/dce-cli/configs"
 	observ "github.com/Optum/dce-cli/internal/observation"
+	"github.com/mholt/archiver"
 	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
 )
@@ -64,4 +65,53 @@ func (u *FileSystemUtil) ReadFromFile(path string) string {
 		log.Fatalf("error: %v", err)
 	}
 	return string(contents)
+}
+
+func (u *FileSystemUtil) Unarchive(source string, destination string) {
+	err := archiver.Unarchive(source, destination)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func (s *FileSystemUtil) MvToTempDir(prefix string) (string, string) {
+	destinationDir, err := ioutil.TempDir("", prefix)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	originDir, err := os.Getwd()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	os.Chdir(destinationDir)
+	return destinationDir, originDir
+}
+
+func (s *FileSystemUtil) RemoveAll(path string) {
+	err := os.RemoveAll(path)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func (s *FileSystemUtil) Chdir(path string) {
+	err := os.Chdir(path)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func (s *FileSystemUtil) WriteFile(fileName string, data string) {
+	err := ioutil.WriteFile(fileName, []byte(data), 0644)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func (s *FileSystemUtil) ReadDir(path string) []os.FileInfo {
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return files
 }
