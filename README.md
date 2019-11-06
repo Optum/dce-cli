@@ -48,7 +48,7 @@ This is the CLI for [DCE](https://github.com/Optum/Redbox) by Optum. For usage i
 
 5. Type `dce system deploy` to deploy dce to the AWS account specied in the previous step. This will be your new "DCE Master Account"
 
-6. Edit your dce config file with the api gateway url that was just deployed to your master account. This can be found in the master account under `API Gateway > (The API with "dce" in the title) > Stages`. It is listed as the "Invoke URL".
+6. Edit your dce config file with the host and base url from the api gateway that was just deployed to your master account. This can be found in the master account under `API Gateway > (The API with "dce" in the title) > Stages > "Invoke URL: https://<host>/<baseurl>"`.
 
 7. Prepare a second AWS account to be your first "DCE Child Account"
     - Create an IAM role with `AdministratorAccess` and a trust relationship to your DCE Master Accounts
