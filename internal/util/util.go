@@ -3,7 +3,6 @@ package util
 import (
 	"os"
 
-	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
@@ -22,7 +21,6 @@ type UtilContainer struct {
 	Prompter
 	FileSystemer
 	Weber
-	SwaggerAPIClient *operations.Client
 }
 
 var log observ.Logger
@@ -46,20 +44,22 @@ func New(config *configs.Root, observation *observ.ObservationContainer) *UtilCo
 		Region:      config.Region,
 	})
 
+	var initalizedApiClient APIer
+	if config.System.MasterAccount.Credentials.AwsAccessKeyID != nil {
+		apiUtil := &APIUtil{Config: config, Observation: observation, Session: session}
+		initalizedApiClient = apiUtil.InitApiClient()
+	}
+
 	utilContainer := UtilContainer{
 		Config:       config,
 		Observation:  observation,
 		AWSer:        &AWSUtil{Config: config, Observation: observation, Session: session},
-		APIer:        &APIUtil{Config: config, Observation: observation, Session: session},
+		APIer:        initalizedApiClient,
 		Terraformer:  &TerraformUtil{Config: config, Observation: observation},
 		Githuber:     &GithubUtil{Config: config, Observation: observation},
 		Prompter:     &PromptUtil{Config: config, Observation: observation},
 		FileSystemer: &FileSystemUtil{Config: config, Observation: observation, DefaultConfigFileName: constants.DefaultConfigFileName},
 		Weber:        &WebUtil{Observation: observation},
-	}
-
-	if config.System.MasterAccount.Credentials.AwsAccessKeyID != nil {
-		utilContainer.SwaggerAPIClient = utilContainer.InitApiClient()
 	}
 
 	return &utilContainer
@@ -68,10 +68,6 @@ func New(config *configs.Root, observation *observ.ObservationContainer) *UtilCo
 type AWSer interface {
 	UploadDirectoryToS3(localPath string, bucket string, prefix string) ([]string, []string)
 	UpdateLambdasFromS3Assets(lambdaNames []string, bucket string, namespace string)
-}
-
-type APIer interface {
-	InitApiClient() *operations.Client
 }
 
 type Terraformer interface {

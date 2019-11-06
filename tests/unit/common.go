@@ -32,6 +32,7 @@ var mockWeber mocks.Weber
 var mockGithuber mocks.Githuber
 var mockAwser mocks.AWSer
 var mockTerraformer mocks.Terraformer
+var mockAPIer mocks.APIer
 var spyLogger TestLogObservation
 var service *svc.ServiceContainer
 
@@ -42,6 +43,7 @@ func initMocks(config configs.Root) {
 	mockGithuber = mocks.Githuber{}
 	mockAwser = mocks.AWSer{}
 	mockTerraformer = mocks.Terraformer{}
+	mockAPIer = mocks.APIer{}
 	spyLogger = TestLogObservation{
 		logrus.New(),
 		false,
@@ -58,6 +60,7 @@ func initMocks(config configs.Root) {
 		Githuber:     &mockGithuber,
 		AWSer:        &mockAwser,
 		Terraformer:  &mockTerraformer,
+		APIer:        &mockAPIer,
 	}
 	service = svc.New(&config, &spyObservation, &mockUtil)
 }

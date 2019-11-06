@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	utl "github.com/Optum/dce-cli/internal/util"
@@ -21,13 +20,13 @@ type ServiceContainer struct {
 }
 
 var log observ.Logger
-var apiClient *operations.Client
+var apiClient utl.APIer
 
 // New returns a new ServiceContainer given config
 func New(config *configs.Root, observation *observ.ObservationContainer, util *utl.UtilContainer) *ServiceContainer {
 
 	log = observation.Logger
-	apiClient = util.SwaggerAPIClient
+	apiClient = util.APIer
 
 	serviceContainer := ServiceContainer{
 		Config:        config,
@@ -44,7 +43,6 @@ func New(config *configs.Root, observation *observ.ObservationContainer, util *u
 	return &serviceContainer
 }
 
-// Deployer deploys the DCE application
 type DeployOverrides struct {
 	AWSRegion                         string
 	GlobalTags                        []string
