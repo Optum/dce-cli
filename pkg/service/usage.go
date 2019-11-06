@@ -26,7 +26,7 @@ func (s *UsageService) GetUsage(startDate, endDate float64) {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	} else {
-		jsonPayload, err := json.Marshal(res)
+		jsonPayload, err := json.Marshal(res.GetPayload())
 		if err != nil {
 			log.Fatalln("err: ", err)
 		}

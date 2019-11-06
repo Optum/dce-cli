@@ -7,8 +7,10 @@ package operations
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -46,7 +48,7 @@ func NewGetUsageOK() *GetUsageOK {
 
 /*GetUsageOK handles this case with default header values.
 
-usage cost of the aws account from start date to end date
+GetUsageOK get usage o k
 */
 type GetUsageOK struct {
 	AccessControlAllowHeaders string
@@ -54,10 +56,16 @@ type GetUsageOK struct {
 	AccessControlAllowMethods string
 
 	AccessControlAllowOrigin string
+
+	Payload *GetUsageOKBody
 }
 
 func (o *GetUsageOK) Error() string {
-	return fmt.Sprintf("[GET /usage][%d] getUsageOK ", 200)
+	return fmt.Sprintf("[GET /usage][%d] getUsageOK  %+v", 200, o.Payload)
+}
+
+func (o *GetUsageOK) GetPayload() *GetUsageOKBody {
+	return o.Payload
 }
 
 func (o *GetUsageOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -70,6 +78,13 @@ func (o *GetUsageOK) readResponse(response runtime.ClientResponse, consumer runt
 
 	// response header Access-Control-Allow-Origin
 	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+
+	o.Payload = new(GetUsageOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }
@@ -92,5 +107,56 @@ func (o *GetUsageForbidden) Error() string {
 
 func (o *GetUsageForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	return nil
+}
+
+/*GetUsageOKBody usage cost of the aws account from start date to end date
+swagger:model GetUsageOKBody
+*/
+type GetUsageOKBody struct {
+
+	// accountId of the AWS account
+	AccountID string `json:"accountId,omitempty"`
+
+	// usage cost Amount of AWS account for given period
+	CostAmount float64 `json:"costAmount,omitempty"`
+
+	// usage cost currency
+	CostCurrency string `json:"costCurrency,omitempty"`
+
+	// usage end date as Epoch Timestamp
+	EndDate float64 `json:"endDate,omitempty"`
+
+	// principalId of the user who owns the lease of the AWS account
+	//
+	PrincipalID string `json:"principalId,omitempty"`
+
+	// usage start date as Epoch Timestamp
+	StartDate float64 `json:"startDate,omitempty"`
+
+	// ttl attribute as Epoch Timestamp
+	TimeToLive float64 `json:"timeToLive,omitempty"`
+}
+
+// Validate validates this get usage o k body
+func (o *GetUsageOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetUsageOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetUsageOKBody) UnmarshalBinary(b []byte) error {
+	var res GetUsageOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }
