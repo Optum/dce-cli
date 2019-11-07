@@ -9,6 +9,8 @@ const LeasesPath = "/leases"
 
 var acctID string
 var loginOpenBrowser bool
+var loginPrintCreds bool
+var loginProfile string
 
 var principleID string
 var budgetAmount float64
@@ -49,6 +51,8 @@ func init() {
 	leasesCmd.AddCommand(leasesEndCmd)
 
 	leasesLoginCmd.Flags().BoolVarP(&loginOpenBrowser, "open-browser", "b", false, "Opens web broswer to AWS console instead of printing credentials")
+	leasesLoginCmd.Flags().BoolVarP(&loginPrintCreds, "print-creds", "c", false, "Prints credentials rahter than adding them to .aws/credentials file")
+	leasesLoginCmd.Flags().StringVarP(&loginProfile, "profile", "p", "default", "Add aws cli credentials to a specific profile")
 	leasesCmd.AddCommand(leasesLoginCmd)
 
 	RootCmd.AddCommand(leasesCmd)
@@ -97,9 +101,9 @@ var leasesEndCmd = &cobra.Command{
 
 var leasesLoginCmd = &cobra.Command{
 	Use:   "login [Lease ID]",
-	Short: "Login to a leased DCE account",
+	Short: "Login to a leased DCE account. (Sets AWS CLI credentials if used with no flags)",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		service.LoginToLease(args[0], loginOpenBrowser)
+		service.LoginToLease(args[0], loginProfile, loginOpenBrowser, loginPrintCreds)
 	},
 }

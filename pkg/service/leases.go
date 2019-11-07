@@ -2,6 +2,8 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
+	"os/exec"
 	"time"
 
 	"github.com/Optum/dce-cli/client/operations"
@@ -92,7 +94,7 @@ func (s *LeasesService) ListLeases(acctID, principleID, nextAcctID, nextPrincipa
 	log.Infoln(string(jsonPayload))
 }
 
-func (s *LeasesService) LoginToLease(leaseID string, loginOpenBrowser bool) {
+func (s *LeasesService) LoginToLease(leaseID, loginProfile string, loginOpenBrowser, loginPrintCreds bool) {
 	log.Debugln("Requesting leased account credentials")
 	params := &operations.PostLeasesIDAuthParams{
 		ID: leaseID,
@@ -110,13 +112,40 @@ func (s *LeasesService) LoginToLease(leaseID string, loginOpenBrowser bool) {
 	}
 
 	responsePayload := res.GetPayload()
+
+	if !(loginOpenBrowser || loginPrintCreds) {
+		log.Infoln("Adding credentials to .aws/credentials using AWS CLI")
+		// bash exec creds
+		_, err := exec.Command("aws", "configure", "--profile", loginProfile, "set", "aws_access_key_id", responsePayload.AccessKeyID).CombinedOutput()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		_, err = exec.Command("aws", "configure", "--profile", loginProfile, "set", "aws_secret_access_key", responsePayload.SecretAccessKey).CombinedOutput()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		_, err = exec.Command("aws", "configure", "--profile", loginProfile, "set", "aws_session_token", responsePayload.SessionToken).CombinedOutput()
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		// support windows, maybe using "call"? https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/call
+	} else if loginProfile != "default" {
+		log.Infoln("Setting --profile has no effect when used with other flags.\n")
+	}
+
 	if loginOpenBrowser {
 		log.Infoln("Opening AWS Console in Web Browser")
 		s.Util.OpenURL(responsePayload.ConsoleURL)
-	} else {
-		creds := "aws configure set aws_access_key_id " + responsePayload.AccessKeyID +
-			";aws configure set aws_secret_access_key " + responsePayload.SecretAccessKey +
-			";aws configure set aws_session_token " + responsePayload.SessionToken
+	}
+
+	if loginPrintCreds {
+		creds := fmt.Sprintf(`export AWS_ACCESS_KEY_ID=%s
+export AWS_SECRET_ACCESS_KEY=%s
+export AWS_SESSION_TOKEN=%s`,
+			responsePayload.AccessKeyID,
+			responsePayload.SecretAccessKey,
+			responsePayload.SessionToken)
 		log.Infoln(creds)
 	}
 }
