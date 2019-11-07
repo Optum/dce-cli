@@ -1,85 +1,69 @@
 package unit
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-func TestLeaseLogin(t *testing.T) {
-	emptyConfig := configs.Root{}
-	t.Run("GIVEN lease id is valid and openBrowser is false", func(t *testing.T) {
-		leaseID := "leaseID"
-		openBrowser := false
+var expectedAccessKeyID = "expectedAccessKeyID"
+var expectedSecretAccessKey = "SecretAccessKey"
+var expectedSessionToken = "expectedAccessKeyID"
+var expectedConsoleURL = "ConsoleURL"
+var credsOutput = fmt.Sprintf(`export AWS_ACCESS_KEY_ID=%s
+export AWS_SECRET_ACCESS_KEY=%s
+export AWS_SESSION_TOKEN=%s`,
+	expectedAccessKeyID,
+	expectedSecretAccessKey,
+	expectedSessionToken)
 
-		expectedAccessKeyID := "expectedAccessKeyID"
-		expectedSecretAccessKey := "SecretAccessKey"
-		expectedSessionToken := "expectedAccessKeyID"
-		exprectedConsoleURL := "ConsoleURL"
+var testCases = []struct {
+	name          string
+	leaseID       string
+	openBrowser   bool
+	printCreds    bool
+	profile       string
+	expectedOut   string
+	isWeberCalled bool
+}{
+	{"GIVEN no flags THEN do not print anything", "doesntMatter", false, false, "default", "", false},
+	{"GIVEN openBrowser THEN Weber should open browser", "doesntMatter", true, false, "default", "Opening AWS Console in Web Browser", true},
+	{"GIVEN printCreds THEN Weber should open browser", "doesntMatter", false, true, "default", credsOutput, false},
+}
 
-		reqParams := &operations.PostLeasesIDAuthParams{
-			ID: leaseID,
-		}
-		reqParams.SetTimeout(5 * time.Second)
-		t.Run("WHEN LoginToLease", func(t *testing.T) {
+func TestLeaseLoginGivenFlags(t *testing.T) {
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Arrange
+			emptyConfig := configs.Root{}
 			initMocks(emptyConfig)
+			reqParams := &operations.PostLeasesIDAuthParams{
+				ID: tc.leaseID,
+			}
+			reqParams.SetTimeout(5 * time.Second)
 			mockAPIer.On("PostLeasesIDAuth", reqParams, nil).Return(&operations.PostLeasesIDAuthCreated{
 				Payload: &operations.PostLeasesIDAuthCreatedBody{
 					AccessKeyID:     expectedAccessKeyID,
 					SecretAccessKey: expectedSecretAccessKey,
 					SessionToken:    expectedSessionToken,
-					ConsoleURL:      exprectedConsoleURL,
+					ConsoleURL:      expectedConsoleURL,
 				},
 			}, nil)
+			if tc.isWeberCalled {
+				mockWeber.On("OpenURL", expectedConsoleURL)
+			}
+			// Act
+			service.LoginToLease(tc.leaseID, tc.profile, tc.openBrowser, tc.printCreds)
 
-			service.LoginToLease(leaseID, openBrowser)
-			t.Run("THEN print credentials and don't open web browser", func(t *testing.T) {
-				mockWeber.AssertExpectations(t)
-				mockAPIer.AssertExpectations(t)
-				mockWeber.AssertNotCalled(t, "OpenURL", mock.Anything)
+			// Assert
+			mockWeber.AssertExpectations(t)
+			mockAPIer.AssertExpectations(t)
 
-				expectedOutput := "aws configure set aws_access_key_id " + expectedAccessKeyID +
-					";aws configure set aws_secret_access_key " + expectedSecretAccessKey +
-					";aws configure set aws_session_token " + expectedSessionToken
-				assert.Equal(t, expectedOutput, spyLogger.Msg)
-			})
+			assert.Contains(t, spyLogger.Msg, tc.expectedOut)
 		})
-	})
-	t.Run("GIVEN lease id is valid and openBrowser is true", func(t *testing.T) {
-		leaseID := "leaseID"
-		openBrowser := true
-
-		expectedAccessKeyID := "expectedAccessKeyID"
-		expectedSecretAccessKey := "SecretAccessKey"
-		expectedSessionToken := "expectedAccessKeyID"
-		exprectedConsoleURL := "ConsoleURL"
-
-		reqParams := &operations.PostLeasesIDAuthParams{
-			ID: leaseID,
-		}
-		reqParams.SetTimeout(5 * time.Second)
-		t.Run("WHEN LoginToLease", func(t *testing.T) {
-			initMocks(emptyConfig)
-			mockAPIer.On("PostLeasesIDAuth", reqParams, nil).Return(&operations.PostLeasesIDAuthCreated{
-				Payload: &operations.PostLeasesIDAuthCreatedBody{
-					AccessKeyID:     expectedAccessKeyID,
-					SecretAccessKey: expectedSecretAccessKey,
-					SessionToken:    expectedSessionToken,
-					ConsoleURL:      exprectedConsoleURL,
-				},
-			}, nil)
-			mockWeber.On("OpenURL", exprectedConsoleURL)
-
-			service.LoginToLease(leaseID, openBrowser)
-			t.Run("THEN open browser to URL from api response and don't print credentials", func(t *testing.T) {
-				mockWeber.AssertExpectations(t)
-				mockAPIer.AssertExpectations(t)
-				assert.Equal(t, "Opening AWS Console in Web Browser", spyLogger.Msg)
-			})
-		})
-	})
+	}
 }
