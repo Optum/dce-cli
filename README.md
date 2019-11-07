@@ -1,6 +1,6 @@
 # AWS Disposable Cloud Environments (DCE) CLI
 
-This is the CLI for [DCE](https://github.com/Optum/Redbox) by Optum. For usage information, view the complete [command reference](./docs/dce.md).
+This is the CLI for [DCE](https://github.com/Optum/dce) by Optum. For usage information, view the complete [command reference](./docs/dce.md).
 
 # Quick Start
 
@@ -62,7 +62,7 @@ This is the CLI for [DCE](https://github.com/Optum/Redbox) by Optum. For usage i
 
 9. Type `dce accounts list` to verify that your account has been added
 ➜  ~ dce accounts list
-[{"accountStatus":"NotReady","adminRoleArn":"arn:aws:iam::555555555555:role/MasterAcctAcces","createdOn":1572562180,"id":"555555555555","lastModifiedOn":1572637591,"principalPolicyHash":"\"852ee9abbf1220a111c435a8c0e65490\"","principalRoleArn":"arn:aws:iam::555555555555:role/RedboxPrincipal-dcelogin"}]
+[{"accountStatus":"NotReady","adminRoleArn":"arn:aws:iam::555555555555:role/MasterAcctAcces","createdOn":1572562180,"id":"555555555555","lastModifiedOn":1572637591,"principalPolicyHash":"\"852ee9abbf1220a111c435a8c0e65490\"","principalRoleArn":"arn:aws:iam::555555555555:role/DCEPrincipal-dcelogin"}]
 
     The account status will initially say `NotReady`. It may take up to 5 minutes for the new account to be processed. Once the account status is `Ready`, you may proceed with creating a lease.
 

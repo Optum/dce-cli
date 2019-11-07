@@ -2,16 +2,16 @@ all: mocks test build
 
 # Generate client code from swagger in a local dce repo (make openapi DCE_REPO=/path/to/dce)
 openapi:
-	echo "MANUAL STEP: Install goswagger cli tool if needed: https://goswagger.io/install.html"
-	swagger flatten --with-expand $(DCE_REPO)/modules/swagger.yaml >> $(DCE_REPO)/out.yaml
-	swagger generate client -f $(DCE_REPO)/out.yaml --skip-validation -t $(PWD)
+	echo "\nMANUAL STEP: Install goswagger cli tool if needed: https://goswagger.io/install.html\n"
+	swagger flatten --with-expand $(DCE_REPO)/modules/swagger.yaml >> $(PWD)/out.yaml
+	swagger generate client -f $(PWD)/out.yaml --skip-validation -t $(PWD)
 
 
 # Generate interfaces for OpenApi clients so they can be mocked.
 ifaces:
-	echo "MANUAL STEP: Install interfacer if needed: `go install github.com/rjeczalik/interfaces/cmd/interfacer`"
+	echo "\nMANUAL STEP: Install interfacer if needed: `go install github.com/rjeczalik/interfaces/cmd/interfacer`\n"
 	interfacer -for github.com/Optum/dce-cli/client/operations.Client -as APIer -o internal/util/ifaces.go
-	echo "\nMANUAL STEP: Update the package name of internal/util/ifaces.go to package util"
+	echo "\nMANUAL STEP: Update the package name of internal/util/ifaces.go to package util\n"
 
 .PHONY: mocks
 mocks:

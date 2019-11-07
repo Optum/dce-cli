@@ -10,9 +10,8 @@ const RemoteBackend string = `provider "aws" {
 	
 	default = {
 	Terraform = "True"
-	AppName   = "AWS Redbox Management"
-	Source    = "github.com/Optum/Redbox//modules"
-	Contact   = "fake_email@domain.com"
+	AppName   = "DCE"
+	Source    = "github.com/Optum/dce//modules"
 	}
 	}
 	
