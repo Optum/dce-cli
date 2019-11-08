@@ -59,12 +59,12 @@ steps:
     zip -m MACFILE ./dce
     MACSHA=$(IFS=' '; read -ra ADDR <<< $(sha256sum $MACFILE); echo "${ADDR[0]}")
     cat> release.md <<- EOF
-| SHA256  | File |
-|---|---|
-| $MACFILE  | $MACSHA |
-| $LINFILE  | $LINSHA  |
-| $WINFILE  | $WINSHA  |
-EOF
+    | SHA256  | File |
+    |---|---|
+    | $MACFILE  | $MACSHA |
+    | $LINFILE  | $LINSHA  |
+    | $WINFILE  | $WINSHA  |
+    EOF
   displayName: 'Build and zip'
 
 # Publish a Github Release for tagged commits
