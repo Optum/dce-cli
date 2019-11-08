@@ -76,7 +76,7 @@ steps:
     tagSource: 'auto'
     gitHubConnection: Github
     repositoryName: Optum/dce-cli
-    releaseNotesSource: |
+    releaseNotesFile: |
       ./dist/release.md
     assets: |
       ./dist/*
