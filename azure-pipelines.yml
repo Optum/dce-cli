@@ -43,12 +43,30 @@ steps:
 - script: |
     set -x
     mkdir dist && cd dist
+    # zip for windows and calculate sha256 hash
+    WINFILE=dce_windows_amd64.zip
     env GOOS=windows GOARCH=amd64 go build -v -o ./dce ..
-    zip -m dce_windows_amd64.zip ./dce
+    zip -m $WINFILE ./dce
+    WINSHA=$(IFS=' '; read -ra ADDR <<< $(sha256sum $WINFILE); echo "${ADDR[0]}")
+
+    # zip for linux and calculate sha256 hash
+    LINFILE=dce_linux_amd64.zip
     env GOOS=linux GOARCH=amd64 go build -v -o ./dce ..
-    zip -m dce_linux_amd64.zip ./dce
+    zip -m $LINFILE ./dce
+    LINSHA=$(IFS=' '; read -ra ADDR <<< $(sha256sum $LINFILE); echo "${ADDR[0]}")
+
+    # zip for mac and calculate sha256 hash
+    MACFILE=dce_darwin_amd64.zip
     env GOOS=darwin GOARCH=amd64 go build -v -o ./dce ..
-    zip -m dce_darwin_amd64.zip ./dce
+    zip -m $MACFILE ./dce
+    MACSHA=$(IFS=' '; read -ra ADDR <<< $(sha256sum $MACFILE); echo "${ADDR[0]}")
+    cat> ../release.md <<- EOF
+    | File  | SHA256 |
+    |---|---|
+    | $MACFILE  | $MACSHA |
+    | $LINFILE  | $LINSHA  |
+    | $WINFILE  | $WINSHA  |
+    EOF
   displayName: 'Build and zip'
 
 # Publish a Github Release for tagged commits
@@ -60,5 +78,7 @@ steps:
     tagSource: 'auto'
     gitHubConnection: Github
     repositoryName: Optum/dce-cli
+    releaseNotesFile: |
+      ./release.md
     assets: |
       ./dist/*
