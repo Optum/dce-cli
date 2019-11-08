@@ -48,18 +48,20 @@ steps:
     env GOOS=windows GOARCH=amd64 go build -v -o ./dce ..
     zip -m $WINFILE ./dce
     WINSHA=$(IFS=' '; read -ra ADDR <<< $(sha256sum $WINFILE); echo "${ADDR[0]}")
+
     # zip for linux and calculate sha256 hash
     LINFILE=dce_linux_amd64.zip
     env GOOS=linux GOARCH=amd64 go build -v -o ./dce ..
     zip -m $LINFILE ./dce
     LINSHA=$(IFS=' '; read -ra ADDR <<< $(sha256sum $LINFILE); echo "${ADDR[0]}")
+
     # zip for mac and calculate sha256 hash
     MACFILE=dce_darwin_amd64.zip
     env GOOS=darwin GOARCH=amd64 go build -v -o ./dce ..
-    zip -m MACFILE ./dce
+    zip -m $MACFILE ./dce
     MACSHA=$(IFS=' '; read -ra ADDR <<< $(sha256sum $MACFILE); echo "${ADDR[0]}")
     cat> release.md <<- EOF
-    | SHA256  | File |
+    | File  | SHA256 |
     |---|---|
     | $MACFILE  | $MACSHA |
     | $LINFILE  | $LINSHA  |
