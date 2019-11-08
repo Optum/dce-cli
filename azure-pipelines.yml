@@ -60,7 +60,7 @@ steps:
     env GOOS=darwin GOARCH=amd64 go build -v -o ./dce ..
     zip -m $MACFILE ./dce
     MACSHA=$(IFS=' '; read -ra ADDR <<< $(sha256sum $MACFILE); echo "${ADDR[0]}")
-    cat> release.md <<- EOF
+    cat> ../release.md <<- EOF
     | File  | SHA256 |
     |---|---|
     | $MACFILE  | $MACSHA |
@@ -79,6 +79,6 @@ steps:
     gitHubConnection: Github
     repositoryName: Optum/dce-cli
     releaseNotesFile: |
-      ./dist/release.md
+      ./release.md
     assets: |
       ./dist/*
