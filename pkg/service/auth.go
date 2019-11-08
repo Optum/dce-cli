@@ -1,21 +1,22 @@
 package service
 
 import (
-	"log"
-
 	"github.com/Optum/dce-cli/configs"
-	"github.com/pkg/browser"
+	observ "github.com/Optum/dce-cli/internal/observation"
+	utl "github.com/Optum/dce-cli/internal/util"
 )
 
 type AuthService struct {
-	Config *configs.Root
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
+	Util        *utl.UtilContainer
 }
 
 func (s *AuthService) Authenticate(authUrl string) {
-	log.Println("Opening web browser. Please login and copy/paste the provided credentials into this terminal.")
+	log.Println("Opening web browser. Please Login and copy/paste the provided credentials into this terminal.")
 
 	if authUrl == "" {
 		authUrl = *s.Config.System.Auth.LoginURL
 	}
-	browser.OpenURL(authUrl)
+	s.Util.OpenURL(authUrl)
 }

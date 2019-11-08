@@ -1,52 +1,78 @@
 package service
 
 import (
-	"log"
+	"encoding/json"
+	"time"
 
+	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
-	"github.com/Optum/dce-cli/internal/util"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	utl "github.com/Optum/dce-cli/internal/util"
 )
 
 const accountsPath = "/accounts"
 
 type AccountsService struct {
-	Config *configs.Root
-	Util   *utl.UtilContainer
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
+	Util        *utl.UtilContainer
 }
 
 func (s *AccountsService) AddAccount(accountID, adminRoleARN string) {
-	requestBody := &utl.CreateAccountRequest{
-		ID:           accountID,
-		AdminRoleArn: adminRoleARN,
+	params := &operations.PostAccountsParams{
+		Account: operations.PostAccountsBody{
+			ID:           &accountID,
+			AdminRoleArn: &adminRoleARN,
+		},
 	}
-
-	accountsFullURL := *s.Config.API.BaseURL + accountsPath
-	response := s.Util.Request(&util.ApiRequestInput{
-		Method: "POST",
-		Url:    accountsFullURL,
-		Region: *s.Config.Region,
-		Json:   requestBody,
-	})
-
-	if response.StatusCode == 201 {
-		log.Println("Account added to DCE accounts pool")
+	params.SetTimeout(5 * time.Second)
+	_, err := apiClient.PostAccounts(params, nil)
+	if err != nil {
+		log.Fatalln("err: ", err)
 	} else {
-		log.Println("DCE Responded with an error: ", response)
+		log.Infoln("Account added to DCE accounts pool")
 	}
 }
 
 func (s *AccountsService) RemoveAccount(accountID string) {
-	accountsFullURL := *s.Config.API.BaseURL + accountsPath + "/" + accountID
-	response := s.Util.Request(&utl.ApiRequestInput{
-		Method: "DELETE",
-		Url:    accountsFullURL,
-		Region: *s.Config.Region,
-	})
-
-	if response.StatusCode == 204 {
-		log.Println("Account removed from DCE accounts pool")
-	} else {
-		log.Println("DCE Responded with an error: ", response)
+	params := &operations.DeleteAccountsIDParams{
+		ID: accountID,
 	}
+	params.SetTimeout(5 * time.Second)
+	_, err := apiClient.DeleteAccountsID(params, nil)
+	if err != nil {
+		log.Fatalln("err: ", err)
+	} else {
+		log.Infoln("Account removed from DCE accounts pool")
+	}
+}
+
+func (s *AccountsService) GetAccount(accountID string) {
+	params := &operations.GetAccountsIDParams{
+		ID: accountID,
+	}
+	params.SetTimeout(5 * time.Second)
+	res, err := apiClient.GetAccountsID(params, nil)
+	if err != nil {
+		log.Fatalln("err: ", err)
+	}
+	jsonPayload, err := json.Marshal(res.GetPayload())
+	if err != nil {
+		log.Fatalln("err: ", err)
+	}
+	log.Infoln(string(jsonPayload))
+}
+
+func (s *AccountsService) ListAccounts() {
+	params := &operations.GetAccountsParams{}
+	params.SetTimeout(5 * time.Second)
+	res, err := apiClient.GetAccounts(params, nil)
+	if err != nil {
+		log.Fatalln("err: ", err)
+	}
+	jsonPayload, err := json.Marshal(res.GetPayload())
+	if err != nil {
+		log.Fatalln("err: ", err)
+	}
+	log.Infoln(string(jsonPayload))
 }

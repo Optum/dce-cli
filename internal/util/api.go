@@ -2,112 +2,94 @@ package util
 
 import (
 	"bytes"
-	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"net/http"
 	"time"
 
+	apiclient "github.com/Optum/dce-cli/client"
+	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
+	"github.com/Optum/dce-cli/internal/observation"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	awsSession "github.com/aws/aws-sdk-go/aws/session"
 	sigv4 "github.com/aws/aws-sdk-go/aws/signer/v4"
+	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
+
+	"net/http"
+	"net/http/httputil"
 )
 
-type CreateAccountRequest struct {
-	ID           string `json:"id"`
-	AdminRoleArn string `json:"adminRoleArn"`
+// Adapted from https://stackoverflow.com/questions/39527847/is-there-middleware-for-go-http-client
+type Sig4RoundTripper struct {
+	Proxied http.RoundTripper
+	Creds   *credentials.Credentials
+	Region  string
+	Logger  observation.Logger
 }
 
-type LeaseRequest struct {
-	PrincipalID              string   `json:"principalId"`
-	AccountID                string   `json:"accountId"`
-	BudgetAmount             float64  `json:"budgetAmount"`
-	BudgetCurrency           string   `json:"budgetCurrency"`
-	BudgetNotificationEmails []string `json:"budgetNotificationEmails"`
-}
-
-type ApiRequestInput struct {
-	Method string
-	Url    string
-	Creds  *credentials.Credentials
-	Region string
-	Json   interface{}
-}
-
-type ApiResponse struct {
-	http.Response
-	json interface{}
-}
-
-type APIUtil struct {
-	Config  *configs.Root
-	Session *awsSession.Session
-}
-
-//Request sends sig4 signed requests to api
-func (u *APIUtil) Request(input *ApiRequestInput) *ApiResponse {
-
-	//TODO: Use a better pattern to set these
-	input.Creds = credentials.NewStaticCredentials(
-		*u.Config.API.Credentials.AwsAccessKeyID,
-		*u.Config.API.Credentials.AwsSecretAccessKey,
-		*u.Config.API.Credentials.AwsSessionToken,
-	)
-
-	if input.Region == "" {
-		input.Region = "us-east-1"
+func (srt Sig4RoundTripper) RoundTrip(req *http.Request) (res *http.Response, e error) {
+	log := srt.Logger
+	dumpedReq, err := httputil.DumpRequest(req, true)
+	if err != nil {
+		srt.Logger.Fatalf(err.Error())
 	}
+	log.Debugln("V4 Signing Request:\n", string(dumpedReq))
 
-	// Create API request
-	req, err := http.NewRequest(input.Method, input.Url, nil)
-
-	// Sign our API request, using sigv4
-	// See https://docs.aws.amazon.com/general/latest/gr/sigv4_signing.html
-	signer := sigv4.NewSigner(input.Creds)
+	signer := sigv4.NewSigner(srt.Creds)
 	now := time.Now().Add(time.Duration(30) * time.Second)
 
 	// If there's a json provided, add it when signing
 	// Body does not matter if added before the signing, it will be overwritten
-	if input.Json != nil {
 
-		payload, err := json.Marshal(input.Json)
+	executeAPI := "execute-api"
+	if req.Body != nil {
+		body, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			log.Fatalln("Error reading payload for v4 signing. ", err)
+		}
 
 		if err != nil {
-			fmt.Println("Error marshaling json payload")
+			log.Fatalln("Error marshaling payload. ", err)
 		}
 		req.Header.Set("Content-Type", "application/json")
-		_, err = signer.Sign(req, bytes.NewReader(payload),
-			"execute-api", input.Region, now)
+		_, err = signer.Sign(req, bytes.NewReader(body),
+			executeAPI, srt.Region, now)
+
 	} else {
-		_, err = signer.Sign(req, nil, "execute-api",
-			input.Region, now)
+		_, err := signer.Sign(req, nil,
+			executeAPI, srt.Region, now)
+		if err != nil {
+			log.Fatalln("Error while v4 signing request. ", err)
+		}
 	}
 
-	// Send the API requests
-	// resp, err := http.DefaultClient.Do(req)
-	httpClient := http.Client{
-		Timeout: 60 * time.Second,
+	res, e = srt.Proxied.RoundTrip(req)
+
+	log.Debugln("Response: ", res)
+	return res, e
+}
+
+type APIUtil struct {
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
+	Session     *awsSession.Session
+}
+
+func (u *APIUtil) InitApiClient() *operations.Client {
+
+	sig4RoundTripper := Sig4RoundTripper{
+		Proxied: http.DefaultTransport,
+		Creds: credentials.NewStaticCredentials(
+			*u.Config.System.MasterAccount.Credentials.AwsAccessKeyID,
+			*u.Config.System.MasterAccount.Credentials.AwsSecretAccessKey,
+			*u.Config.System.MasterAccount.Credentials.AwsSessionToken,
+		),
+		Region: *u.Config.Region,
+		Logger: log,
 	}
-	resp, err := httpClient.Do(req)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Parse the JSON response
-	apiResp := &ApiResponse{
-		Response: *resp,
-	}
-	defer resp.Body.Close()
-	var data interface{}
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	err = json.Unmarshal([]byte(body), &data)
-	if err == nil {
-		apiResp.json = data
-	}
-
-	return apiResp
+	sig4HTTTPClient := http.Client{Transport: &sig4RoundTripper}
+	httpTransport := httptransport.NewWithClient(*u.Config.API.Host, *u.Config.API.BasePath, nil, &sig4HTTTPClient)
+	client := apiclient.New(httpTransport, strfmt.Default)
+	return client.Operations
 }

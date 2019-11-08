@@ -1,10 +1,10 @@
 package util
 
 import (
-	"log"
 	"os"
 
 	"github.com/Optum/dce-cli/configs"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	tfBackendInit "github.com/hashicorp/terraform/backend/init"
 	tfCommand "github.com/hashicorp/terraform/command"
 	tfDiscovery "github.com/hashicorp/terraform/svchost/disco"
@@ -13,7 +13,8 @@ import (
 )
 
 type TerraformUtil struct {
-	Config *configs.Root
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
 }
 
 // Init initialized a terraform working directory
@@ -32,17 +33,20 @@ func (u *TerraformUtil) Init(args []string) {
 }
 
 // Apply applies terraform template with given namespace
-func (u *TerraformUtil) Apply(namespace string) {
-	log.Println("Running terraform apply with namespace: " + namespace)
+func (u *TerraformUtil) Apply(tfVars []string) {
 	tfApply := &tfCommand.ApplyCommand{
 		Meta: tfCommand.Meta{
 			Ui: getTerraformUI(),
 		},
 	}
-	namespaceKey := "-var"
-	namespaceValue := "namespace=" + namespace
 
-	tfApply.Run([]string{namespaceKey, namespaceValue})
+	runArgs := []string{}
+	for _, tfVar := range tfVars {
+		runArgs = append(runArgs, "-var", tfVar)
+	}
+
+	log.Debugln("Args for Apply command: ", runArgs)
+	tfApply.Run(runArgs)
 }
 
 // GetOutput gets terraform output value for provided key

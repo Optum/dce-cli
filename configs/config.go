@@ -10,16 +10,13 @@ type Root struct {
 			Credentials struct {
 				AwsAccessKeyID     *string
 				AwsSecretAccessKey *string
+				AwsSessionToken    *string
 			}
 		}
 	}
 	API struct {
-		BaseURL     *string
-		Credentials struct {
-			AwsAccessKeyID     *string
-			AwsSecretAccessKey *string
-			AwsSessionToken    *string
-		}
+		Host     *string
+		BasePath *string
 	}
 	Region      *string
 	GithubToken *string

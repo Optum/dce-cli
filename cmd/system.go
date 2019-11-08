@@ -1,28 +1,27 @@
 package cmd
 
 import (
-	"log"
-
+	svc "github.com/Optum/dce-cli/pkg/service"
 	"github.com/spf13/cobra"
 )
 
-var deployNamespace string
+var deployLocalPath string
 var dceRepoPath string
 
+var deployOverrides svc.DeployOverrides
+
 func init() {
-	systemDeployCmd.Flags().StringVarP(&deployNamespace, "namespace", "n", "", "Set a custom terraform namespace (Optional)")
-	systemDeployCmd.Flags().StringVarP(&dceRepoPath, "path", "p", "", "Path to local DCE repo")
+	deployOverrides = svc.DeployOverrides{}
+	systemDeployCmd.Flags().StringVarP(&deployLocalPath, "local", "l", "", "Path to a local DCE repo to deploy.")
+	systemDeployCmd.Flags().StringVarP(&deployOverrides.Namespace, "namespace", "n", "", "Set a custom terraform namespace (Optional)")
+	systemDeployCmd.Flags().StringVarP(&deployOverrides.AWSRegion, "region", "r", "", "The aws region that DCE will be deployed to (Default: us-east-1)")
+	systemDeployCmd.Flags().StringArrayVarP(&deployOverrides.GlobalTags, "tag", "t", []string{}, "Tags to be placed on all DCE resources. E.g. `dce system deploy --tag key1:value1 --tag key2:value2`")
+	systemDeployCmd.Flags().StringVar(&deployOverrides.BudgetNotificationFromEmail, "budget-notification-from-email", "", "Email address from which budget notifications will be sent")
+	systemDeployCmd.Flags().StringArrayVar(&deployOverrides.BudgetNotificationBCCEmails, "budget-notification-bcc-emails", []string{}, "Email address from which budget notifications will be sent")
+	systemDeployCmd.Flags().StringVar(&deployOverrides.BudgetNotificationTemplateHTML, "budget-notification-template-html", "", "HTML template for budget notification emails")
+	systemDeployCmd.Flags().StringVar(&deployOverrides.BudgetNotificationTemplateText, "budget-notification-template-text", "", "Text template for budget notification emails")
+	systemDeployCmd.Flags().StringVar(&deployOverrides.BudgetNotificationTemplateSubject, "budget-notification-template-subject", "", "Subjet for budget notification emails")
 	systemCmd.AddCommand(systemDeployCmd)
-
-	systemLogsCmd.AddCommand(systemLogsAccountsCmd)
-	systemLogsCmd.AddCommand(systemLogsLeasesCmd)
-	systemLogsCmd.AddCommand(systemLogsUsageCmd)
-	systemLogsCmd.AddCommand(systemLogsResetCmd)
-	systemCmd.AddCommand(systemLogsCmd)
-
-	systemUsersCmd.AddCommand(systemUsersAddCmd)
-	systemUsersCmd.AddCommand(systemUsersRemoveCmd)
-	systemCmd.AddCommand(systemUsersCmd)
 
 	RootCmd.AddCommand(systemCmd)
 
@@ -33,79 +32,10 @@ var systemCmd = &cobra.Command{
 	Short: "Deploy and configure the DCE system",
 }
 
-/*
-Deploy Namespace
-*/
-
 var systemDeployCmd = &cobra.Command{
 	Use:   "deploy",
-	Short: "Deploy the DCE system",
+	Short: "Deploy DCE to a new master account",
 	Run: func(cmd *cobra.Command, args []string) {
-		service.Deploy(deployNamespace)
-	},
-}
-
-/*
-Logs Namespace
-*/
-
-var systemLogsCmd = &cobra.Command{
-	Use:   "logs",
-	Short: "View logs",
-}
-
-var systemLogsAccountsCmd = &cobra.Command{
-	Use:   "accounts",
-	Short: "View account logs",
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("TODO")
-	},
-}
-
-var systemLogsLeasesCmd = &cobra.Command{
-	Use:   "leases",
-	Short: "View lease logs",
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("TODO")
-	},
-}
-
-var systemLogsUsageCmd = &cobra.Command{
-	Use:   "usage",
-	Short: "View usage logs",
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("TODO")
-	},
-}
-
-var systemLogsResetCmd = &cobra.Command{
-	Use:   "reset",
-	Short: "View reset logs",
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("TODO")
-	},
-}
-
-/*
-Users Namespace
-*/
-var systemUsersCmd = &cobra.Command{
-	Use:   "users",
-	Short: "Manage users",
-}
-
-var systemUsersAddCmd = &cobra.Command{
-	Use:   "add",
-	Short: "Add users",
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("TODO")
-	},
-}
-
-var systemUsersRemoveCmd = &cobra.Command{
-	Use:   "remove",
-	Short: "Remove users",
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("TODO")
+		service.Deploy(deployLocalPath, &deployOverrides)
 	},
 }

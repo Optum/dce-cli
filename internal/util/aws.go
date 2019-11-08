@@ -2,12 +2,12 @@ package util
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/Optum/dce-cli/configs"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/aws/aws-sdk-go/aws"
 	awsSession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
@@ -15,8 +15,9 @@ import (
 )
 
 type AWSUtil struct {
-	Config  *configs.Root
-	Session *awsSession.Session
+	Config      *configs.Root
+	Observation *observ.ObservationContainer
+	Session     *awsSession.Session
 }
 
 func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix string) ([]string, []string) {

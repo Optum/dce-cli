@@ -18,12 +18,14 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/Optum/dce-cli/configs"
+	"github.com/Optum/dce-cli/internal/constants"
+	observ "github.com/Optum/dce-cli/internal/observation"
 	utl "github.com/Optum/dce-cli/internal/util"
 	svc "github.com/Optum/dce-cli/pkg/service"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/mitchellh/go-homedir"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -32,9 +34,10 @@ var cfgFile string
 var config *configs.Root = &configs.Root{}
 var service *svc.ServiceContainer
 var util *utl.UtilContainer
+var observation *observ.ObservationContainer
 
 func init() {
-	cobra.OnInitialize(initConfig, initUtil, initService)
+	cobra.OnInitialize(initObservation, initConfig, initUtil, initService)
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dce.yaml)")
 }
 
@@ -58,42 +61,97 @@ func Execute() {
 	}
 }
 
-func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
+type FmtOutputFormatter struct {
+}
+
+func (f *FmtOutputFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+	var serialized []byte
+	var err error
+	serialized = []byte(entry.Message)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to marshal fields to JSON, %v", err)
+	}
+	fmt.Println(string(serialized))
+	return nil, nil
+}
+
+// initialize anything related to logging, metrics, or tracing
+func initObservation() {
+	logrusInstance := logrus.New()
+
+	//TODO: Make configurable
+	var logLevel logrus.Level
+	switch os.Getenv("DCE_LOG_LEVEL") {
+	case "TRACE":
+		logLevel = logrus.TraceLevel
+	case "DEBUG":
+		logLevel = logrus.DebugLevel
+	case "INFO":
+		logLevel = logrus.InfoLevel
+	case "WARN":
+		logLevel = logrus.WarnLevel
+	case "ERROR":
+		logLevel = logrus.ErrorLevel
+	case "FATAL":
+		logLevel = logrus.FatalLevel
+	case "PANIC":
+		logLevel = logrus.PanicLevel
+	default:
+		logLevel = logrus.InfoLevel
+	}
+
+	logrusInstance.SetLevel(logLevel)
+	if logLevel == logrus.InfoLevel {
+		logrusInstance.SetFormatter(&FmtOutputFormatter{})
 	} else {
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+		logrusInstance.SetFormatter(&logrus.TextFormatter{})
+	}
+
+	observation = observ.New(logrusInstance)
+}
+
+// Utils we need before they are normally instantiated
+var log observ.Logger
+var fsUtil utl.FileSystemer
+
+// initialize config from file or tell user to run 'dce init' if none exists
+func initConfig() {
+
+	tempUtil := utl.New(config, observation)
+	fsUtil = tempUtil.FileSystemer
+	log = observation.Logger
+
+	var configFileUsed string
+	if cfgFile != "" {
+		configFileUsed = cfgFile
+		viper.SetConfigFile(configFileUsed)
+	} else {
+		home := fsUtil.GetHomeDir()
+		configFileUsed = filepath.Join(home, constants.DefaultConfigFileName)
+		viper.SetConfigFile(configFileUsed)
+	}
+
+	if !fsUtil.IsExistingFile(configFileUsed) {
+		if len(os.Args) < 2 || os.Args[1] != initCmd.Name() {
+			log.Endln("Config file not found. Please type 'dce init' to generate one.")
 		}
-
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".dce")
+	} else {
+		if err := viper.ReadInConfig(); err == nil {
+			viper.BindEnv("system.masteraccount.credentials.awsaccesskeyid", "AWS_ACCESS_KEY_ID")
+			viper.BindEnv("system.masteraccount.credentials.awssecretaccesskey", "AWS_SECRET_ACCESS_KEY")
+			viper.BindEnv("system.masteraccount.credentials.awssessiontoken", "AWS_SESSION_TOKEN")
+			viper.BindEnv("githubtoken", "GITHUB_TOKEN")
+			viper.Unmarshal(config)
+		}
 	}
-
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
-
-	viper.BindEnv("api.credentials.awsaccesskeyid", "AWS_ACCESS_KEY_ID")
-	viper.BindEnv("api.credentials.awssecretaccesskey", "AWS_SECRET_ACCESS_KEY")
-	viper.BindEnv("api.credentials.awssessiontoken", "AWS_SESSION_TOKEN")
-	viper.BindEnv("githubtoken", "GITHUB_TOKEN")
-
-	viper.Unmarshal(config)
 }
 
+// initialize utilities and interfaces to external things
 func initUtil() {
-	var masterAcctCreds = credentials.NewStaticCredentials(
-		*config.System.MasterAccount.Credentials.AwsAccessKeyID,
-		*config.System.MasterAccount.Credentials.AwsSecretAccessKey,
-		"",
-	)
-
-	util = utl.New(config, masterAcctCreds)
+	util = utl.New(config, observation)
 }
 
+// initialize business logic
 func initService() {
-	service = svc.New(config, util)
+	service = svc.New(config, observation, util)
 }
