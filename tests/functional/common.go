@@ -7,7 +7,6 @@ import (
 	"os/exec"
 )
 
-var testBinary string = "./testBinary"
 var destinationDir string
 var originDir string
 
@@ -19,10 +18,10 @@ func setUp() {
 		log.Fatalln(err)
 	}
 
-	out, _ := exec.Command("go", "build", "-o", testBinary, "../..").CombinedOutput()
+	out, _ := exec.Command("go", "build", "-o", TestBinary, "../..").CombinedOutput()
 	log.Println(string(out))
 
-	out, _ = exec.Command("mv", testBinary, destinationDir).CombinedOutput()
+	out, _ = exec.Command("mv", TestBinary, destinationDir).CombinedOutput()
 	log.Println(string(out))
 
 	log.Println("Moving to temp dir: " + destinationDir)

@@ -22,7 +22,7 @@ var configFileName string
 
 // Reused test steps
 var dceInitWritesToConfig = func(t *testing.T) {
-	cmd := exec.Command(testBinary, "init", "--config", configFileName)
+	cmd := exec.Command(TestBinary, "init", "--config", configFileName)
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
