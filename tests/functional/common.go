@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 var destinationDir string
@@ -18,10 +19,7 @@ func setUp() {
 		log.Fatalln(err)
 	}
 
-	out, _ := exec.Command("go", "build", "-o", testBinary, "../..").CombinedOutput()
-	log.Println(string(out))
-
-	out, _ = exec.Command(moveFileCmd, testBinary, destinationDir).CombinedOutput()
+	out, _ := exec.Command("go", "build", "-o", filepath.Join(destinationDir, testBinary), "../..").CombinedOutput()
 	log.Println(string(out))
 
 	log.Println("Moving to temp dir: " + destinationDir)
