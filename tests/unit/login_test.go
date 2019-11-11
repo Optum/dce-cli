@@ -8,6 +8,7 @@ import (
 	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 var expectedAccessKeyID = "expectedAccessKeyID"
@@ -53,6 +54,9 @@ func TestLeaseLoginGivenFlags(t *testing.T) {
 					ConsoleURL:      expectedConsoleURL,
 				},
 			}, nil)
+			if !(tc.openBrowser || tc.printCreds) {
+				mockAwser.On("ConfigureAWSCLICredentials", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+			}
 			if tc.isWeberCalled {
 				mockWeber.On("OpenURL", expectedConsoleURL)
 			}

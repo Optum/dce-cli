@@ -68,6 +68,7 @@ func New(config *configs.Root, observation *observ.ObservationContainer) *UtilCo
 type AWSer interface {
 	UploadDirectoryToS3(localPath string, bucket string, prefix string) ([]string, []string)
 	UpdateLambdasFromS3Assets(lambdaNames []string, bucket string, namespace string)
+	ConfigureAWSCLICredentials(accessKeyID, secretAccessKey, sessionToken, profile string)
 }
 
 type Terraformer interface {
