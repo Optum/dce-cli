@@ -2,4 +2,5 @@
 
 package functional
 
-const TestBinary string = "./TestBinary.exe"
+const testBinary string = "testBinary.exe"
+const moveFileCmd string = "move"

@@ -18,10 +18,10 @@ func setUp() {
 		log.Fatalln(err)
 	}
 
-	out, _ := exec.Command("go", "build", "-o", TestBinary, "../..").CombinedOutput()
+	out, _ := exec.Command("go", "build", "-o", testBinary, "../..").CombinedOutput()
 	log.Println(string(out))
 
-	out, _ = exec.Command("mv", TestBinary, destinationDir).CombinedOutput()
+	out, _ = exec.Command(moveFileCmd, testBinary, destinationDir).CombinedOutput()
 	log.Println(string(out))
 
 	log.Println("Moving to temp dir: " + destinationDir)
