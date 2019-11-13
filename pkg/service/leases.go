@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"github.com/Optum/dce-cli/client/operations"
@@ -114,14 +115,13 @@ func (s *LeasesService) LoginToLease(leaseID, loginProfile string, loginOpenBrow
 	responsePayload := res.GetPayload()
 
 	if !(loginOpenBrowser || loginPrintCreds) {
-		log.Infoln("Adding credentials to .aws/credentials using AWS CLI")
-		// bash exec creds
+		credsPath := filepath.Join(".aws", "credentials")
+		log.Infoln("Adding credentials to " + credsPath + " using AWS CLI")
 		s.Util.ConfigureAWSCLICredentials(responsePayload.AccessKeyID,
 			responsePayload.SecretAccessKey,
 			responsePayload.SessionToken,
 			loginProfile)
 
-		// support windows, maybe using "call"? https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/call
 	} else if loginProfile != "default" {
 		log.Infoln("Setting --profile has no effect when used with other flags.\n")
 	}
