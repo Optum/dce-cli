@@ -2,6 +2,18 @@
 
 This is the CLI for [DCE](https://github.com/Optum/dce) by Optum. For usage information, view the complete [command reference](./docs/dce.md).
 
+# Feature Availability
+
+| Feature                                 |  *nix       |  Windows    |
+| -----------                             | ----------- | ----------- |
+| Deployment (`dce system deploy`)        | Available   | Unavailable |
+| CLI Initialization (`dce init`)         | Available   |  Available  |
+| Authentication (`dce auth`)             | Available   |  Available  |
+| Account Management (`dce accounts ...`) | Available   |  Available  |
+| Lease Management (`dce leases ...`)     | Available   |  Available  |
+| Usage (`dce usage ...`)                 | Available   |  Available  |
+
+
 # Quick Start
 
 1. Download the appropriate executable for your OS from the [latest release](https://github.com/Optum/dce-cli/releases/latest). e.g. for mac, you should download dce_darwin_amd64.zip
