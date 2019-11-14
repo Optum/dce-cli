@@ -15,7 +15,7 @@ dce leases login [Lease ID] [flags]
 ```
   -h, --help             help for login
   -b, --open-browser     Opens web broswer to AWS console instead of printing credentials
-  -c, --print-creds      Prints credentials rahter than adding them to .aws/credentials file
+  -c, --print-creds      Prints credentials rather than adding them to .aws/credentials file
   -p, --profile string   Add aws cli credentials to a specific profile (default "default")
 ```
 

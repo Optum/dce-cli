@@ -51,7 +51,7 @@ func init() {
 	leasesCmd.AddCommand(leasesEndCmd)
 
 	leasesLoginCmd.Flags().BoolVarP(&loginOpenBrowser, "open-browser", "b", false, "Opens web broswer to AWS console instead of printing credentials")
-	leasesLoginCmd.Flags().BoolVarP(&loginPrintCreds, "print-creds", "c", false, "Prints credentials rahter than adding them to .aws/credentials file")
+	leasesLoginCmd.Flags().BoolVarP(&loginPrintCreds, "print-creds", "c", false, "Prints credentials rather than adding them to .aws/credentials file")
 	leasesLoginCmd.Flags().StringVarP(&loginProfile, "profile", "p", "default", "Add aws cli credentials to a specific profile")
 	leasesCmd.AddCommand(leasesLoginCmd)
 
