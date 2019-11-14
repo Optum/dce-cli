@@ -42,6 +42,13 @@ steps:
 
 - script: |
     set -x
+    ./update_docs
+    [ -z "$(git diff docs/)" ] && echo "docs/ are up to date"
+  displayName: 'Checking if command reference docs should be updated'
+
+
+- script: |
+    set -x
     mkdir dist && cd dist
     # zip for windows and calculate sha256 hash
     WINFILE=dce_windows_amd64.zip
