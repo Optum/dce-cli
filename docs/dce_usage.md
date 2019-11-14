@@ -13,9 +13,9 @@ dce usage [flags]
 ### Options
 
 ```
-  -e, --end-date float     The end date of the window over which usage information will be queried.
+  -e, --end-date float     The end date of the window over which usage information will be queried. (epoch timestamp)
   -h, --help               help for usage
-  -s, --start-date float   The start date of the window over which usage information will be queried.
+  -s, --start-date float   The start date of the window over which usage information will be queried. (epoch timestamp)
 ```
 
 ### Options inherited from parent commands
