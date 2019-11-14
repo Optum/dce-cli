@@ -6,7 +6,7 @@ This is the CLI for [DCE](https://github.com/Optum/dce) by Optum. For usage info
 
 | Feature                                 |  *nix       |  Windows    |
 | -----------                             | ----------- | ----------- |
-| Deployment (`dce system deploy`)        | Available   | Unavailable |
+| Deployment (`dce system deploy`)        | Available   | [Unavailable](https://github.com/Optum/dce-cli/issues/21) |
 | CLI Initialization (`dce init`)         | Available   |  Available  |
 | Authentication (`dce auth`)             | Available   |  Available  |
 | Account Management (`dce accounts ...`) | Available   |  Available  |
