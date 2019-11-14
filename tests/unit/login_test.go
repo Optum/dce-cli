@@ -7,16 +7,16 @@ import (
 
 	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
+	"github.com/Optum/dce-cli/internal/constants"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 var expectedAccessKeyID = "expectedAccessKeyID"
 var expectedSecretAccessKey = "SecretAccessKey"
 var expectedSessionToken = "expectedAccessKeyID"
 var expectedConsoleURL = "ConsoleURL"
-var credsOutput = fmt.Sprintf(`export AWS_ACCESS_KEY_ID=%s
-export AWS_SECRET_ACCESS_KEY=%s
-export AWS_SESSION_TOKEN=%s`,
+var credsOutput = fmt.Sprintf(constants.CredentialsExport,
 	expectedAccessKeyID,
 	expectedSecretAccessKey,
 	expectedSessionToken)
@@ -53,6 +53,9 @@ func TestLeaseLoginGivenFlags(t *testing.T) {
 					ConsoleURL:      expectedConsoleURL,
 				},
 			}, nil)
+			if !(tc.openBrowser || tc.printCreds) {
+				mockAwser.On("ConfigureAWSCLICredentials", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+			}
 			if tc.isWeberCalled {
 				mockWeber.On("OpenURL", expectedConsoleURL)
 			}

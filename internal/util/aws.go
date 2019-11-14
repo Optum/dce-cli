@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -108,5 +109,20 @@ func (u *AWSUtil) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string,
 		}
 
 		log.Println("Updated Lambda Config: ", string(out))
+	}
+}
+
+func (u *AWSUtil) ConfigureAWSCLICredentials(accessKeyID, secretAccessKey, sessionToken, profile string) {
+	_, err := exec.Command("aws", "configure", "--profile", profile, "set", "aws_access_key_id", accessKeyID).CombinedOutput()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	_, err = exec.Command("aws", "configure", "--profile", profile, "set", "aws_secret_access_key", secretAccessKey).CombinedOutput()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	_, err = exec.Command("aws", "configure", "--profile", profile, "set", "aws_session_token", sessionToken).CombinedOutput()
+	if err != nil {
+		log.Fatalln(err)
 	}
 }

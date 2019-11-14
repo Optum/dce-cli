@@ -29,3 +29,7 @@ test_unit:
 
 build:
 	go build .
+
+.PHONY: docs
+docs:
+	./update_docs

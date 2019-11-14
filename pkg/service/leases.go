@@ -3,11 +3,12 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"os/exec"
+	"path/filepath"
 	"time"
 
 	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
+	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	utl "github.com/Optum/dce-cli/internal/util"
 )
@@ -114,22 +115,13 @@ func (s *LeasesService) LoginToLease(leaseID, loginProfile string, loginOpenBrow
 	responsePayload := res.GetPayload()
 
 	if !(loginOpenBrowser || loginPrintCreds) {
-		log.Infoln("Adding credentials to .aws/credentials using AWS CLI")
-		// bash exec creds
-		_, err := exec.Command("aws", "configure", "--profile", loginProfile, "set", "aws_access_key_id", responsePayload.AccessKeyID).CombinedOutput()
-		if err != nil {
-			log.Fatalln(err)
-		}
-		_, err = exec.Command("aws", "configure", "--profile", loginProfile, "set", "aws_secret_access_key", responsePayload.SecretAccessKey).CombinedOutput()
-		if err != nil {
-			log.Fatalln(err)
-		}
-		_, err = exec.Command("aws", "configure", "--profile", loginProfile, "set", "aws_session_token", responsePayload.SessionToken).CombinedOutput()
-		if err != nil {
-			log.Fatalln(err)
-		}
+		credsPath := filepath.Join(".aws", "credentials")
+		log.Infoln("Adding credentials to " + credsPath + " using AWS CLI")
+		s.Util.ConfigureAWSCLICredentials(responsePayload.AccessKeyID,
+			responsePayload.SecretAccessKey,
+			responsePayload.SessionToken,
+			loginProfile)
 
-		// support windows, maybe using "call"? https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/call
 	} else if loginProfile != "default" {
 		log.Infoln("Setting --profile has no effect when used with other flags.\n")
 	}
@@ -140,9 +132,7 @@ func (s *LeasesService) LoginToLease(leaseID, loginProfile string, loginOpenBrow
 	}
 
 	if loginPrintCreds {
-		creds := fmt.Sprintf(`export AWS_ACCESS_KEY_ID=%s
-export AWS_SECRET_ACCESS_KEY=%s
-export AWS_SESSION_TOKEN=%s`,
+		creds := fmt.Sprintf(constants.CredentialsExport,
 			responsePayload.AccessKeyID,
 			responsePayload.SecretAccessKey,
 			responsePayload.SessionToken)
