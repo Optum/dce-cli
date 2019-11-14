@@ -1,4 +1,4 @@
-# AWS Disposable Cloud Environments (DCE) CLI
+# Disposable Cloud Environment (DCE) CLI
 
 This is the CLI for [DCE](https://github.com/Optum/dce) by Optum. For usage information, view the complete [command reference](./docs/dce.md).
 
