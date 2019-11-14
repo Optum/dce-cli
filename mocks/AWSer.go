@@ -9,6 +9,11 @@ type AWSer struct {
 	mock.Mock
 }
 
+// ConfigureAWSCLICredentials provides a mock function with given fields: accessKeyID, secretAccessKey, sessionToken, profile
+func (_m *AWSer) ConfigureAWSCLICredentials(accessKeyID string, secretAccessKey string, sessionToken string, profile string) {
+	_m.Called(accessKeyID, secretAccessKey, sessionToken, profile)
+}
+
 // UpdateLambdasFromS3Assets provides a mock function with given fields: lambdaNames, bucket, namespace
 func (_m *AWSer) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string, namespace string) {
 	_m.Called(lambdaNames, bucket, namespace)

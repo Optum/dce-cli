@@ -1,6 +1,18 @@
-# AWS Disposable Cloud Environments (DCE) CLI
+# Disposable Cloud Environment (DCE) CLI
 
 This is the CLI for [DCE](https://github.com/Optum/dce) by Optum. For usage information, view the complete [command reference](./docs/dce.md).
+
+# Feature Availability
+
+| Feature                                 |  *nix       |  Windows    |
+| -----------                             | ----------- | ----------- |
+| Deployment (`dce system deploy`)        | Available   | [Unavailable](https://github.com/Optum/dce-cli/issues/21) |
+| CLI Initialization (`dce init`)         | Available   |  Available  |
+| Authentication (`dce auth`)             | Available   |  Available  |
+| Account Management (`dce accounts ...`) | Available   |  Available  |
+| Lease Management (`dce leases ...`)     | Available   |  Available  |
+| Usage (`dce usage ...`)                 | Available   |  Available  |
+
 
 # Quick Start
 
@@ -10,10 +22,10 @@ This is the CLI for [DCE](https://github.com/Optum/dce) by Optum. For usage info
 
     ```
     # Download the zip file
-    wget https://github.com/aws/aws-cdk/releases/download/v1.14.0/aws-cdk-1.14.0.zip
+    wget https://github.com/Optum/dce-cli/releases/download/<VERSION>/dce_darwin_amd64.zip
 
     # Unzip to a directory on your path
-    unzip aws-cdk-1.14.0.zip -d /usr/local/bin
+    unzip dce_darwin_amd64.zip -d /usr/local/bin
     ```
 
 3. Test the dce command by typing `dce`
