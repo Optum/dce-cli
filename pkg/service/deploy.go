@@ -24,9 +24,6 @@ type DeployService struct {
 }
 
 func (s *DeployService) Deploy(deployLocal string, overrides *DeployOverrides) {
-	os.Setenv("AWS_ACCESS_KEY_ID", *s.Config.System.MasterAccount.Credentials.AwsAccessKeyID)
-	os.Setenv("AWS_SECRET_ACCESS_KEY", *s.Config.System.MasterAccount.Credentials.AwsSecretAccessKey)
-
 	if overrides.Namespace == "" {
 		overrides.Namespace = "dce-" + s.getRandString(8)
 	}
