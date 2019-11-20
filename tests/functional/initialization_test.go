@@ -44,20 +44,12 @@ var dceInitWritesToConfig = func(t *testing.T) {
 	usEast1 := "us-east-1"
 	config := configs.Root{}
 	config.System.Auth.LoginURL = &doesntMatter
-	config.System.MasterAccount.Credentials.AwsAccessKeyID = &doesntMatter
-	config.System.MasterAccount.Credentials.AwsSecretAccessKey = &doesntMatter
 	config.Region = &usEast1
 	config.API.Host = &doesntMatter
 	config.API.BasePath = &doesntMatter
-	config.System.MasterAccount.Credentials.AwsAccessKeyID = &doesntMatter
-	config.System.MasterAccount.Credentials.AwsSecretAccessKey = &doesntMatter
-	config.System.MasterAccount.Credentials.AwsSessionToken = &doesntMatter
 	config.GithubToken = &doesntMatter
 
 	input.types(*config.System.Auth.LoginURL)
-	input.types(*config.System.MasterAccount.Credentials.AwsAccessKeyID)
-	input.types(*config.System.MasterAccount.Credentials.AwsSecretAccessKey)
-	input.types(*config.System.MasterAccount.Credentials.AwsSessionToken)
 	input.pressesEnter()
 	input.types(*config.API.Host)
 	input.types(*config.API.BasePath)

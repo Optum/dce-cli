@@ -56,7 +56,7 @@ func (s *AccountsService) GetAccount(accountID string) {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	jsonPayload, err := json.Marshal(res.GetPayload())
+	jsonPayload, err := json.MarshalIndent(res.GetPayload(), "", "\t")
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
@@ -70,7 +70,7 @@ func (s *AccountsService) ListAccounts() {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	jsonPayload, err := json.Marshal(res.GetPayload())
+	jsonPayload, err := json.MarshalIndent(res.GetPayload(), "", "\t")
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}

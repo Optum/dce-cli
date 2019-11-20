@@ -22,8 +22,6 @@ func (m *mockFileInfo) IsDir() bool  { return true }
 
 func TestDeployTFOverrides(t *testing.T) {
 	config := configs.Root{}
-	config.System.MasterAccount.Credentials.AwsAccessKeyID = &doesntMatter
-	config.System.MasterAccount.Credentials.AwsSecretAccessKey = &doesntMatter
 
 	t.Run("GIVEN region is overridden", func(t *testing.T) {
 		region := "someRegion"
