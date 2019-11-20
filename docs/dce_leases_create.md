@@ -17,7 +17,7 @@ dce leases create [flags]
   -c, --budget-currency string   The leased accounts budget currency (default "USD")
   -e, --email stringArray        The email address that budget notifications will be sent to
   -h, --help                     help for create
-  -p, --principle-id string      Principle ID for the user of the leased account
+  -p, --principal-id string      Principle ID for the user of the leased account
 ```
 
 ### Options inherited from parent commands

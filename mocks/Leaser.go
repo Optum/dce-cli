@@ -9,14 +9,14 @@ type Leaser struct {
 	mock.Mock
 }
 
-// CreateLease provides a mock function with given fields: principleID, budgetAmount, budgetCurrency, email
-func (_m *Leaser) CreateLease(principleID string, budgetAmount float64, budgetCurrency string, email []string) {
-	_m.Called(principleID, budgetAmount, budgetCurrency, email)
+// CreateLease provides a mock function with given fields: principalID, budgetAmount, budgetCurrency, email
+func (_m *Leaser) CreateLease(principalID string, budgetAmount float64, budgetCurrency string, email []string) {
+	_m.Called(principalID, budgetAmount, budgetCurrency, email)
 }
 
-// EndLease provides a mock function with given fields: accountID, principleID
-func (_m *Leaser) EndLease(accountID string, principleID string) {
-	_m.Called(accountID, principleID)
+// EndLease provides a mock function with given fields: accountID, principalID
+func (_m *Leaser) EndLease(accountID string, principalID string) {
+	_m.Called(accountID, principalID)
 }
 
 // GetLease provides a mock function with given fields: leaseID
@@ -24,9 +24,9 @@ func (_m *Leaser) GetLease(leaseID string) {
 	_m.Called(leaseID)
 }
 
-// ListLeases provides a mock function with given fields: acctID, principleID, nextAcctID, nextPrincipalID, leaseStatus, pagLimit
-func (_m *Leaser) ListLeases(acctID string, principleID string, nextAcctID string, nextPrincipalID string, leaseStatus string, pagLimit int64) {
-	_m.Called(acctID, principleID, nextAcctID, nextPrincipalID, leaseStatus, pagLimit)
+// ListLeases provides a mock function with given fields: acctID, principalID, nextAcctID, nextPrincipalID, leaseStatus, pagLimit
+func (_m *Leaser) ListLeases(acctID string, principalID string, nextAcctID string, nextPrincipalID string, leaseStatus string, pagLimit int64) {
+	_m.Called(acctID, principalID, nextAcctID, nextPrincipalID, leaseStatus, pagLimit)
 }
 
 // LoginToLease provides a mock function with given fields: leaseID, profile, loginOpenBrowser, loginPrintCreds
