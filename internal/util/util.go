@@ -7,7 +7,6 @@ import (
 	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 )
 
@@ -30,31 +29,21 @@ func New(config *configs.Root, observation *observ.ObservationContainer) *UtilCo
 
 	log = observation.Logger
 
-	var masterAcctCreds *credentials.Credentials
-	if config.System.MasterAccount.Credentials.AwsAccessKeyID != nil &&
-		config.System.MasterAccount.Credentials.AwsSecretAccessKey != nil {
-		masterAcctCreds = credentials.NewStaticCredentials(
-			*config.System.MasterAccount.Credentials.AwsAccessKeyID,
-			*config.System.MasterAccount.Credentials.AwsSecretAccessKey,
-			"",
-		)
-	}
 	var session = session.New(&aws.Config{
-		Credentials: masterAcctCreds,
 		Region:      config.Region,
 	})
 
-	var initalizedApiClient APIer
-	if config.System.MasterAccount.Credentials.AwsAccessKeyID != nil {
-		apiUtil := &APIUtil{Config: config, Observation: observation, Session: session}
-		initalizedApiClient = apiUtil.InitApiClient()
+	var initializedApiClient APIer
+	apiUtil := &APIUtil{Config: config, Observation: observation, Session: session}
+	if config.API.Host != nil {
+		initializedApiClient = apiUtil.InitApiClient()
 	}
 
 	utilContainer := UtilContainer{
 		Config:       config,
 		Observation:  observation,
 		AWSer:        &AWSUtil{Config: config, Observation: observation, Session: session},
-		APIer:        initalizedApiClient,
+		APIer:        initializedApiClient,
 		Terraformer:  &TerraformUtil{Config: config, Observation: observation},
 		Githuber:     &GithubUtil{Config: config, Observation: observation},
 		Prompter:     &PromptUtil{Config: config, Observation: observation},

@@ -39,9 +39,6 @@ func (s *InitService) promptUserForConfig() *configs.Root {
 
 	// System Config
 	newConfig.System.Auth.LoginURL = s.Util.PromptBasic("Authentication URL (SSO)", nil)
-	newConfig.System.MasterAccount.Credentials.AwsAccessKeyID = s.Util.PromptBasic("AWS ACCESS KEY ID for the DCE Master account", nil)
-	newConfig.System.MasterAccount.Credentials.AwsSecretAccessKey = s.Util.PromptBasic("AWS SECRET ACCESS KEY for the DCE Master account", nil)
-	newConfig.System.MasterAccount.Credentials.AwsSessionToken = s.Util.PromptBasic("AWS SESSION TOKEN for accessing the DCE API (This is usually obtained by running DCE auth. Leave blank to use AWS_SESSION_TOKEN env variable.)", nil)
 
 	// API Config
 	newConfig.Region = s.Util.PromptSelect("Region is DCE deployed in", configs.Regions)

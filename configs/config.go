@@ -6,13 +6,6 @@ type Root struct {
 		Auth struct {
 			LoginURL *string
 		}
-		MasterAccount struct {
-			Credentials struct {
-				AwsAccessKeyID     *string
-				AwsSecretAccessKey *string
-				AwsSessionToken    *string
-			}
-		}
 	}
 	API struct {
 		Host     *string

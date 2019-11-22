@@ -77,15 +77,16 @@ type APIUtil struct {
 }
 
 func (u *APIUtil) InitApiClient() *operations.Client {
+	// Set default region
+	region := *u.Session.Config.Region
+	if region == "" {
+		region = "us-east-1"
+	}
 
 	sig4RoundTripper := Sig4RoundTripper{
 		Proxied: http.DefaultTransport,
-		Creds: credentials.NewStaticCredentials(
-			*u.Config.System.MasterAccount.Credentials.AwsAccessKeyID,
-			*u.Config.System.MasterAccount.Credentials.AwsSecretAccessKey,
-			*u.Config.System.MasterAccount.Credentials.AwsSessionToken,
-		),
-		Region: *u.Config.Region,
+		Creds: u.Session.Config.Credentials,
+		Region: region,
 		Logger: log,
 	}
 	sig4HTTTPClient := http.Client{Transport: &sig4RoundTripper}

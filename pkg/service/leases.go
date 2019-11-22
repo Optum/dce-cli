@@ -35,7 +35,7 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	jsonPayload, err := json.Marshal(res.GetPayload())
+	jsonPayload, err := json.MarshalIndent(res.GetPayload(), "", "\t")
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
@@ -66,7 +66,7 @@ func (s *LeasesService) GetLease(leaseID string) {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	jsonPayload, err := json.Marshal(res.GetPayload())
+	jsonPayload, err := json.MarshalIndent(res.GetPayload(), "", "\t")
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
@@ -88,7 +88,7 @@ func (s *LeasesService) ListLeases(acctID, principalID, nextAcctID, nextPrincipa
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	jsonPayload, err := json.Marshal(res.GetPayload())
+	jsonPayload, err := json.MarshalIndent(res.GetPayload(), "", "\t")
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
@@ -105,7 +105,7 @@ func (s *LeasesService) LoginToLease(leaseID, loginProfile string, loginOpenBrow
 	if err != nil {
 		log.Fatalln("err: ", err)
 	} else {
-		jsonPayload, err := json.Marshal(res)
+		jsonPayload, err := json.MarshalIndent(res.GetPayload(), "", "\t")
 		if err != nil {
 			log.Fatalln("err: ", err)
 		}
