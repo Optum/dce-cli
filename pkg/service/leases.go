@@ -21,10 +21,10 @@ type LeasesService struct {
 	Util        *utl.UtilContainer
 }
 
-func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, budgetCurrency string, email []string) {
+func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, budgetCurrency string, email []string) {
 	params := &operations.PostLeasesParams{
 		Lease: operations.PostLeasesBody{
-			PrincipalID:              &principleID,
+			PrincipalID:              &principalID,
 			BudgetAmount:             &budgetAmount,
 			BudgetCurrency:           &budgetCurrency,
 			BudgetNotificationEmails: email,
@@ -42,11 +42,11 @@ func (s *LeasesService) CreateLease(principleID string, budgetAmount float64, bu
 	log.Infoln("Lease created:", string(jsonPayload))
 }
 
-func (s *LeasesService) EndLease(accountID, principleID string) {
+func (s *LeasesService) EndLease(accountID, principalID string) {
 	params := &operations.DeleteLeasesParams{
 		Lease: operations.DeleteLeasesBody{
 			AccountID:   &accountID,
-			PrincipalID: &principleID,
+			PrincipalID: &principalID,
 		},
 	}
 	params.SetTimeout(5 * time.Second)
@@ -74,13 +74,13 @@ func (s *LeasesService) GetLease(leaseID string) {
 
 }
 
-func (s *LeasesService) ListLeases(acctID, principleID, nextAcctID, nextPrincipalID, leaseStatus string, pagLimit int64) {
+func (s *LeasesService) ListLeases(acctID, principalID, nextAcctID, nextPrincipalID, leaseStatus string, pagLimit int64) {
 	params := &operations.GetLeasesParams{
 		AccountID:       &acctID,
 		Limit:           &pagLimit,
 		NextAccountID:   &nextAcctID,
 		NextPrincipalID: &nextPrincipalID,
-		PrincipalID:     &principleID,
+		PrincipalID:     &principalID,
 		Status:          &leaseStatus,
 	}
 	params.SetTimeout(5 * time.Second)

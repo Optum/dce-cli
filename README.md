@@ -81,7 +81,7 @@ This is the CLI for [DCE](https://github.com/Optum/dce) by Optum. For usage info
 10. Now that your accounts pool isn't emtpy, you can create your first lease using the `dce leases create` command
 
 ```
-➜  ~ dce leases create --budget-amount 100.0 --budget-currency USD --email jane.doe@email.com --principle-id jdoe99
+➜  ~ dce leases create --budget-amount 100.0 --budget-currency USD --email jane.doe@email.com --principal-id jdoe99
 ```
 
 11. Type `dce leases list` to verify that a lease has been created
@@ -118,7 +118,7 @@ Opening AWS Console in Web Browser
 
 14. You can end a lease using the `dce leases end` command
 ```
-➜  ~ dce leases end --account-id 555555555555 --principle-id jdoe99
+➜  ~ dce leases end --account-id 555555555555 --principal-id jdoe99
 ```
 
 15. You can remove an account from the accounts pool using the `dce accounts remove` command

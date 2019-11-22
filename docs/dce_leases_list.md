@@ -18,7 +18,7 @@ dce leases list [flags]
   -l, --limit int                  Max number of leases to return at once. Will include url to next page if there is one. (default 25)
       --next-account-id string     Account ID with which to begin the scan operation. This is used to traverse through paginated results.
       --next-principal-id string   Principal ID with which to begin the scan operation. This is used to traverse through paginated results.
-  -p, --principle-id string        Principle ID of a user
+  -p, --principal-id string        Principle ID of a user
   -s, --status string              Lease status
 ```
 

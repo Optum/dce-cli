@@ -71,10 +71,10 @@ type Accounter interface {
 }
 
 type Leaser interface {
-	CreateLease(principleID string, budgetAmount float64, budgetCurrency string, email []string)
-	EndLease(accountID, principleID string)
+	CreateLease(principalID string, budgetAmount float64, budgetCurrency string, email []string)
+	EndLease(accountID, principalID string)
 	LoginToLease(leaseID, profile string, loginOpenBrowser, loginPrintCreds bool)
-	ListLeases(acctID, principleID, nextAcctID, nextPrincipalID, leaseStatus string, pagLimit int64)
+	ListLeases(acctID, principalID, nextAcctID, nextPrincipalID, leaseStatus string, pagLimit int64)
 	GetLease(leaseID string)
 }
 

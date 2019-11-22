@@ -15,7 +15,7 @@ dce leases end [Lease ID] [flags]
 ```
   -a, --account-id string     Account ID associated with the lease you wish to end
   -h, --help                  help for end
-  -p, --principle-id string   Principle ID for the user of the leased account
+  -p, --principal-id string   Principle ID for the user of the leased account
 ```
 
 ### Options inherited from parent commands
