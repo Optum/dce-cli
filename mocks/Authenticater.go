@@ -9,7 +9,7 @@ type Authenticater struct {
 	mock.Mock
 }
 
-// Authenticate provides a mock function with given fields: authUrl
-func (_m *Authenticater) Authenticate(authUrl string) {
-	_m.Called(authUrl)
+// Authenticate provides a mock function with given fields:
+func (_m *Authenticater) Authenticate() {
+	_m.Called()
 }

@@ -33,7 +33,7 @@ var accountsDescribeCmd = &cobra.Command{
 	Short: "describe an account",
 	Args:  cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		service.GetAccount(args[0])
+		Service.GetAccount(args[0])
 	},
 }
 
@@ -42,7 +42,7 @@ var accountsListCmd = &cobra.Command{
 	Short: "list accounts",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		service.ListAccounts()
+		Service.ListAccounts()
 	},
 }
 
@@ -51,7 +51,7 @@ var accountsAddCmd = &cobra.Command{
 	Short: "Add an account to the accounts pool",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		service.AddAccount(accountID, adminRoleARN)
+		Service.AddAccount(accountID, adminRoleARN)
 	},
 }
 
@@ -60,6 +60,6 @@ var accountsRemoveCmd = &cobra.Command{
 	Short: "Remove an account from the accounts pool.",
 	Args:  cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		service.RemoveAccount(args[0])
+		Service.RemoveAccount(args[0])
 	},
 }

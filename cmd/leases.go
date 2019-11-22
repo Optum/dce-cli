@@ -68,7 +68,7 @@ var leasesDescribeCmd = &cobra.Command{
 	Short: "describe a lease",
 	Args:  cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		service.GetLease(args[0])
+		Service.GetLease(args[0])
 	},
 }
 
@@ -77,7 +77,7 @@ var leasesListCmd = &cobra.Command{
 	Short: "List leases using various query filters.",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		service.ListLeases(acctID, principalID, nextAcctID, nextPrincipalID, leaseStatus, pagLimit)
+		Service.ListLeases(acctID, principalID, nextAcctID, nextPrincipalID, leaseStatus, pagLimit)
 	},
 }
 
@@ -86,7 +86,7 @@ var leasesCreateCmd = &cobra.Command{
 	Short: "Create a lease.",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		service.CreateLease(principalID, budgetAmount, budgetCurrency, email)
+		Service.CreateLease(principalID, budgetAmount, budgetCurrency, email)
 	},
 }
 
@@ -95,7 +95,7 @@ var leasesEndCmd = &cobra.Command{
 	Short: "Cause a lease to immediately expire",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		service.EndLease(accountID, principalID)
+		Service.EndLease(accountID, principalID)
 	},
 }
 
@@ -104,6 +104,6 @@ var leasesLoginCmd = &cobra.Command{
 	Short: "Login to a leased DCE account. (Sets AWS CLI credentials if used with no flags)",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		service.LoginToLease(args[0], loginProfile, loginOpenBrowser, loginPrintCreds)
+		Service.LoginToLease(args[0], loginProfile, loginOpenBrowser, loginPrintCreds)
 	},
 }

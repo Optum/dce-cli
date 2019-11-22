@@ -79,11 +79,11 @@ type Leaser interface {
 }
 
 type Initer interface {
-	InitializeDCE(cfgFile string)
+	InitializeDCE()
 }
 
 type Authenticater interface {
-	Authenticate(authUrl string)
+	Authenticate() error
 }
 
 type ResponseWithPayload interface {

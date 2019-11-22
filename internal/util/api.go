@@ -7,11 +7,8 @@ import (
 
 	apiclient "github.com/Optum/dce-cli/client"
 	"github.com/Optum/dce-cli/client/operations"
-	"github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/observation"
-	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	awsSession "github.com/aws/aws-sdk-go/aws/session"
 	sigv4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
@@ -19,6 +16,41 @@ import (
 	"net/http"
 	"net/http/httputil"
 )
+
+type NewAPIClientInput struct {
+	credentials *credentials.Credentials
+	region      *string
+	host        *string
+	basePath    *string
+	token       *string
+}
+
+func NewAPIClient(input *NewAPIClientInput) *operations.Client {
+	// Set default region
+	var region string
+	if input.region == nil {
+		log.Infof("No region configured. Defaulting to us-east-1")
+		region = "us-east-1"
+	} else {
+		region = *input.region
+	}
+
+	sig4RoundTripper := Sig4RoundTripper{
+		Proxied: http.DefaultTransport,
+		Creds:   input.credentials,
+		Region:  region,
+		Logger:  log,
+	}
+	sig4HTTTPClient := http.Client{Transport: &sig4RoundTripper}
+	httpTransport := httptransport.NewWithClient(
+		*input.host,
+		*input.basePath,
+		nil,
+		&sig4HTTTPClient,
+	)
+	client := apiclient.New(httpTransport, strfmt.Default)
+	return client.Operations
+}
 
 // Adapted from https://stackoverflow.com/questions/39527847/is-there-middleware-for-go-http-client
 type Sig4RoundTripper struct {
@@ -68,29 +100,4 @@ func (srt Sig4RoundTripper) RoundTrip(req *http.Request) (res *http.Response, e 
 
 	log.Debugln("Response: ", res)
 	return res, e
-}
-
-type APIUtil struct {
-	Config      *configs.Root
-	Observation *observ.ObservationContainer
-	Session     *awsSession.Session
-}
-
-func (u *APIUtil) InitApiClient() *operations.Client {
-	// Set default region
-	region := *u.Session.Config.Region
-	if region == "" {
-		region = "us-east-1"
-	}
-
-	sig4RoundTripper := Sig4RoundTripper{
-		Proxied: http.DefaultTransport,
-		Creds: u.Session.Config.Credentials,
-		Region: region,
-		Logger: log,
-	}
-	sig4HTTTPClient := http.Client{Transport: &sig4RoundTripper}
-	httpTransport := httptransport.NewWithClient(*u.Config.API.Host, *u.Config.API.BasePath, nil, &sig4HTTTPClient)
-	client := apiclient.New(httpTransport, strfmt.Default)
-	return client.Operations
 }

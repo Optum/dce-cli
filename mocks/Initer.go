@@ -9,7 +9,7 @@ type Initer struct {
 	mock.Mock
 }
 
-// InitializeDCE provides a mock function with given fields: cfgFile
-func (_m *Initer) InitializeDCE(cfgFile string) {
-	_m.Called(cfgFile)
+// InitializeDCE provides a mock function with given fields:
+func (_m *Initer) InitializeDCE() {
+	_m.Called()
 }

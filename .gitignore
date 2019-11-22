@@ -52,3 +52,5 @@ override.tf.json
 *.zip
 
 junit-report/
+
+dce-cli
