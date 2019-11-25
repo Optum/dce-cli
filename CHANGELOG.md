@@ -1,5 +1,8 @@
 ## vNext
 
+
+## v0.2.0
+
 **BREAKING CHANGES**
 - Fix `--principle-id` flag to be `principal-id`
 - Remove MasterAccountCreds from dce.yml. Use default AWS CLI creds instead
