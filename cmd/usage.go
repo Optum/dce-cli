@@ -20,6 +20,6 @@ var usageCmd = &cobra.Command{
 	Short: "View lease budget information",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		service.GetUsage(startDate, endDate)
+		Service.GetUsage(startDate, endDate)
 	},
 }

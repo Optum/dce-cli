@@ -5,42 +5,58 @@ import (
 	"os"
 
 	"github.com/Optum/dce-cli/configs"
-	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/mholt/archiver"
 	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
 )
 
 type FileSystemUtil struct {
-	Config                *configs.Root
-	Observation           *observ.ObservationContainer
-	DefaultConfigFileName string
+	Config     *configs.Root
+	ConfigFile string
 }
 
-func (u *FileSystemUtil) WriteToYAMLFile(path string, _struct interface{}) {
+func (u *FileSystemUtil) writeToYAMLFile(path string, _struct interface{}) error {
 
 	_yaml, err := yaml.Marshal(_struct)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		return err
 	}
 
 	if !u.IsExistingFile(path) {
 		var file *os.File
 		file, err = os.Create(path)
 		if err != nil {
-			log.Fatalf("error: %v", err)
+			return err
 		}
 		defer file.Close()
 	}
 
 	err = ioutil.WriteFile(path, _yaml, 0644)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		return err
 	}
+	return nil
 }
 
-func (u *FileSystemUtil) GetDefaultConfigFile() string {
-	return u.GetHomeDir() + "/" + u.DefaultConfigFileName
+// WriteConfig writes the Config objects as YAML
+// to the config file location (dce.yml)
+func (u *FileSystemUtil) WriteConfig() error {
+	return u.writeToYAMLFile(u.ConfigFile, u.Config)
+}
+
+// ReadInConfig loads the configuration from `dce.yml`
+// and unmarshals it into the config object
+func (u *FileSystemUtil) ReadInConfig() error {
+	yamlStr, err := ioutil.ReadFile(u.ConfigFile)
+	if err != nil {
+		return err
+	}
+
+	return yaml.Unmarshal(yamlStr, u.Config)
+}
+
+func (u *FileSystemUtil) GetConfigFile() string {
+	return u.ConfigFile
 }
 
 func (u *FileSystemUtil) GetHomeDir() string {
@@ -74,7 +90,7 @@ func (u *FileSystemUtil) Unarchive(source string, destination string) {
 	}
 }
 
-func (s *FileSystemUtil) MvToTempDir(prefix string) (string, string) {
+func (u *FileSystemUtil) MvToTempDir(prefix string) (string, string) {
 	destinationDir, err := ioutil.TempDir("", prefix)
 	if err != nil {
 		log.Fatalln(err)
@@ -87,28 +103,28 @@ func (s *FileSystemUtil) MvToTempDir(prefix string) (string, string) {
 	return destinationDir, originDir
 }
 
-func (s *FileSystemUtil) RemoveAll(path string) {
+func (u *FileSystemUtil) RemoveAll(path string) {
 	err := os.RemoveAll(path)
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func (s *FileSystemUtil) Chdir(path string) {
+func (u *FileSystemUtil) Chdir(path string) {
 	err := os.Chdir(path)
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func (s *FileSystemUtil) WriteFile(fileName string, data string) {
+func (u *FileSystemUtil) WriteFile(fileName string, data string) {
 	err := ioutil.WriteFile(fileName, []byte(data), 0644)
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func (s *FileSystemUtil) ReadDir(path string) []os.FileInfo {
+func (u *FileSystemUtil) ReadDir(path string) []os.FileInfo {
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		log.Fatalln(err)

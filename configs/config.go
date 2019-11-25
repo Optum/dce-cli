@@ -2,17 +2,17 @@ package configs
 
 // Root contains config
 type Root struct {
-	System struct {
-		Auth struct {
-			LoginURL *string
-		}
-	}
-	API struct {
-		Host     *string
-		BasePath *string
-	}
+	API API
 	Region      *string
-	GithubToken *string
+	GithubToken *string `yaml:"githubToken,omitempty"`
+}
+
+type API struct {
+	Host     *string
+	BasePath *string
+	// Token for authenticating against the API
+	// token is base64 encoded JSON, containing an STS token.
+	Token *string `yaml:"token,omitempty"`
 }
 
 var Regions = []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2"}

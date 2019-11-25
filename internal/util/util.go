@@ -1,18 +1,20 @@
 package util
 
 import (
+	"github.com/aws/aws-sdk-go/aws/session"
 	"os"
 
 	"github.com/Optum/dce-cli/configs"
-	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 )
 
 type UtilContainer struct {
-	Config      *configs.Root
+	Config *configs.Root
+	// File path location of the dce.yaml file, from which this config was parsed
+	// Useful if we want to reload or modify the file later
+	ConfigFile  string
 	Observation *observ.ObservationContainer
+	AWSSession *session.Session
 	AWSer
 	APIer
 	Terraformer
@@ -25,29 +27,37 @@ type UtilContainer struct {
 var log observ.Logger
 
 // New returns a new Util given config
-func New(config *configs.Root, observation *observ.ObservationContainer) *UtilContainer {
-
+func New(config *configs.Root, configFile string, observation *observ.ObservationContainer) *UtilContainer {
 	log = observation.Logger
 
-	var session = session.New(&aws.Config{
-		Region:      config.Region,
-	})
-
-	var initializedApiClient APIer
-	apiUtil := &APIUtil{Config: config, Observation: observation, Session: session}
-	if config.API.Host != nil {
-		initializedApiClient = apiUtil.InitApiClient()
+	var awsSession *session.Session
+	awsSession, err := NewAWSSession(config.API.Token)
+	if err != nil {
+		log.Fatalf("Failed to initialize AWS Session: %s", err)
 	}
+
+	var apiClient APIer
+	if config.API.Host != nil && config.API.BasePath != nil {
+		apiClient = NewAPIClient(&NewAPIClientInput{
+			credentials: awsSession.Config.Credentials,
+			region:      config.Region,
+			host:        config.API.Host,
+			basePath:    config.API.BasePath,
+			token:       config.API.Token,
+		})
+	}
+
 
 	utilContainer := UtilContainer{
 		Config:       config,
 		Observation:  observation,
-		AWSer:        &AWSUtil{Config: config, Observation: observation, Session: session},
-		APIer:        initializedApiClient,
+		AWSSession:   awsSession,
+		AWSer:        &AWSUtil{Config: config, Observation: observation, Session: awsSession},
+		APIer:        apiClient,
 		Terraformer:  &TerraformUtil{Config: config, Observation: observation},
 		Githuber:     &GithubUtil{Config: config, Observation: observation},
 		Prompter:     &PromptUtil{Config: config, Observation: observation},
-		FileSystemer: &FileSystemUtil{Config: config, Observation: observation, DefaultConfigFileName: constants.DefaultConfigFileName},
+		FileSystemer: &FileSystemUtil{Config: config, ConfigFile: configFile},
 		Weber:        &WebUtil{Observation: observation},
 	}
 
@@ -76,11 +86,12 @@ type Prompter interface {
 }
 
 type FileSystemer interface {
-	WriteToYAMLFile(path string, _struct interface{})
-	GetDefaultConfigFile() string
+	WriteConfig() error
+	GetConfigFile() string
 	GetHomeDir() string
 	IsExistingFile(path string) bool
 	ReadFromFile(path string) string
+	ReadInConfig() error
 	Unarchive(source string, destination string)
 	MvToTempDir(prefix string) (string, string)
 	RemoveAll(path string)

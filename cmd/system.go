@@ -36,6 +36,6 @@ var systemDeployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Deploy DCE to a new master account",
 	Run: func(cmd *cobra.Command, args []string) {
-		service.Deploy(deployLocalPath, &deployOverrides)
+		Service.Deploy(deployLocalPath, &deployOverrides)
 	},
 }

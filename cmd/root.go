@@ -16,7 +16,9 @@ limitations under the License.
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"github.com/mitchellh/go-homedir"
 	"os"
 	"path/filepath"
 
@@ -27,18 +29,32 @@ import (
 	svc "github.com/Optum/dce-cli/pkg/service"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var cfgFile string
-var config *configs.Root = &configs.Root{}
-var service *svc.ServiceContainer
-var util *utl.UtilContainer
-var observation *observ.ObservationContainer
+var Config = &configs.Root{}
+var Service *svc.ServiceContainer
+var Util *utl.UtilContainer
+var Observation *observ.ObservationContainer
+// Expose logger as global for ease of use
+var log observ.Logger
+var Log observ.Logger
 
 func init() {
-	cobra.OnInitialize(initObservation, initConfig, initUtil, initService)
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dce.yaml)")
+	homeDir, err := homedir.Dir()
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+
+	// Global Flags
+	// ---------------
+	// --config flag, to specify path to dce.yml config
+	// default to ~/.dce.yml
+	RootCmd.PersistentFlags().StringVar(
+		&cfgFile, "config",
+		filepath.Join(homeDir, constants.DefaultConfigFileName),
+		"config file",
+	)
 }
 
 // RootCmd represents the base command when called without any subcommands
@@ -51,14 +67,41 @@ var RootCmd = &cobra.Command{
 
   - Admins to provision DCE to a master account and administer said account
   - Users to lease accounts and execute commands against them`,
+  PersistentPreRunE: preRun,
+}
+
+func preRun(cmd *cobra.Command, args []string) error {
+	err := onInit(cmd, args)
+	if err != nil {
+		return err
+	}
+
+	// Check if the user has valid creds,
+	// otherwise require authentication
+	creds := Util.AWSSession.Config.Credentials
+	_, _ = creds.Get()
+	hasValidCreds := !creds.IsExpired()
+	isAuthCommand := cmd.Name() == authCmd.Name()
+	isInitCommand := cmd.Name() == initCmd.Name()
+	if !hasValidCreds && !isAuthCommand && !isInitCommand {
+		log.Print("No valid DCE credentials found")
+		err := Service.Authenticate()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		fmt.Println(err)
 		os.Exit(1)
 	}
+	// Print an extra newline when we're done,
+	// so users terminal prompt shows up on a new line
+	fmt.Println("")
 }
 
 type FmtOutputFormatter struct {
@@ -66,13 +109,41 @@ type FmtOutputFormatter struct {
 
 func (f *FmtOutputFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	var serialized []byte
-	var err error
 	serialized = []byte(entry.Message)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to marshal fields to JSON, %v", err)
+	return serialized, nil
+}
+
+func onInit(cmd *cobra.Command, args []string) error {
+	// Configure observation / logging
+	initObservation()
+	// Expose global `log` object for ease of use
+	log = Observation.Logger
+	Log = log
+
+	fsUtil := &utl.FileSystemUtil{Config: Config, ConfigFile: cfgFile}
+
+	// Initialize config
+	// If config file does not exist,
+	// run the `dce init` command
+	if !fsUtil.IsExistingFile(cfgFile) {
+		if cmd.Name() != initCmd.Name() {
+			return errors.New("Config file not found. Please type 'dce init' to generate one.")
+		}
+	} else {
+		// Load config from dce.yaml
+		err := fsUtil.ReadInConfig()
+		if err != nil {
+			return fmt.Errorf("Failed to parse dce.yml: %s", err)
+		}
 	}
-	fmt.Println(string(serialized))
-	return nil, nil
+
+	// initialize utilities and interfaces to external things
+	Util = utl.New(Config, cfgFile, Observation)
+
+	// initialize business logic services
+	Service = svc.New(Config, Observation, Util)
+
+	return nil
 }
 
 // initialize anything related to logging, metrics, or tracing
@@ -107,48 +178,5 @@ func initObservation() {
 		logrusInstance.SetFormatter(&logrus.TextFormatter{})
 	}
 
-	observation = observ.New(logrusInstance)
-}
-
-// Utils we need before they are normally instantiated
-var log observ.Logger
-var fsUtil utl.FileSystemer
-
-// initialize config from file or tell user to run 'dce init' if none exists
-func initConfig() {
-
-	tempUtil := utl.New(config, observation)
-	fsUtil = tempUtil.FileSystemer
-	log = observation.Logger
-
-	var configFileUsed string
-	if cfgFile != "" {
-		configFileUsed = cfgFile
-		viper.SetConfigFile(configFileUsed)
-	} else {
-		home := fsUtil.GetHomeDir()
-		configFileUsed = filepath.Join(home, constants.DefaultConfigFileName)
-		viper.SetConfigFile(configFileUsed)
-	}
-
-	if !fsUtil.IsExistingFile(configFileUsed) {
-		if len(os.Args) < 2 || os.Args[1] != initCmd.Name() {
-			log.Endln("Config file not found. Please type 'dce init' to generate one.")
-		}
-	} else {
-		if err := viper.ReadInConfig(); err == nil {
-			viper.BindEnv("githubtoken", "GITHUB_TOKEN")
-			viper.Unmarshal(config)
-		}
-	}
-}
-
-// initialize utilities and interfaces to external things
-func initUtil() {
-	util = utl.New(config, observation)
-}
-
-// initialize business logic
-func initService() {
-	service = svc.New(config, observation, util)
+	Observation = observ.New(logrusInstance)
 }
