@@ -50,6 +50,7 @@ override.tf.json
 
 # Other stuff
 *.zip
+.idea/
 
 junit-report/
 
