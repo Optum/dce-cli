@@ -1,10 +1,10 @@
-DCE
+DCE-CLI
 
 Copyright 2019 Optum
 
 Project Description:
 ====================
-Disposable Cloud Environment (DCE) manages ephemeral AWS accounts for easy and secure access to the cloud.
+This is the CLI for DCE.  Disposable Cloud Environment (DCE) manages ephemeral AWS accounts for easy and secure access to the cloud.
 
 Author(s):
 Joshua Marsh (@joshmarsh)
