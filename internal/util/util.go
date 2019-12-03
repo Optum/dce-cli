@@ -35,6 +35,7 @@ func New(config *configs.Root, configFile string, observation *observ.Observatio
 	if err != nil {
 		log.Fatalf("Failed to initialize AWS Session: %s", err)
 	}
+	awsSession.Config.Region = config.Region
 
 	var apiClient APIer
 	if config.API.Host != nil && config.API.BasePath != nil {
