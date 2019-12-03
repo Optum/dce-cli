@@ -8,17 +8,18 @@ assignees: ''
 ---
 
 **Version information**
+<!--
 - The version of dce-cli.
 - OS and version
 - Go version
 - Terraform version (if using directly)
+-->
 
 **Describe the bug**
-
-A clear and concise description of what the bug is.
+<!-- A clear and concise description of what the bug is. -->
 
 **To Reproduce**
-
+<!--
 Please include the CLI commands you ran, and the full output from those commands.
 
 Steps to reproduce the behavior:
@@ -34,9 +35,10 @@ Steps to reproduce the behavior:
     ~ dce leases login ...
     <Error>
     ```
+-->
 
 **Expected behavior**
-A clear and concise description of what you expected to happen.
+<!-- A clear and concise description of what you expected to happen. -->
 
 **Additional context**
-Add any other context about the problem here.
+<!-- Add any other context about the problem here. -->
