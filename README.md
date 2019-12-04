@@ -1,9 +1,7 @@
-![Disposable Cloud Environment Logo](./docs/dce-logo.png)
-
 # Disposable Cloud Environment (DCE) CLI
 > **DCE is your playground in the cloud**
 
-This is the CLI for [DCE](https://github.com/Optum/dce) by Optum. For usage information, view the complete [command reference](./docs/dce.md).
+This is the CLI for [DCE](https://github.com/Optum/dce). For usage information, view the complete [command reference](./docs/dce.md).
 
 Disposable Cloud Environment (DCE) manages ephemeral AWS accounts for easy and secure access to the cloud.
 
