@@ -138,7 +138,7 @@ view information you do not have access to.
     err:  [GET /accounts][403] getAccountsForbidden
     ```
 
-1. You will need to be authenticated as an admin before continuing to the next section. Type `dce auth` to log in as a different user. Enter the username 
+1. You will need to be authenticated as an admin before continuing to the next section. Type `dce auth` to log in as a different user. Sign out, then enter the username
 and password for the admin that you created. As before, copy the auth code and paste it in the prompt in your command terminal.
 
     ![A test image](./quickstartadminlogin.png)
@@ -182,7 +182,7 @@ and password for the admin that you created. As before, copy the auth code and p
 
 ## Leasing a DCE Account
 
-1. Use the `dce auth` command to switch back to the non-admin user.
+1. Use the `dce auth` command to authenticate as a non-admin user.
 
 1. Now that your accounts pool isn't empty, you can create your first lease using the `dce leases create` command.
 
