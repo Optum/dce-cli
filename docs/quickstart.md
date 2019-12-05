@@ -164,29 +164,113 @@ and password for the admin that you created. As before, copy the auth code and p
 1. Use the `dce accounts add` command to add your child account to the "DCE Accounts Pool"
 
     ```
-    ➜  ~ dce accounts add --account-id 555555555555 --admin-role-arn arn:aws:iam::555555555555:role/DCEMasterAccess
+    ➜  ~ dce accounts add --account-id 444444444444 --admin-role-arn arn:aws:iam::555555555555:role/DCEMasterAccess
     ```
 
 1. Type `dce accounts list` to verify that your account has been added
 ➜  ~ dce accounts list
-[{"accountStatus":"NotReady","adminRoleArn":"arn:aws:iam::555555555555:role/MasterAcctAcces","createdOn":1572562180,"id":"555555555555","lastModifiedOn":1572637591,"principalPolicyHash":"\"852ee9abbf1220a111c435a8c0e65490\"","principalRoleArn":"arn:aws:iam::555555555555:role/DCEPrincipal-dcelogin"}]
-
+    ```
+    [
+        {
+            "accountStatus": "NotReady",
+            "adminRoleArn": "arn:aws:iam::555555555555:role/DCEMasterAccess",
+            "createdOn": 1575485630,
+            "id": "775788068104",
+            "lastModifiedOn": 1575485630,
+            "principalPolicyHash": "\"bc5872b50475b186afea67ff47516a8f\"",
+            "principalRoleArn": "arn:aws:iam::775788768154:role/DCEPrincipal-quickstart"
+        }
+    ]
+    ```
     The account status will initially say `NotReady`. It may take up to 5 minutes for the new account to be processed. Once the account status is `Ready`, you may proceed with creating a lease.
 
 ## Leasing a DCE Account
 
-1. Now that your accounts pool isn't emtpy, you can create your first lease using the `dce leases create` command
+1. Use the `dce auth` command to switch back to the non-admin user.
+
+1. Now that your accounts pool isn't empty, you can create your first lease using the `dce leases create` command.
 
     ```
     ➜  ~ dce leases create --budget-amount 100.0 --budget-currency USD --email jane.doe@email.com --principal-id jdoe99
+    Lease created: {
+        "accountId": "555555555555",
+        "budgetAmount": 100,
+        "budgetCurrency": "USD",
+        "budgetNotificationEmails": [
+            "jane.doe@email.com"
+        ],
+        "createdOn": 1575490207,
+        "expiresOn": 1576095007,
+        "id": "e501cb86-8317-458b-bdce-d47ab92f86a8",
+        "lastModifiedOn": 1575490207,
+        "leaseStatus": "Active",
+        "leaseStatusModifiedOn": 1575490207,
+        "leaseStatusReason": "Active",
+        "principalId": "jdoe99"
+    }
     ```
-
+   
 1. Type `dce leases list` to verify that a lease has been created
 
     ```
     ➜  ~ dce leases list
-    [{"accountId":"555555555555","budgetAmount":100,"budgetCurrency":"USD","budgetNotificationEmails":["jane.doe@email.com "],"createdOn":1572562298,"id":"d326bddf-af36-44d9-bbd0-70b9f7e55356","lastModifiedOn":1572637591,"leaseStatus":"Active","leaseStatusModifiedOn":1572637591,"principalId":"jdoe99"}]
+   [
+   	{
+   		"accountId": "555555555555",
+   		"budgetAmount": 100,
+   		"budgetCurrency": "USD",
+   		"budgetNotificationEmails": [
+   			"jane.doe@email.com"
+   		],
+   		"createdOn": 1575490207,
+   		"expiresOn": 1576095007,
+   		"id": "e501cb86-8317-458b-bdce-d47ab92f86a8",
+   		"lastModifiedOn": 1575490207,
+   		"leaseStatus": "Active",
+   		"leaseStatusModifiedOn": 1575490207,
+   		"leaseStatusReason": "Active",
+   		"principalId": "jdoe99"
+   	}
+   ]
     ```
+
+1. Notice that [we created a lease for a different user](https://github.com/Optum/dce/issues/137) than the one we are currently authenticated with (i.e. `jdoe99` != `quickstartuser`) If we try to login to this leased account, we will receive a permissions error since it is registered under a different user.
+
+    ```
+     ➜  ~ dce leases login -c e501cb86-8317-458b-bdce-d47ab92f86a8
+    err:  [POST /leases/{id}/auth][403] postLeasesIdAuthForbidden
+    ```
+
+1. End the current lease and create one with a principalId matching our username (`quickstaruser`).
+
+    ```
+    ➜  ~ dce leases end --account-id 555555555555 --principal-id jdoe99
+    ```
+       
+    ```
+    ➜  ~ dce leases create --budget-amount 100.0 --budget-currency USD --email jane.doe@email.com --principal-id quickstartuser
+   Lease created: {
+   	"accountId": "948334904178",
+   	"budgetAmount": 100,
+   	"budgetCurrency": "USD",
+   	"budgetNotificationEmails": [
+   		"jane.doe@email.com"
+   	],
+   	"createdOn": 1575509206,
+   	"expiresOn": 1576114006,
+   	"id": "19a742a0-149f-41e5-813a-6d3be101058b",
+   	"lastModifiedOn": 1575509206,
+   	"leaseStatus": "Active",
+   	"leaseStatusModifiedOn": 1575509206,
+   	"leaseStatusReason": "Active",
+   	"principalId": "quickstartuser"
+   }
+    ```
+   ```
+    ➜  ~ dce leases login -c 19a742a0-149f-41e5-813a-6d3be101058b
+   err:  [POST /leases/{id}/auth][403] postLeasesIdAuthForbidden
+   ```
+
 
 ## Logging into a leased account
 
@@ -213,12 +297,6 @@ and password for the admin that you created. As before, copy the auth code and p
     ```
     ➜  ~ dce leases login d326bddf-af36-44d9-bbd0-70b9f7e55356 --open-browser
     Opening AWS Console in Web Browser
-    ```
-
-1. You can end a lease using the `dce leases end` command
-
-    ```
-    ➜  ~ dce leases end --account-id 555555555555 --principal-id jdoe99
     ```
 
 ## Removing a Child Account
