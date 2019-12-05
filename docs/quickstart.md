@@ -61,8 +61,8 @@
 
     ```
     api:
-      host: "abcdefghij.execute-api.us-east-1.amazonaws.com"
-      basepath: "/api"
+      host: abcdefghij.execute-api.us-east-1.amazonaws.com
+      basepath: /api
     region: us-east-1
     ```
    
@@ -110,10 +110,6 @@ DCE uses AWS Cognito to manager authentication and authorization.
 
     ![A test image](./quickstartuserlogin.png)
 
-1. Enter the username and password for the non-admin user that you created. Reset the password as prompted.
-   
-    ![A test image](./quickstartuserlogin.png)
-
 1. Upon successfully logging in, you will be redirected to a credentials page containing a temporary authentication code. Click the button to copy the auth code to your clipboard.
    
     ![A test image](./credspage.png)
@@ -125,9 +121,9 @@ DCE uses AWS Cognito to manager authentication and authorization.
     ✔ Enter API Token: : █ 
     ```
 
-1. You are now authorized as a DCE User. Test that you have proper authorization by typing `dce leases list`.
+1. You are now authenticated as a DCE User. Test that you have proper authorization by typing `dce leases list`.
 This will return an empty list indicating that there are currently no leases which you can view. 
-If you are not properly authorized as a user, you will see a permissions error.
+If you are not properly authenticated as a user, you will see a permissions error.
 
     ```
     ➜  ~ dce leases list
@@ -156,19 +152,20 @@ and password for the admin that you created. As before, copy the auth code and p
 
 ## Adding a child account
 
-1. Prepare a second AWS account to be your first "DCE Child Account"
+1. Prepare a second AWS account to be your first "DCE Child Account".
     - Create an IAM role with `AdministratorAccess` and a trust relationship to your DCE Master Accounts
     - Create an account alias by clicking the 'customize' link in the IAM dashboard of the child account. This must not include the terms "prod" or "production".
 
-1. Use the `dce accounts add` command to add your child account to the "DCE Accounts Pool"
+1. Use the `dce accounts add` command to add your child account to the "DCE Accounts Pool". WARNING: This will delete any resources in the account.
 
     ```
-    ➜  ~ dce accounts add --account-id 444444444444 --admin-role-arn arn:aws:iam::555555555555:role/DCEMasterAccess
+    ➜  ~ dce accounts add --account-id 555555555555 --admin-role-arn arn:aws:iam::555555555555:role/DCEMasterAccess
     ```
 
-1. Type `dce accounts list` to verify that your account has been added
-➜  ~ dce accounts list
+1. Type `dce accounts list` to verify that your account has been added.
+
     ```
+    ➜  ~ dce accounts list
     [
         {
             "accountStatus": "NotReady",
@@ -240,7 +237,7 @@ and password for the admin that you created. As before, copy the auth code and p
     err:  [POST /leases/{id}/auth][403] postLeasesIdAuthForbidden
     ```
 
-1. End the current lease and create one with a principalId matching your username (`quickstartuser`).
+1. End the current lease and create one with a principalId matching your username (`quickstartuser`). NOTE: Used accounts are placed in NotReady status while they are prepared for a new lease. You will need to wait several minutes before creating a new lease if this is the only account in your accounts pool.
 
     ```
     ➜  ~ dce leases end --account-id 555555555555 --principal-id jdoe99
