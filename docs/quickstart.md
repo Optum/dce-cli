@@ -72,47 +72,47 @@ DCE uses AWS Cognito to manager authentication and authorization.
 
 1. Open the AWS Console in your DCE Master Account and Navigate to AWS Cognito by typing `Cognito` in the search bar
 
-    ![A test image](./cognito.png)
+    ![Cognito](./cognito.png)
 
 1. Select `Manage User Pools` and click on the dce user pool.
 
-    ![A test image](./manageuserpools.png)
+    ![Manage user pools](./manageuserpools.png)
 
 1. Select `Users and groups`
 
-    ![A test image](./usersandgroups.png)
+    ![Users and Groups](./usersandgroups.png)
     
 1. Create a user
 
-    ![A test image](./createuser.png)
+    ![Create User](./createuser.png)
 
 1. Name the user and provide a temporary password. You may uncheck all of the boxes and leave the other fields blank. This user will not have admin priviliges.
 
-    ![A test image](./quickstartuser.png)
+    ![Quick start user](./quickstartuser.png)
     
 1. Create a second user to serve as a system admin. Follow the same steps as you did for creating the first user, but name this one something appropriate for their role as an administrator.
    
-    ![A test image](./quickstartadmin.png)
+    ![Quick start admin](./quickstartadmin.png)
 
 1. Create a group
 
-    ![A test image](./creategroup.png)
+    ![Create group](./creategroup.png)
 
 1. Users in this group will be granted admin access to DCE. The group name must contain the term `Admin`. Choose a name and click on the `Create group` button.
 
-    ![A test image](./groupname.png)
+    ![Group name](./groupname.png)
     
 1. Add your admin user to the admin group to grant them admin privileges. 
-    ![A test image](./quickstartadmindetail.png)
-    ![A test image](./addtogroup.png)
+    ![Quick start admin detail](./quickstartadmindetail.png)
+    ![Add to group](./addtogroup.png)
 
 1. Type `dce auth` in your command terminal. This will open a browser with a log in screen. Enter the username and password for the non-admin user that you created. Reset the password as prompted.
 
-    ![A test image](./quickstartuserlogin.png)
+    ![Quick start user login](./quickstartuserlogin.png)
 
 1. Upon successfully logging in, you will be redirected to a credentials page containing a temporary authentication code. Click the button to copy the auth code to your clipboard.
    
-    ![A test image](./credspage.png)
+    ![Credentials Page](./credspage.png)
     
 1. Return to your command terminal and paste the auth code into the prompt, then press enter.
     
@@ -141,7 +141,7 @@ view information you do not have access to.
 1. You will need to be authenticated as an admin before continuing to the next section. Type `dce auth` to log in as a different user. Sign out, then enter the username
 and password for the admin that you created. As before, copy the auth code and paste it in the prompt in your command terminal.
 
-    ![A test image](./quickstartadminlogin.png)
+    ![Admin login](./quickstartadminlogin.png)
     
 1. Test that you have admin authorization by typing `dce accounts list`. You should see an empty list now instead of a permissions error.
    
