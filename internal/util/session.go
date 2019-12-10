@@ -90,7 +90,7 @@ func (t *APITokenProvider) IsExpired() bool {
 
 type APITokenValue struct {
 	AccessKeyID     string `json:"accessKeyId"`
-	SecretAccessKey string
-	SessionToken    string
-	Expiration      int64
+	SecretAccessKey string `json:"secretAccessKey"`
+	SessionToken    string `json:"sessionToken"`
+	Expiration      int64 `json:"expireTime"`
 }
