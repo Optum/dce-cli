@@ -256,7 +256,7 @@ and password for the admin that you created. As before, copy the auth code and p
    ]
     ```
 
-1. Notice that [we created a lease for a different user](https://github.com/Optum/dce/issues/137) than the one we are currently authenticated with (i.e. `jdoe99` != `quickstartuser`). If we try to login to this leased account, we will receive a permissions error since it is registered under a different user.
+1. If we try to login to this leased account, we will receive a permissions error since it is registered under a different user (i.e. `jdoe99` != `quickstartuser`).
 
     ```
      dce leases login -c e501cb86-8317-458b-bdce-d47ab92f86a8
