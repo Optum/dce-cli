@@ -94,7 +94,8 @@ for alternatives to using the AWS CLI.
 
 DCE uses AWS Cognito to manage authentication and authorization. This section will walk through setting this 
 up in the AWS web console, but note that all of these operations can be automated using the AWS CLI or SDKs. While
-this example uses Cognito User Pools to create and manage users, you may also [integrate Cognito with your own IdP](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-identity-provider.html).
+this example uses Cognito User Pools to create and manage users, you may also [integrate Cognito with your own IdP](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-identity-provider.html)
+or use simple IAM credentials to authenticate against the DCE API.
 
 1. Open the AWS Console in your DCE Master Account and Navigate to AWS Cognito by typing `Cognito` in the search bar
 
