@@ -182,7 +182,9 @@ and password for the admin that you created. As before, copy the auth code and p
     - Create an IAM role with `AdministratorAccess` and a trust relationship to your DCE Master Accounts
     - Create an account alias by clicking the 'customize' link in the IAM dashboard of the child account. This must not include the terms "prod" or "production".
 
-1. Use the `dce accounts add` command to add your child account to the "DCE Accounts Pool". WARNING: This will delete any resources in the account.
+1. Use the `dce accounts add` command to add your child account to the "DCE Accounts Pool".
+
+    *WARNING: This will delete any resources in the account.*
 
     ```
     dce accounts add --account-id 555555555555 --admin-role-arn arn:aws:iam::555555555555:role/DCEMasterAccess
