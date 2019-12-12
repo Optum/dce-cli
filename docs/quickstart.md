@@ -216,25 +216,25 @@ and password for the admin that you created. As before, copy the auth code and p
 1. Now that your accounts pool isn't empty, you can create your first lease using the `dce leases create` command.
 
     ```
-    dce leases create --budget-amount 100.0 --budget-currency USD --email jane.doe@email.com --principal-id jdoe99
-    Lease created: {
-        "accountId": "555555555555",
-        "budgetAmount": 100,
-        "budgetCurrency": "USD",
-        "budgetNotificationEmails": [
-            "jane.doe@email.com"
-        ],
-        "createdOn": 1575490207,
-        "expiresOn": 1576095007,
-        "id": "e501cb86-8317-458b-bdce-d47ab92f86a8",
-        "lastModifiedOn": 1575490207,
-        "leaseStatus": "Active",
-        "leaseStatusModifiedOn": 1575490207,
-        "leaseStatusReason": "Active",
-        "principalId": "jdoe99"
-    }
-    ```
-   
+    dce leases create --budget-amount 100.0 --budget-currency USD --email jane.doe@email.com --principal-id quickstartuser
+   Lease created: {
+   	"accountId": "948334904178",
+   	"budgetAmount": 100,
+   	"budgetCurrency": "USD",
+   	"budgetNotificationEmails": [
+   		"jane.doe@email.com"
+   	],
+   	"createdOn": 1575509206,
+   	"expiresOn": 1576114006,
+   	"id": "19a742a0-149f-41e5-813a-6d3be101058b",
+   	"lastModifiedOn": 1575509206,
+   	"leaseStatus": "Active",
+   	"leaseStatusModifiedOn": 1575509206,
+   	"leaseStatusReason": "Active",
+   	"principalId": "quickstartuser"
+   }
+   ```
+
 1. Type `dce leases list` to verify that a lease has been created
 
     ```
@@ -259,48 +259,6 @@ and password for the admin that you created. As before, copy the auth code and p
    ]
     ```
 
-1. If we try to login to this leased account, we will receive a permissions error since it is registered under a different user (i.e. `jdoe99` != `quickstartuser`).
-
-    ```
-     dce leases login -c e501cb86-8317-458b-bdce-d47ab92f86a8
-    err:  [POST /leases/{id}/auth][403] postLeasesIdAuthForbidden
-    ```
-
-1. End the current lease and create one with a principalId matching your username (`quickstartuser`). NOTE: Used accounts are placed in NotReady status while they are prepared for a new lease. You will need to wait several minutes before creating a new lease if this is the only account in your accounts pool.
-
-    ```
-    dce leases end --account-id 555555555555 --principal-id jdoe99
-    ```
-       
-    ```
-    dce leases create --budget-amount 100.0 --budget-currency USD --email jane.doe@email.com --principal-id quickstartuser
-   Lease created: {
-   	"accountId": "948334904178",
-   	"budgetAmount": 100,
-   	"budgetCurrency": "USD",
-   	"budgetNotificationEmails": [
-   		"jane.doe@email.com"
-   	],
-   	"createdOn": 1575509206,
-   	"expiresOn": 1576114006,
-   	"id": "19a742a0-149f-41e5-813a-6d3be101058b",
-   	"lastModifiedOn": 1575509206,
-   	"leaseStatus": "Active",
-   	"leaseStatusModifiedOn": 1575509206,
-   	"leaseStatusReason": "Active",
-   	"principalId": "quickstartuser"
-   }
-   ```
-   We can log in to this lease because our username (`quickstartuser`) matches the lease's principalId.
-   
-   ```
-    dce leases login -c 19a742a0-149f-41e5-813a-6d3be101058b
-   export AWS_ACCESS_KEY_ID=xxxxxMAJKITACBQZURXH
-   export AWS_SECRET_ACCESS_KEY=xxxxxqr6c/S27StiD5OjZSjl0u3UAzuOREe+9Z/D
-   export AWS_SESSION_TOKEN=xxxxxXIvYXdzECwaDGtnz7u+ob+S0oymzCKyAb0oyNJJnrDZIG3ZzBiBh2P4oFB9ST3OATogyo4ynFQE9mtcms2ITP6hXK3p30wK/kE/VfSLKG77FP++7qjNYhnWlIfvnntYoMHQvjHEmiLZ8oqXEmlJDhhDoyBUFSBZ4nqbklwnvZSSoA8mIA2ey7ZCau+KvJJxqjif4DSgLxgNQETuxHp2zJcnfVQB+0QBk7yCiNbFklqk/aM4jBxMV0K+/xeV+YOF4K+dyAZCWZL3wPko76il7wUyLSvuRc+bVk4rob3CiR9vWO7bbZokX/zRDNH1o2+ktuFXzpApumEEgaXGYgnCxQ==
-   ```
-
-
 ## Logging into a leased account
 
 There are three ways to "log in" to a leased account.
@@ -320,7 +278,7 @@ There are three ways to "log in" to a leased account.
     aws_secret_access_key = xxxxxDEiaAvZ0OeqO5qxNBcJVrFGzNLxz6tgKWTF
     aws_session_token = xxxxxXIvYXdzEC0aDFEgMqpsBg4dtUS1qSKyAa3ktoh0SBPbwJv3S5B5NXdG8OdOVCQsya5b943mFfJnxX2reFw1a/r+LKa7G6CKj2NnWbkVWXdzWEVtsjy5Y32po2kVDp1lt74C7V6H8xbOk4HjgiXLOQl5faXpjmi80yaFI/yBrvnBbQVOq9QkbpeHcSyEkoouSkagCtkPicjLjq6omrAGR2xDXrrFYvYRIMevj2mZoBkk/5jGB3FpNycuWz6weqF4Z6qlCZLSalfetEAow7ml7wUyLf4OrtDvPgTPBjg6PClxC6BZgUMZaQM9ePQR0ZgMynNvm7JHbQz38jLCBqzneQ==
     ```
-   
+
 1. Access your leased account in a *web browser* via the `dce leases login` command with the `--open-browser` flag
 
     ```
