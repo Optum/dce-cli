@@ -16,6 +16,7 @@ var principalID string
 var budgetAmount float64
 var budgetCurrency string
 var email []string
+var expiresOn string
 
 var pagLimit int64
 var nextAcctID string
@@ -37,6 +38,7 @@ func init() {
 	leasesCreateCmd.Flags().StringVarP(&principalID, "principal-id", "p", "", "Principle ID for the user of the leased account")
 	leasesCreateCmd.Flags().Float64VarP(&budgetAmount, "budget-amount", "b", 0, "The leased accounts budget amount")
 	leasesCreateCmd.Flags().StringVarP(&budgetCurrency, "budget-currency", "c", "USD", "The leased accounts budget currency")
+	leasesCreateCmd.Flags().StringVarP(&expiresOn, "expires-on", "E", "7d", "The leased accounts expiry date as a long (UNIX epoch) or string (eg., '7d', '8h'")
 	leasesCreateCmd.Flags().StringArrayVarP(&email, "email", "e", nil, "The email address that budget notifications will be sent to")
 	leasesCreateCmd.MarkFlagRequired("principal-id")
 	leasesCreateCmd.MarkFlagRequired("budget-amount")
@@ -86,7 +88,7 @@ var leasesCreateCmd = &cobra.Command{
 	Short: "Create a lease.",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		Service.CreateLease(principalID, budgetAmount, budgetCurrency, email)
+		Service.CreateLease(principalID, budgetAmount, budgetCurrency, email, expiresOn)
 	},
 }
 

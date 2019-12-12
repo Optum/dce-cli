@@ -21,14 +21,23 @@ type LeasesService struct {
 	Util        *utl.UtilContainer
 }
 
-func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, budgetCurrency string, email []string) {
+func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, budgetCurrency string, email []string, expiresOn string) {
+	postBody := operations.PostLeasesBody{
+		PrincipalID:              &principalID,
+		BudgetAmount:             &budgetAmount,
+		BudgetCurrency:           &budgetCurrency,
+		BudgetNotificationEmails: email,
+	}
+
+	expiry, err := s.Util.ExpandEpochTime(expiresOn)
+
+	if err != nil && expiry > 0 {
+		expiryf := float64(expiry)
+		postBody.ExpiresOn = &expiryf
+	}
+
 	params := &operations.PostLeasesParams{
-		Lease: operations.PostLeasesBody{
-			PrincipalID:              &principalID,
-			BudgetAmount:             &budgetAmount,
-			BudgetCurrency:           &budgetCurrency,
-			BudgetNotificationEmails: email,
-		},
+		Lease: postBody,
 	}
 	params.SetTimeout(5 * time.Second)
 	res, err := apiClient.PostLeases(params, nil)
