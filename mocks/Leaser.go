@@ -9,9 +9,9 @@ type Leaser struct {
 	mock.Mock
 }
 
-// CreateLease provides a mock function with given fields: principalID, budgetAmount, budgetCurrency, email
-func (_m *Leaser) CreateLease(principalID string, budgetAmount float64, budgetCurrency string, email []string) {
-	_m.Called(principalID, budgetAmount, budgetCurrency, email)
+// CreateLease provides a mock function with given fields: principalID, budgetAmount, budgetCurrency, email, expiresOn
+func (_m *Leaser) CreateLease(principalID string, budgetAmount float64, budgetCurrency string, email []string, expiresOn string) {
+	_m.Called(principalID, budgetAmount, budgetCurrency, email, expiresOn)
 }
 
 // EndLease provides a mock function with given fields: accountID, principalID

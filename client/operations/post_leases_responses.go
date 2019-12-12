@@ -213,7 +213,7 @@ type PostLeasesBody struct {
 	BudgetNotificationEmails []string `json:"budgetNotificationEmails"`
 
 	// expires on
-	ExpiresOn float64 `json:"expiresOn,omitempty"`
+	ExpiresOn *float64 `json:"expiresOn,omitempty"`
 
 	// principal Id
 	// Required: true

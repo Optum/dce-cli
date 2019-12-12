@@ -1,8 +1,10 @@
 package util
 
 import (
-	"github.com/aws/aws-sdk-go/aws/session"
 	"os"
+	"time"
+
+	"github.com/aws/aws-sdk-go/aws/session"
 
 	"github.com/Optum/dce-cli/configs"
 	observ "github.com/Optum/dce-cli/internal/observation"
@@ -14,7 +16,7 @@ type UtilContainer struct {
 	// Useful if we want to reload or modify the file later
 	ConfigFile  string
 	Observation *observ.ObservationContainer
-	AWSSession *session.Session
+	AWSSession  *session.Session
 	AWSer
 	APIer
 	Terraformer
@@ -22,6 +24,7 @@ type UtilContainer struct {
 	Prompter
 	FileSystemer
 	Weber
+	Durationer
 }
 
 var log observ.Logger
@@ -48,7 +51,6 @@ func New(config *configs.Root, configFile string, observation *observ.Observatio
 		})
 	}
 
-
 	utilContainer := UtilContainer{
 		Config:       config,
 		Observation:  observation,
@@ -60,6 +62,7 @@ func New(config *configs.Root, configFile string, observation *observ.Observatio
 		Prompter:     &PromptUtil{Config: config, Observation: observation},
 		FileSystemer: &FileSystemUtil{Config: config, ConfigFile: configFile},
 		Weber:        &WebUtil{Observation: observation},
+		Durationer:   NewDurationUtil(),
 	}
 
 	return &utilContainer
@@ -103,4 +106,9 @@ type FileSystemer interface {
 
 type Weber interface {
 	OpenURL(url string)
+}
+
+type Durationer interface {
+	ExpandEpochTime(str string) (int64, error)
+	ParseDuration(str string) (time.Duration, error)
 }
