@@ -17,14 +17,14 @@ Deploy your own Disposable Cloud Environment by following our [quick start guide
 
 # Feature Availability
 
-| Feature                                 |  *nix       |  Windows    |
-| -----------                             | ----------- | ----------- |
-| Deployment (`dce system deploy`)        | Available   | [Unavailable](https://github.com/Optum/dce-cli/issues/21) |
-| CLI Initialization (`dce init`)         | Available   |  Available  |
-| Authentication (`dce auth`)             | Available   |  Available  |
-| Account Management (`dce accounts ...`) | Available   |  Available  |
-| Lease Management (`dce leases ...`)     | Available   |  Available  |
-| Usage (`dce usage ...`)                 | Available   |  Available  |
+| Feature                                 | *nix        | Windows                                                   | Notes                                                             |
+| -----------                             | ----------- | -----------                                               | -----------                                                       |
+| Deployment (`dce system deploy`)        | Available   | [Unavailable](https://github.com/Optum/dce-cli/issues/21) |                                                                   |
+| CLI Initialization (`dce init`)         | Available   | Available                                                 |                                                                   |
+| Authentication (`dce auth`)             | Available   | Available                                                 | [Unavailable on Firefox](https://github.com/Optum/dce/issues/166) |
+| Account Management (`dce accounts ...`) | Available   | Available                                                 |                                                                   |
+| Lease Management (`dce leases ...`)     | Available   | Available                                                 |                                                                   |
+| Usage (`dce usage ...`)                 | Available   | Available                                                 |                                                                   |
 
 # Logging
 
