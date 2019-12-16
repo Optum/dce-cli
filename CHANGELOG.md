@@ -1,5 +1,8 @@
 ## vNext
 
+## v0.3.0
+- Modified dce auth command to prompt for input and accept base64 encoded credentials string
+- Added cognito auth documentation to quickstart
 
 ## v0.2.0
 
