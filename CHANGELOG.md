@@ -1,7 +1,7 @@
 ## vNext
 
 ## v0.2.1
-- Fixed deployment bug where AWS region was not being set from config.
+- Fixed deployment bug where AWS region was not being set from config
 - Added cognito auth documentation to quickstart
 
 ## v0.2.0
