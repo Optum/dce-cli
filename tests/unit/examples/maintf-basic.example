@@ -1,0 +1,29 @@
+terraform {
+
+	backend "local" {
+		path="/Users/jexmple/.dce/terraform.tfstate"
+		workspace_dir="/Users/jexmple/.dce/tf-workspace"
+	}
+}
+
+variable "namespace" {
+	type = string
+	default = "dcecliut"
+}
+
+variable "budget_notification_from_email" {
+	type = string
+	default = "noreply@example.com"
+}
+
+module "dce" {
+	source="github.com/Optum/dce//modules?ref=v0.23.0"
+
+	namespace = var.namespace
+	budget_notification_from_email = var.budget_notification_from_email
+}
+
+output "artifacts_bucket_name" {
+	description = "S3 bucket for artifacts like AWS Lambda code"
+	value = module.dce.artifacts_bucket_name
+}

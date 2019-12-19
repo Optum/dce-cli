@@ -32,51 +32,49 @@ func (s *DeployService) Deploy(deployLocal string, overrides *DeployOverrides) {
 		s.LocalRepo = deployLocal
 	}
 
-	stateBucket := s.createRemoteStateBackend(overrides)
+	s.createTFMainFile(overrides)
 
 	log.Infoln("Creating DCE infrastructure")
-	artifactsBucket := s.createDceInfra(stateBucket, overrides)
+	artifactsBucket := s.createDceInfra(overrides)
 	log.Infoln("Artifacts bucket = ", artifactsBucket)
 
 	log.Infoln("Deploying code assets to DCE infrastructure")
 	s.deployCodeAssets(artifactsBucket, overrides)
 }
 
-func (s *DeployService) createRemoteStateBackend(overrides *DeployOverrides) string {
-	tmpDir, originDir := s.Util.MvToTempDir("dce-")
-	defer s.Util.RemoveAll(tmpDir)
+// createTFMainFile creates the main.tf file. The default behavior, without
+// using a local repository, is to create the file with the bare minimum
+// required to use Terraform with local state.
+func (s *DeployService) createTFMainFile(overrides *DeployOverrides) string {
+	homeDir, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
-	fileName := filepath.Join(tmpDir, "init.tf")
+	fileName := filepath.Join(homeDir, "main.tf")
 
-	remoteStateFile := s.getRemoteStateFile()
-	s.Util.WriteFile(fileName, remoteStateFile)
+	tfMainContents := s.getLocalTFMainContents()
+	s.Util.WriteFile(fileName, tfMainContents)
 
-	log.Infoln("Initializing terraform working directory and building remote state infrastructure")
-	s.Util.Init([]string{})
-
-	args := []string{"namespace=" + overrides.Namespace}
-	s.Util.Terraformer.Apply(args)
-
-	log.Infoln("Retrieving remote state bucket name from terraform outputs")
-	stateBucket := s.Util.Terraformer.GetOutput("bucket")
-	log.Infoln("Remote state bucket = ", stateBucket)
-
-	return stateBucket
+	return fileName
 }
 
-func (s *DeployService) createDceInfra(stateBucket string, overrides *DeployOverrides) string {
-	tmpDir, originDir := s.Util.MvToTempDir("dce-")
-	defer s.Util.RemoveAll(tmpDir)
+func (s *DeployService) createDceInfra(overrides *DeployOverrides) string {
+	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
-	tfModulesDir := s.retrieveTFModules()
-	files := s.Util.ReadDir(tfModulesDir)
+	s.retrieveTFModules()
+	// files := s.Util.ReadDir(tfModulesDir)
 
-	s.Util.Chdir(files[0].Name())
+	tfWorkDir := filepath.Join(s.Util.GetConfigDir(), "tf-workspace")
+	if _, err := os.Stat(tfWorkDir); os.IsNotExist(err) {
+		os.Mkdir(tfWorkDir, os.ModeDir|os.FileMode(int(0700)))
+	}
+
+	// tfStateFilePath := filepath.Join(s.Util.GetConfigDir(), "terraform.tfstate")
+
+	// s.Util.Chdir(files[0].Name())
 
 	log.Infoln("Initializing terraform working directory")
-	s.Util.Terraformer.Init([]string{"-backend-config=bucket=" + stateBucket, "-backend-config=key=local-tf-state"})
+	s.Util.Terraformer.Init([]string{})
 
 	log.Infoln("Applying DCE infrastructure")
 
@@ -91,8 +89,7 @@ func (s *DeployService) createDceInfra(stateBucket string, overrides *DeployOver
 }
 
 func (s *DeployService) deployCodeAssets(artifactsBucket string, overrides *DeployOverrides) {
-	tmpDir, originDir := s.Util.MvToTempDir("dce-")
-	defer s.Util.RemoveAll(tmpDir)
+	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
 	s.retrieveCodeAssets()
@@ -117,33 +114,30 @@ func (s *DeployService) getRandString(n int) string {
 	return string(b)
 }
 
-func (s *DeployService) getRemoteStateFile() string {
-	var remoteStateBackend string
+func (s *DeployService) getLocalTFMainContents() string {
+	var tfMainContents string
 	if s.LocalRepo != "" {
 		path := filepath.Join(s.LocalRepo, "scripts", "deploy_local", "main.tf")
-		remoteStateBackend = s.Util.ReadFromFile(path)
+		tfMainContents = s.Util.ReadFromFile(path)
 	} else {
-		remoteStateBackend = constants.RemoteBackend
+		// TODO: This is where the template generation goes...
+		// tfMainContents = constants.LocalBackend
 	}
-	log.Debugln("Getting tf remote state backend file from: ", remoteStateBackend)
+	log.Debugln("Creating tf main.tf file with: ", tfMainContents)
 
-	return remoteStateBackend
+	return tfMainContents
 }
 
 func (s *DeployService) retrieveTFModules() string {
 	workingDir, err := os.Getwd()
 
+	if err != nil {
+		// TODO: Feels like there is something we should do here...
+	}
+
 	if s.LocalRepo != "" {
 		zippedArtifactsPath := filepath.Join(s.LocalRepo, "bin", ArtifactsFileName)
 		s.Util.Unarchive(zippedArtifactsPath, workingDir)
-	} else {
-		if err != nil {
-			log.Fatalln(err)
-		}
-		log.Infoln("Downloading DCE terraform modules")
-		s.Util.Githuber.DownloadGithubReleaseAsset(ArtifactsFileName)
-		s.Util.Unarchive(ArtifactsFileName, workingDir)
-		os.Remove(ArtifactsFileName)
 	}
 
 	return workingDir

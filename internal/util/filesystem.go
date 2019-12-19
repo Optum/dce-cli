@@ -3,6 +3,7 @@ package util
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/Optum/dce-cli/configs"
 	"github.com/mholt/archiver"
@@ -67,6 +68,10 @@ func (u *FileSystemUtil) GetHomeDir() string {
 	return homeDir
 }
 
+func (u *FileSystemUtil) GetConfigDir() string {
+	return filepath.Join(u.GetHomeDir(), ".dce")
+}
+
 func (u *FileSystemUtil) IsExistingFile(path string) bool {
 	isExists := true
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -90,8 +95,16 @@ func (u *FileSystemUtil) Unarchive(source string, destination string) {
 	}
 }
 
-func (u *FileSystemUtil) MvToTempDir(prefix string) (string, string) {
-	destinationDir, err := ioutil.TempDir("", prefix)
+func (u *FileSystemUtil) ChToConfigDir() (string, string) {
+	destinationDir := u.GetConfigDir()
+
+	mode := int(0700)
+	if _, err := os.Stat(destinationDir); os.IsNotExist(err) {
+		os.Mkdir(destinationDir, os.ModeDir|os.FileMode(mode))
+	}
+
+	err := os.Chdir(destinationDir)
+
 	if err != nil {
 		log.Fatalln(err)
 	}

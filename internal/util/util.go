@@ -1,6 +1,7 @@
 package util
 
 import (
+	"io"
 	"os"
 	"time"
 
@@ -25,6 +26,7 @@ type UtilContainer struct {
 	FileSystemer
 	Weber
 	Durationer
+	TFTemplater
 }
 
 var log observ.Logger
@@ -63,6 +65,7 @@ func New(config *configs.Root, configFile string, observation *observ.Observatio
 		FileSystemer: &FileSystemUtil{Config: config, ConfigFile: configFile},
 		Weber:        &WebUtil{Observation: observation},
 		Durationer:   NewDurationUtil(),
+		TFTemplater:  NewMainTFTemplate(),
 	}
 
 	return &utilContainer
@@ -92,12 +95,13 @@ type Prompter interface {
 type FileSystemer interface {
 	WriteConfig() error
 	GetConfigFile() string
+	GetConfigDir() string
 	GetHomeDir() string
 	IsExistingFile(path string) bool
 	ReadFromFile(path string) string
 	ReadInConfig() error
 	Unarchive(source string, destination string)
-	MvToTempDir(prefix string) (string, string)
+	ChToConfigDir() (string, string)
 	RemoveAll(path string)
 	Chdir(path string)
 	ReadDir(path string) []os.FileInfo
@@ -111,4 +115,9 @@ type Weber interface {
 type Durationer interface {
 	ExpandEpochTime(str string) (int64, error)
 	ParseDuration(str string) (time.Duration, error)
+}
+
+type TFTemplater interface {
+	AddVariable(name string, vartype string, vardefault string) error
+	Write(w io.Writer) error
 }

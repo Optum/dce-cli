@@ -13,9 +13,44 @@ type FileSystemer struct {
 	mock.Mock
 }
 
+// ChToConfigDir provides a mock function with given fields:
+func (_m *FileSystemer) ChToConfigDir() (string, string) {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 string
+	if rf, ok := ret.Get(1).(func() string); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Get(1).(string)
+	}
+
+	return r0, r1
+}
+
 // Chdir provides a mock function with given fields: path
 func (_m *FileSystemer) Chdir(path string) {
 	_m.Called(path)
+}
+
+// GetConfigDir provides a mock function with given fields:
+func (_m *FileSystemer) GetConfigDir() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
 }
 
 // GetConfigFile provides a mock function with given fields:
@@ -58,27 +93,6 @@ func (_m *FileSystemer) IsExistingFile(path string) bool {
 	}
 
 	return r0
-}
-
-// MvToTempDir provides a mock function with given fields: prefix
-func (_m *FileSystemer) MvToTempDir(prefix string) (string, string) {
-	ret := _m.Called(prefix)
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func(string) string); ok {
-		r0 = rf(prefix)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	var r1 string
-	if rf, ok := ret.Get(1).(func(string) string); ok {
-		r1 = rf(prefix)
-	} else {
-		r1 = ret.Get(1).(string)
-	}
-
-	return r0, r1
 }
 
 // ReadDir provides a mock function with given fields: path
