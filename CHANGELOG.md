@@ -1,4 +1,5 @@
 ## vNext
+- Replaced quickstart with reference to how-to guide
 
 ## v0.3.0
 - Modified dce auth command to prompt for input and accept base64 encoded credentials string
