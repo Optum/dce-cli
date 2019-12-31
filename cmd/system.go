@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"context"
+
 	svc "github.com/Optum/dce-cli/pkg/service"
 	"github.com/spf13/cobra"
 )
@@ -36,6 +38,8 @@ var systemDeployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Deploy DCE to a new master account",
 	Run: func(cmd *cobra.Command, args []string) {
-		Service.Deploy(deployLocalPath, &deployOverrides)
+		ctx := context.WithValue(context.Background(), "deployLocal", deployLocalPath)
+		ctx = context.WithValue(ctx, "overrideExisting", false)
+		Service.Deploy(ctx, &deployOverrides)
 	},
 }

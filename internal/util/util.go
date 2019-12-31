@@ -1,6 +1,7 @@
 package util
 
 import (
+	"context"
 	"io"
 	"os"
 	"time"
@@ -65,8 +66,9 @@ func New(config *configs.Root, configFile string, observation *observ.Observatio
 		FileSystemer: &FileSystemUtil{Config: config, ConfigFile: configFile},
 		Weber:        &WebUtil{Observation: observation},
 		Durationer:   NewDurationUtil(),
-		TFTemplater:  NewMainTFTemplate(),
 	}
+
+	utilContainer.TFTemplater = NewMainTFTemplate(utilContainer.FileSystemer)
 
 	return &utilContainer
 }
@@ -79,7 +81,7 @@ type AWSer interface {
 
 type Terraformer interface {
 	Init(args []string)
-	Apply(tfVars []string)
+	Apply(ctx context.Context, tfVars []string)
 	GetOutput(key string) string
 }
 

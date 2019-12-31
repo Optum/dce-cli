@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/Optum/dce-cli/configs"
@@ -56,7 +57,7 @@ type DeployOverrides struct {
 	BudgetNotificationTemplateSubject string
 }
 type Deployer interface {
-	Deploy(deployLocal string, overrides *DeployOverrides)
+	Deploy(ctx context.Context, overrides *DeployOverrides)
 }
 
 type Usager interface {

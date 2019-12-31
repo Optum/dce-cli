@@ -1,6 +1,9 @@
 package service
 
 import (
+	"bytes"
+	"context"
+	"fmt"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -10,6 +13,7 @@ import (
 	"github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
+	"github.com/Optum/dce-cli/internal/util"
 	utl "github.com/Optum/dce-cli/internal/util"
 )
 
@@ -23,19 +27,38 @@ type DeployService struct {
 	LocalRepo   string
 }
 
-func (s *DeployService) Deploy(deployLocal string, overrides *DeployOverrides) {
+// Deploy writes the local `main.tf` file, using the overrides, and then
+// calls Terraform init and apply using configuration directory (`~/.dce`)
+// as the working folder and location of local state.
+func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) {
+
+	// Generate a namespace if one has not been supplied because the
+	// dce terraform module requires this argument.
 	if overrides.Namespace == "" {
 		overrides.Namespace = "dce-" + s.getRandString(8)
 	}
+	// This is also a required field by the module, so it has to
+	// have some value.
+	if overrides.BudgetNotificationFromEmail == "" {
+		overrides.BudgetNotificationFromEmail = "no-reply@example.com"
+	}
+
+	deployLocal := fmt.Sprintf("%v", ctx.Value("deployLocal"))
 
 	if deployLocal != "" {
 		s.LocalRepo = deployLocal
 	}
 
-	s.createTFMainFile(overrides)
+	overrideTFFile := ctx.Value("overrideExisting").(bool)
+
+	if overrideTFFile {
+		s.createTFMainFile(overrides)
+	} else {
+		log.Warnln("'main.tf' already exists and override not specified; using existing file")
+	}
 
 	log.Infoln("Creating DCE infrastructure")
-	artifactsBucket := s.createDceInfra(overrides)
+	artifactsBucket := s.createDceInfra(ctx, overrides)
 	log.Infoln("Artifacts bucket = ", artifactsBucket)
 
 	log.Infoln("Deploying code assets to DCE infrastructure")
@@ -46,40 +69,30 @@ func (s *DeployService) Deploy(deployLocal string, overrides *DeployOverrides) {
 // using a local repository, is to create the file with the bare minimum
 // required to use Terraform with local state.
 func (s *DeployService) createTFMainFile(overrides *DeployOverrides) string {
-	homeDir, originDir := s.Util.ChToConfigDir()
+	configDir, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
-	fileName := filepath.Join(homeDir, "main.tf")
+	fileName := filepath.Join(configDir, "main.tf")
 
-	tfMainContents := s.getLocalTFMainContents()
+	tfMainContents := s.getLocalTFMainContents(overrides)
 	s.Util.WriteFile(fileName, tfMainContents)
 
 	return fileName
 }
 
-func (s *DeployService) createDceInfra(overrides *DeployOverrides) string {
+func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOverrides) string {
 	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
 	s.retrieveTFModules()
-	// files := s.Util.ReadDir(tfModulesDir)
-
-	tfWorkDir := filepath.Join(s.Util.GetConfigDir(), "tf-workspace")
-	if _, err := os.Stat(tfWorkDir); os.IsNotExist(err) {
-		os.Mkdir(tfWorkDir, os.ModeDir|os.FileMode(int(0700)))
-	}
-
-	// tfStateFilePath := filepath.Join(s.Util.GetConfigDir(), "terraform.tfstate")
-
-	// s.Util.Chdir(files[0].Name())
 
 	log.Infoln("Initializing terraform working directory")
 	s.Util.Terraformer.Init([]string{})
 
 	log.Infoln("Applying DCE infrastructure")
-
-	args := argsFromOverrides(overrides)
-	s.Util.Terraformer.Apply(args)
+	deployLogFileName := filepath.Join(s.Util.GetConfigDir(), "deploy.log")
+	ctx = context.WithValue(ctx, "deployLogFile", deployLogFileName)
+	s.Util.Terraformer.Apply(ctx, []string{})
 
 	log.Infoln("Retrieving artifacts bucket name from terraform outputs")
 	artifactsBucket := s.Util.Terraformer.GetOutput("artifacts_bucket_name")
@@ -114,14 +127,21 @@ func (s *DeployService) getRandString(n int) string {
 	return string(b)
 }
 
-func (s *DeployService) getLocalTFMainContents() string {
+func (s *DeployService) getLocalTFMainContents(overrides *DeployOverrides) string {
 	var tfMainContents string
 	if s.LocalRepo != "" {
 		path := filepath.Join(s.LocalRepo, "scripts", "deploy_local", "main.tf")
 		tfMainContents = s.Util.ReadFromFile(path)
 	} else {
-		// TODO: This is where the template generation goes...
-		// tfMainContents = constants.LocalBackend
+		// Generate the main.tf template...
+		var buffer bytes.Buffer
+		addOverridesToTemplate(s.Util.TFTemplater, overrides)
+		// TODO: error handling?
+		err := s.Util.TFTemplater.Write(&buffer)
+		if err != nil {
+			// feels like there is something we should do here...
+		}
+		tfMainContents = buffer.String()
 	}
 	log.Debugln("Creating tf main.tf file with: ", tfMainContents)
 
@@ -165,12 +185,12 @@ func (s *DeployService) retrieveCodeAssets() string {
 	return workingDir
 }
 
-func argsFromOverrides(overrides *DeployOverrides) []string {
-	args := []string{}
+func addOverridesToTemplate(t util.TFTemplater, overrides *DeployOverrides) error {
 
 	if overrides.AWSRegion != "" {
-		args = append(args, "aws_region="+overrides.AWSRegion)
+		_ = t.AddVariable("aws_region", "string", overrides.AWSRegion)
 	}
+
 	globalTags := "global_tags={" + constants.GlobalTFTagDefaults
 	if len(overrides.GlobalTags) != 0 {
 		for _, tag := range overrides.GlobalTags {
@@ -178,13 +198,13 @@ func argsFromOverrides(overrides *DeployOverrides) []string {
 		}
 	}
 	globalTags += "}"
-	args = append(args, globalTags)
+	// _ = t.AddVariable("global_tags", "map(string)", globalTags)
 
 	if overrides.Namespace != "" {
-		args = append(args, "namespace="+overrides.Namespace)
+		_ = t.AddVariable("namespace", "string", overrides.Namespace)
 	}
 	if overrides.BudgetNotificationFromEmail != "" {
-		args = append(args, "budget_notification_from_email="+overrides.BudgetNotificationFromEmail)
+		_ = t.AddVariable("budget_notification_from_email", "string", overrides.BudgetNotificationFromEmail)
 	}
 	if len(overrides.BudgetNotificationBCCEmails) != 0 {
 		budgetBCCEnails := ""
@@ -199,17 +219,16 @@ func argsFromOverrides(overrides *DeployOverrides) []string {
 				budgetBCCEnails += "]"
 			}
 		}
-		args = append(args, budgetBCCEnails)
+		_ = t.AddVariable("budget_notification_bcc_emails", "list(string)", budgetBCCEnails)
 	}
 	if overrides.BudgetNotificationTemplateHTML != "" {
-		args = append(args, "budget_notification_template_html="+overrides.BudgetNotificationTemplateHTML)
+		_ = t.AddVariable("budget_notification_template_html", "string", overrides.BudgetNotificationTemplateHTML)
 	}
 	if overrides.BudgetNotificationTemplateText != "" {
-		args = append(args, "budget_notification_template_text="+overrides.BudgetNotificationTemplateText)
+		_ = t.AddVariable("budget_notification_template_text", "string", overrides.BudgetNotificationTemplateText)
 	}
 	if overrides.BudgetNotificationTemplateSubject != "" {
-		args = append(args, "budget_notification_template_subject="+overrides.BudgetNotificationTemplateSubject)
+		_ = t.AddVariable("budget_notification_template_subject", "string", overrides.BudgetNotificationTemplateSubject)
 	}
-
-	return args
+	return nil
 }

@@ -15,8 +15,11 @@ func TestMainTFTemplate_MissingRequiredValues(t *testing.T) {
 	var actual bytes.Buffer
 	var err error
 
-	tf := util.NewMainTFTemplate()
+	mockFS := &mockFileSystemer
+	mockFS.On("GetConfigDir").Return("/Users/jexmple/.dce")
+	tf := util.NewMainTFTemplate(mockFS)
 	tf.Version = "v0.23.0"
+	tf.TFWorkspaceDir = ""
 
 	err = tf.AddVariable("namespace", "string", "dcecliut")
 	assert.Nil(t, err, "should have been able to add valid namespace")
@@ -26,6 +29,7 @@ func TestMainTFTemplate_MissingRequiredValues(t *testing.T) {
 	assert.Equal(t, "non-zero length value required for workspace dir", err.Error())
 
 	tf.TFWorkspaceDir = "/Users/jexmple/.dce/tf-workspace"
+	tf.LocalTFStateFilePath = ""
 	// Set it, but now try to write without the required LocalTFStateFilePath
 	err = tf.Write(&actual)
 	assert.NotNil(t, err)
@@ -42,7 +46,9 @@ func TestMainTFTemplate_Write(t *testing.T) {
 
 	assert.Nil(t, err, "should have been able to read from file")
 
-	tf := util.NewMainTFTemplate()
+	mockFS := &mockFileSystemer
+	mockFS.On("GetConfigDir").Return("/Users/jexmple/.dce")
+	tf := util.NewMainTFTemplate(mockFS)
 	tf.Version = "v0.23.0"
 	tf.LocalTFStateFilePath = "/Users/jexmple/.dce/terraform.tfstate"
 	tf.TFWorkspaceDir = "/Users/jexmple/.dce/tf-workspace"

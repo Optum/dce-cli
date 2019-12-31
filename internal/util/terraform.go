@@ -1,6 +1,7 @@
 package util
 
 import (
+	"context"
 	"os"
 
 	"github.com/Optum/dce-cli/configs"
@@ -26,17 +27,27 @@ func (u *TerraformUtil) Init(args []string) {
 
 	tfInit := &tfCommand.InitCommand{
 		Meta: tfCommand.Meta{
-			Ui: getTerraformUI(),
+			Ui: getTerraformUI(nil),
 		},
 	}
 	tfInit.Run(args)
 }
 
 // Apply applies terraform template with given namespace
-func (u *TerraformUtil) Apply(tfVars []string) {
+func (u *TerraformUtil) Apply(ctx context.Context, tfVars []string) {
+	// TODO: pull this from context
+	logFile, err := os.Create(ctx.Value("deployLogFile").(string))
+
+	if err != nil {
+		logFile = nil
+	} else {
+		defer logFile.Close()
+	}
+
 	tfApply := &tfCommand.ApplyCommand{
 		Meta: tfCommand.Meta{
-			Ui: getTerraformUI(),
+			Ui:                  getTerraformUI(logFile),
+			RunningInAutomation: true,
 		},
 	}
 
@@ -44,6 +55,8 @@ func (u *TerraformUtil) Apply(tfVars []string) {
 	for _, tfVar := range tfVars {
 		runArgs = append(runArgs, "-var", tfVar)
 	}
+
+	runArgs = append(runArgs, "-auto-approve")
 
 	log.Debugln("Args for Apply command: ", runArgs)
 	tfApply.Run(runArgs)
@@ -69,11 +82,19 @@ func (u *TerraformUtil) GetOutput(key string) string {
 	return *outputCaptorUI.Captor
 }
 
-func getTerraformUI() *cli.BasicUi {
+func getTerraformUI(f *os.File) *cli.BasicUi {
+	var out *os.File
+
+	if f != nil {
+		out = f
+	} else {
+		out = os.Stdout
+	}
+
 	return &cli.BasicUi{
 		Reader:      os.Stdin,
-		Writer:      os.Stdout,
-		ErrorWriter: os.Stderr,
+		Writer:      out,
+		ErrorWriter: out,
 	}
 }
 

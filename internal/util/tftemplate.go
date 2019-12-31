@@ -3,6 +3,8 @@ package util
 import (
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"text/template"
 )
 
@@ -50,7 +52,7 @@ type TFVar struct {
 
 // MainTFTemplate is the template for writing the main.tf file
 type MainTFTemplate struct {
-	tfVars               []TFVar
+	TFVars               []TFVar
 	LocalBackend         bool
 	LocalTFStateFilePath string
 	TFWorkspaceDir       string
@@ -72,7 +74,7 @@ func (t *MainTFTemplate) AddVariable(name string, vartype string, val string) er
 		return fmt.Errorf("non-zero length value required for val")
 	}
 
-	t.tfVars = append(t.tfVars, TFVar{
+	t.TFVars = append(t.TFVars, TFVar{
 		Name:  name,
 		Type:  vartype,
 		Value: val,
@@ -103,11 +105,21 @@ func (t *MainTFTemplate) Write(w io.Writer) error {
 }
 
 // NewMainTFTemplate creates a new instance of the MainTFTemplate
-func NewMainTFTemplate() *MainTFTemplate {
+func NewMainTFTemplate(fs FileSystemer) *MainTFTemplate {
+
+	tfWorkDir := filepath.Join(fs.GetConfigDir(), "tf-workspace")
+	if _, err := os.Stat(tfWorkDir); os.IsNotExist(err) {
+		os.Mkdir(tfWorkDir, os.ModeDir|os.FileMode(int(0700)))
+	}
+
+	tfStateFilePath := filepath.Join(fs.GetConfigDir(), "terraform.tfstate")
+
 	tf := &MainTFTemplate{
-		tfVars:       []TFVar{},
-		LocalBackend: true,
-		Version:      "v0.23.0",
+		TFVars:               []TFVar{},
+		LocalBackend:         true,
+		Version:              "v0.23.0",
+		LocalTFStateFilePath: tfStateFilePath,
+		TFWorkspaceDir:       tfWorkDir,
 	}
 	return tf
 }

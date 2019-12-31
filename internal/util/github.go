@@ -19,6 +19,8 @@ type GithubUtil struct {
 }
 
 func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string) {
+	log.Infof("Config is: %v", *u.Config)
+	log.Infof("GH access token is: %s", *u.Config.GithubToken)
 	src := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: *u.Config.GithubToken},
 	)

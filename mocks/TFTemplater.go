@@ -14,8 +14,17 @@ type TFTemplater struct {
 }
 
 // AddVariable provides a mock function with given fields: name, vartype, vardefault
-func (_m *TFTemplater) AddVariable(name string, vartype string, vardefault string) {
-	_m.Called(name, vartype, vardefault)
+func (_m *TFTemplater) AddVariable(name string, vartype string, vardefault string) error {
+	ret := _m.Called(name, vartype, vardefault)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string, string) error); ok {
+		r0 = rf(name, vartype, vardefault)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // Write provides a mock function with given fields: w
