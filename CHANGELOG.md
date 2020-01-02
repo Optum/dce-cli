@@ -1,4 +1,5 @@
 ## vNext
+- Download deployment assets from the public url rather than using Github's GraphQL API
 
 ## v0.3.0
 - Modified dce auth command to prompt for input and accept base64 encoded credentials string
