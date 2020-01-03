@@ -49,13 +49,9 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 		s.LocalRepo = deployLocal
 	}
 
-	overrideTFFile := ctx.Value("overrideExisting").(bool)
+	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
 
-	if overrideTFFile {
-		s.createTFMainFile(overrides)
-	} else {
-		log.Warnln("'main.tf' already exists and override not specified; using existing file")
-	}
+	s.createTFMainFile(overrides, cfg.Overwrite)
 
 	log.Infoln("Creating DCE infrastructure")
 	artifactsBucket := s.createDceInfra(ctx, overrides)
@@ -68,15 +64,20 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 // createTFMainFile creates the main.tf file. The default behavior, without
 // using a local repository, is to create the file with the bare minimum
 // required to use Terraform with local state.
-func (s *DeployService) createTFMainFile(overrides *DeployOverrides) string {
+func (s *DeployService) createTFMainFile(overrides *DeployOverrides, overwrite bool) string {
 	configDir, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
 	fileName := filepath.Join(configDir, "main.tf")
 
-	tfMainContents := s.getLocalTFMainContents(overrides)
-	s.Util.WriteFile(fileName, tfMainContents)
+	_, err := os.Stat(fileName)
 
+	if !os.IsNotExist(err) && !overwrite {
+		log.Warnln("'main.tf' already exists and overwrite not specified; using existing file")
+	} else {
+		tfMainContents := s.getLocalTFMainContents(overrides)
+		s.Util.WriteFile(fileName, tfMainContents)
+	}
 	return fileName
 }
 
@@ -86,12 +87,13 @@ func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOve
 
 	s.retrieveTFModules()
 
-	log.Infoln("Initializing terraform working directory")
-	s.Util.Terraformer.Init([]string{})
-
-	log.Infoln("Applying DCE infrastructure")
 	deployLogFileName := filepath.Join(s.Util.GetConfigDir(), "deploy.log")
 	ctx = context.WithValue(ctx, "deployLogFile", deployLogFileName)
+
+	log.Infoln("Initializing terraform working directory")
+	s.Util.Terraformer.Init(ctx, []string{})
+
+	log.Infoln("Applying DCE infrastructure")
 	s.Util.Terraformer.Apply(ctx, []string{})
 
 	log.Infoln("Retrieving artifacts bucket name from terraform outputs")
@@ -136,10 +138,10 @@ func (s *DeployService) getLocalTFMainContents(overrides *DeployOverrides) strin
 		// Generate the main.tf template...
 		var buffer bytes.Buffer
 		addOverridesToTemplate(s.Util.TFTemplater, overrides)
-		// TODO: error handling?
+
 		err := s.Util.TFTemplater.Write(&buffer)
 		if err != nil {
-			// feels like there is something we should do here...
+			log.Fatalln(err)
 		}
 		tfMainContents = buffer.String()
 	}
@@ -152,7 +154,7 @@ func (s *DeployService) retrieveTFModules() string {
 	workingDir, err := os.Getwd()
 
 	if err != nil {
-		// TODO: Feels like there is something we should do here...
+		log.Fatalln(err)
 	}
 
 	if s.LocalRepo != "" {

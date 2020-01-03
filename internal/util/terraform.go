@@ -2,9 +2,11 @@ package util
 
 import (
 	"context"
+	logger "log"
 	"os"
 
 	"github.com/Optum/dce-cli/configs"
+	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	tfBackendInit "github.com/hashicorp/terraform/backend/init"
 	tfCommand "github.com/hashicorp/terraform/command"
@@ -19,15 +21,23 @@ type TerraformUtil struct {
 }
 
 // Init initialized a terraform working directory
-func (u *TerraformUtil) Init(args []string) {
+func (u *TerraformUtil) Init(ctx context.Context, args []string) {
+	logFile, err := os.Create(ctx.Value("deployLogFile").(string))
 	log.Println("Running terraform init")
+	logger.SetOutput(logFile)
+
+	if err != nil {
+		logFile = nil
+	} else {
+		defer logFile.Close()
+	}
 
 	services := tfDiscovery.NewWithCredentialsSource(nil)
 	tfBackendInit.Init(services)
 
 	tfInit := &tfCommand.InitCommand{
 		Meta: tfCommand.Meta{
-			Ui: getTerraformUI(nil),
+			Ui: getTerraformUI(logFile),
 		},
 	}
 	tfInit.Run(args)
@@ -35,7 +45,7 @@ func (u *TerraformUtil) Init(args []string) {
 
 // Apply applies terraform template with given namespace
 func (u *TerraformUtil) Apply(ctx context.Context, tfVars []string) {
-	// TODO: pull this from context
+	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
 	logFile, err := os.Create(ctx.Value("deployLogFile").(string))
 
 	if err != nil {
@@ -44,6 +54,7 @@ func (u *TerraformUtil) Apply(ctx context.Context, tfVars []string) {
 		defer logFile.Close()
 	}
 
+	logger.SetOutput(logFile)
 	tfApply := &tfCommand.ApplyCommand{
 		Meta: tfCommand.Meta{
 			Ui:                  getTerraformUI(logFile),
@@ -56,7 +67,9 @@ func (u *TerraformUtil) Apply(ctx context.Context, tfVars []string) {
 		runArgs = append(runArgs, "-var", tfVar)
 	}
 
-	runArgs = append(runArgs, "-auto-approve")
+	if cfg.NoPrompt {
+		runArgs = append(runArgs, "-auto-approve")
+	}
 
 	log.Debugln("Args for Apply command: ", runArgs)
 	tfApply.Run(runArgs)

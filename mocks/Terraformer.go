@@ -32,7 +32,7 @@ func (_m *Terraformer) GetOutput(key string) string {
 	return r0
 }
 
-// Init provides a mock function with given fields: args
-func (_m *Terraformer) Init(args []string) {
-	_m.Called(args)
+// Init provides a mock function with given fields: ctx, args
+func (_m *Terraformer) Init(ctx context.Context, args []string) {
+	_m.Called(ctx, args)
 }

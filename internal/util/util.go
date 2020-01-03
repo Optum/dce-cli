@@ -80,7 +80,7 @@ type AWSer interface {
 }
 
 type Terraformer interface {
-	Init(args []string)
+	Init(ctx context.Context, args []string)
 	Apply(ctx context.Context, tfVars []string)
 	GetOutput(key string) string
 }
