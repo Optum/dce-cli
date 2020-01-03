@@ -144,3 +144,7 @@ func (u *FileSystemUtil) ReadDir(path string) []os.FileInfo {
 	}
 	return files
 }
+
+func (u *FileSystemUtil) OpenFileWriter(path string) (*os.File, error) {
+	return os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+}

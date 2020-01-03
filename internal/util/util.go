@@ -54,17 +54,21 @@ func New(config *configs.Root, configFile string, observation *observ.Observatio
 		})
 	}
 
+	filesystem := &FileSystemUtil{Config: config, ConfigFile: configFile}
+	weber := &WebUtil{Observation: observation}
+
 	utilContainer := UtilContainer{
-		Config:       config,
-		Observation:  observation,
-		AWSSession:   awsSession,
-		AWSer:        &AWSUtil{Config: config, Observation: observation, Session: awsSession},
-		APIer:        apiClient,
-		Terraformer:  &TerraformUtil{Config: config, Observation: observation},
+		Config:      config,
+		Observation: observation,
+		AWSSession:  awsSession,
+		AWSer:       &AWSUtil{Config: config, Observation: observation, Session: awsSession},
+		APIer:       apiClient,
+		// Terraformer:  &TerraformUtil{Config: config, Observation: observation},
+		Terraformer:  &TerraformBinUtil{Config: config, Observation: observation, FileSystem: filesystem, Downloader: weber},
 		Githuber:     &GithubUtil{Config: config, Observation: observation},
 		Prompter:     &PromptUtil{Config: config, Observation: observation},
-		FileSystemer: &FileSystemUtil{Config: config, ConfigFile: configFile},
-		Weber:        &WebUtil{Observation: observation},
+		FileSystemer: filesystem,
+		Weber:        weber,
 		Durationer:   NewDurationUtil(),
 	}
 
@@ -108,6 +112,7 @@ type FileSystemer interface {
 	Chdir(path string)
 	ReadDir(path string) []os.FileInfo
 	WriteFile(fileName string, data string)
+	OpenFileWriter(path string) (*os.File, error)
 }
 
 type Weber interface {

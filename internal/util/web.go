@@ -14,3 +14,7 @@ func (w *WebUtil) OpenURL(url string) {
 		log.Fatalln("Error opening web browser", err)
 	}
 }
+
+func (w *WebUtil) Download(url string, localpath string) error {
+	return nil
+}
