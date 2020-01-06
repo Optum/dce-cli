@@ -3,7 +3,6 @@ package service
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -43,13 +42,11 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 		overrides.BudgetNotificationFromEmail = "no-reply@example.com"
 	}
 
-	deployLocal := fmt.Sprintf("%v", ctx.Value("deployLocal"))
-
-	if deployLocal != "" {
-		s.LocalRepo = deployLocal
-	}
-
 	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
+
+	if cfg.DeployLocalPath != "" {
+		s.LocalRepo = cfg.DeployLocalPath
+	}
 
 	s.createTFMainFile(overrides, cfg.Overwrite)
 
@@ -97,7 +94,10 @@ func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOve
 	s.Util.Terraformer.Apply(ctx, []string{})
 
 	log.Infoln("Retrieving artifacts bucket name from terraform outputs")
-	artifactsBucket := s.Util.Terraformer.GetOutput("artifacts_bucket_name")
+	artifactsBucket, err := s.Util.Terraformer.GetOutput(ctx, "artifacts_bucket_name")
+	if err != nil {
+		log.Fatalln(err)
+	}
 	log.Infoln("artifacts bucket name = ", artifactsBucket)
 
 	return artifactsBucket
@@ -108,6 +108,8 @@ func (s *DeployService) deployCodeAssets(artifactsBucket string, overrides *Depl
 	defer s.Util.Chdir(originDir)
 
 	s.retrieveCodeAssets()
+
+	log.Infof("Using \"%s\" for the artifact bucket.", artifactsBucket)
 
 	lambdas, codebuilds := s.Util.UploadDirectoryToS3(".", artifactsBucket, "")
 	log.Infoln("Uploaded lambdas to S3: ", lambdas)

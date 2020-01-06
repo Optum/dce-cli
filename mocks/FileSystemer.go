@@ -95,6 +95,29 @@ func (_m *FileSystemer) IsExistingFile(path string) bool {
 	return r0
 }
 
+// OpenFileWriter provides a mock function with given fields: path
+func (_m *FileSystemer) OpenFileWriter(path string) (*os.File, error) {
+	ret := _m.Called(path)
+
+	var r0 *os.File
+	if rf, ok := ret.Get(0).(func(string) *os.File); ok {
+		r0 = rf(path)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*os.File)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(path)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ReadDir provides a mock function with given fields: path
 func (_m *FileSystemer) ReadDir(path string) []os.FileInfo {
 	ret := _m.Called(path)

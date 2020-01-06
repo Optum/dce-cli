@@ -1,11 +1,13 @@
 package util
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -83,7 +85,7 @@ func (u *TerraformUtil) Apply(ctx context.Context, tfVars []string) {
 }
 
 // GetOutput gets terraform output value for provided key
-func (u *TerraformUtil) GetOutput(key string) string {
+func (u *TerraformUtil) GetOutput(ctx context.Context, key string) (string, error) {
 	log.Println("Retrieving terraform output for: " + key)
 	outputCaptorUI := &UIOutputCaptor{
 		BasicUi: &cli.BasicUi{
@@ -99,7 +101,7 @@ func (u *TerraformUtil) GetOutput(key string) string {
 		},
 	}
 	tfOutput.Run([]string{key})
-	return *outputCaptorUI.Captor
+	return *outputCaptorUI.Captor, nil
 }
 
 func getTerraformUI(f *os.File) *cli.BasicUi {
@@ -190,6 +192,7 @@ type TerraformBinFileSystemUtil interface {
 	GetConfigDir() string
 	IsExistingFile(path string) bool
 	OpenFileWriter(path string) (*os.File, error)
+	Unarchive(source string, destination string)
 }
 
 type TerraformBinUtil struct {
@@ -201,11 +204,11 @@ type TerraformBinUtil struct {
 
 // bin returns the binary path
 func (t *TerraformBinUtil) bin() string {
-	// pull it out of the Config, or default to ~/.dce/bin/terraform
+	// pull it out of the Config, or default to ~/.dce/terraform
 	bin := t.Config.Terraform.Bin
 
 	if bin == nil || len(*bin) == 0 {
-		s := t.FileSystem.GetConfigDir()
+		s := filepath.Join(t.FileSystem.GetConfigDir(), constants.TerraformBinName)
 		return s
 	}
 	return *bin
@@ -238,14 +241,21 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) {
 		defer logFile.Close()
 	}
 
-	argv := []string{"init", "-nocolor"}
+	argv := []string{"init", "-no-color"}
 	argv = append(argv, args...)
 
 	if !t.FileSystem.IsExistingFile(t.bin()) {
-		err := t.Downloader.Download(t.source(), t.bin())
+		archive := fmt.Sprintf("%s.zip", t.bin())
+		err := t.Downloader.Download(t.source(), archive)
 		if err != nil {
 			log.Fatalln(err)
 		}
+		t.FileSystem.Unarchive(archive, t.FileSystem.GetConfigDir())
+		// make sure the file is there and executable.
+		if !t.FileSystem.IsExistingFile(t.bin()) {
+			log.Fatalf("%s does not exist")
+		}
+
 	}
 
 	// at this point, the binary should exist. Call `init`
@@ -274,13 +284,10 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) {
 	}
 
 	if !t.FileSystem.IsExistingFile(t.bin()) {
-		err := t.Downloader.Download(t.source(), t.bin())
-		if err != nil {
-			log.Fatalln(err)
-		}
+		log.Fatalf("Could not find binary \"%s\"", t.bin())
 	}
 
-	argv := []string{"apply"}
+	argv := []string{"apply", "-no-color"}
 
 	if cfg.NoPrompt {
 		argv = append(argv, "-auto-approve")
@@ -290,7 +297,6 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) {
 		argv = append(argv, "-var", tfVar)
 	}
 
-	// at this point, the binary should exist. Call `init`
 	execArgs := &execInput{
 		Name: t.bin(),
 		Args: argv,
@@ -305,6 +311,37 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) {
 }
 
 // GetOutput returns the value of the output with the given name.
-func (t *TerraformBinUtil) GetOutput(key string) string {
-	return ""
+func (t *TerraformBinUtil) GetOutput(ctx context.Context, key string) (string, error) {
+
+	// for the output, we now use a byte buyffer for the output
+	// but keep the stderr as the log file so advanced users can
+	// diagnose issues.
+	var stdout bytes.Buffer
+
+	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value("deployLogFile").(string))
+
+	if err != nil {
+		logFile = nil
+	} else {
+		defer logFile.Close()
+	}
+
+	// Run `terraform output` command
+	err = execCommand(&execInput{
+		Name: t.bin(),
+		Args: []string{
+			"output",
+			key,
+			"-no-color",
+		},
+		Dir: t.FileSystem.GetConfigDir(),
+	},
+		&stdout,
+		logFile)
+
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(stdout.String()), nil
 }

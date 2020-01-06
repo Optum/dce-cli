@@ -86,7 +86,7 @@ type AWSer interface {
 type Terraformer interface {
 	Init(ctx context.Context, args []string)
 	Apply(ctx context.Context, tfVars []string)
-	GetOutput(key string) string
+	GetOutput(ctx context.Context, key string) (string, error)
 }
 
 type Githuber interface {

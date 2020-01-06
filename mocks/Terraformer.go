@@ -18,18 +18,25 @@ func (_m *Terraformer) Apply(ctx context.Context, tfVars []string) {
 	_m.Called(ctx, tfVars)
 }
 
-// GetOutput provides a mock function with given fields: key
-func (_m *Terraformer) GetOutput(key string) string {
-	ret := _m.Called(key)
+// GetOutput provides a mock function with given fields: ctx, key
+func (_m *Terraformer) GetOutput(ctx context.Context, key string) (string, error) {
+	ret := _m.Called(ctx, key)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(string) string); ok {
-		r0 = rf(key)
+	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = rf(ctx, key)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, key)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // Init provides a mock function with given fields: ctx, args
