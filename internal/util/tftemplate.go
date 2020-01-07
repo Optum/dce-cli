@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"text/template"
+
+	"github.com/Optum/dce-cli/internal/constants"
 )
 
 // tfMainTemplate is the template for the main.tf file that is generated
@@ -107,17 +109,17 @@ func (t *MainTFTemplate) Write(w io.Writer) error {
 // NewMainTFTemplate creates a new instance of the MainTFTemplate
 func NewMainTFTemplate(fs FileSystemer) *MainTFTemplate {
 
-	tfWorkDir := filepath.Join(fs.GetConfigDir(), "tf-workspace")
+	tfWorkDir := filepath.Join(fs.GetCacheDir(), "tf-workspace")
 	if _, err := os.Stat(tfWorkDir); os.IsNotExist(err) {
 		os.Mkdir(tfWorkDir, os.ModeDir|os.FileMode(int(0700)))
 	}
 
-	tfStateFilePath := filepath.Join(fs.GetConfigDir(), "terraform.tfstate")
+	tfStateFilePath := fs.GetTerraformStateFile()
 
 	tf := &MainTFTemplate{
 		TFVars:               []TFVar{},
 		LocalBackend:         true,
-		Version:              "v0.23.0",
+		Version:              fmt.Sprintf("v%s", constants.DCEBackendVersion),
 		LocalTFStateFilePath: tfStateFilePath,
 		TFWorkspaceDir:       tfWorkDir,
 	}

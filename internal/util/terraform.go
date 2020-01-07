@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -193,6 +192,10 @@ type TerraformBinFileSystemUtil interface {
 	IsExistingFile(path string) bool
 	OpenFileWriter(path string) (*os.File, error)
 	Unarchive(source string, destination string)
+	GetTerraformBin() string
+	RemoveAll(path string)
+	GetTerraformBinDir() string
+	GetLocalBackendDir() string
 }
 
 type TerraformBinUtil struct {
@@ -208,7 +211,7 @@ func (t *TerraformBinUtil) bin() string {
 	bin := t.Config.Terraform.Bin
 
 	if bin == nil || len(*bin) == 0 {
-		s := filepath.Join(t.FileSystem.GetConfigDir(), constants.TerraformBinName)
+		s := t.FileSystem.GetTerraformBin()
 		return s
 	}
 	return *bin
@@ -250,19 +253,19 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) {
 		if err != nil {
 			log.Fatalln(err)
 		}
-		t.FileSystem.Unarchive(archive, t.FileSystem.GetConfigDir())
+		t.FileSystem.Unarchive(archive, t.FileSystem.GetTerraformBinDir())
 		// make sure the file is there and executable.
 		if !t.FileSystem.IsExistingFile(t.bin()) {
 			log.Fatalf("%s does not exist")
 		}
-
+		t.FileSystem.RemoveAll(archive)
 	}
 
 	// at this point, the binary should exist. Call `init`
 	execArgs := &execInput{
 		Name: t.bin(),
 		Args: argv,
-		Dir:  t.FileSystem.GetConfigDir(),
+		Dir:  t.FileSystem.GetLocalBackendDir(),
 	}
 
 	err = execCommand(execArgs, logFile, logFile)
@@ -300,7 +303,7 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) {
 	execArgs := &execInput{
 		Name: t.bin(),
 		Args: argv,
-		Dir:  t.FileSystem.GetConfigDir(),
+		Dir:  t.FileSystem.GetLocalBackendDir(),
 	}
 
 	err = execCommand(execArgs, logFile, logFile)
@@ -334,7 +337,7 @@ func (t *TerraformBinUtil) GetOutput(ctx context.Context, key string) (string, e
 			key,
 			"-no-color",
 		},
-		Dir: t.FileSystem.GetConfigDir(),
+		Dir: t.FileSystem.GetLocalBackendDir(),
 	},
 		&stdout,
 		logFile)

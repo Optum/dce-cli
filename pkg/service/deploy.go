@@ -31,6 +31,9 @@ type DeployService struct {
 // as the working folder and location of local state.
 func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) {
 
+	// Initialize the folder structure
+	s.Util.CreateConfigDirTree()
+
 	// Generate a namespace if one has not been supplied because the
 	// dce terraform module requires this argument.
 	if overrides.Namespace == "" {
@@ -62,10 +65,10 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 // using a local repository, is to create the file with the bare minimum
 // required to use Terraform with local state.
 func (s *DeployService) createTFMainFile(overrides *DeployOverrides, overwrite bool) string {
-	configDir, originDir := s.Util.ChToConfigDir()
+	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
-	fileName := filepath.Join(configDir, "main.tf")
+	fileName := s.Util.GetLocalBackendFile()
 
 	_, err := os.Stat(fileName)
 
@@ -84,7 +87,7 @@ func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOve
 
 	s.retrieveTFModules()
 
-	deployLogFileName := filepath.Join(s.Util.GetConfigDir(), "deploy.log")
+	deployLogFileName := s.Util.GetLogFile()
 	ctx = context.WithValue(ctx, "deployLogFile", deployLogFileName)
 
 	log.Infoln("Initializing terraform working directory")
@@ -109,11 +112,11 @@ func (s *DeployService) deployCodeAssets(artifactsBucket string, overrides *Depl
 
 	s.retrieveCodeAssets()
 
-	log.Infof("Using \"%s\" for the artifact bucket.", artifactsBucket)
+	log.Debugln("Using \"%s\" for the artifact bucket.", artifactsBucket)
 
-	lambdas, codebuilds := s.Util.UploadDirectoryToS3(".", artifactsBucket, "")
-	log.Infoln("Uploaded lambdas to S3: ", lambdas)
-	log.Infoln("Uploaded codebuilds to S3: ", codebuilds)
+	lambdas, codebuilds := s.Util.UploadDirectoryToS3(s.Util.GetArtifactsDir(), artifactsBucket, "")
+	log.Debugln("Uploaded lambdas to S3: ", lambdas)
+	log.Debugln("Uploaded codebuilds to S3: ", codebuilds)
 
 	s.Util.UpdateLambdasFromS3Assets(lambdas, artifactsBucket, overrides.Namespace)
 
@@ -168,21 +171,21 @@ func (s *DeployService) retrieveTFModules() string {
 }
 
 func (s *DeployService) retrieveCodeAssets() string {
-	var workingDir, err = os.Getwd()
+	oldDir, err := os.Getwd()
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("Error getting current working dir", err)
 	}
+	var workingDir = os.TempDir()
+	os.Chdir(workingDir)
+	defer os.Chdir(oldDir)
 
 	if s.LocalRepo != "" {
 		zippedAssetsPath := filepath.Join(s.LocalRepo, "bin", AssetsFileName)
-		s.Util.Unarchive(zippedAssetsPath, workingDir)
+		s.Util.Unarchive(zippedAssetsPath, s.Util.GetArtifactsDir())
 	} else {
-		if err != nil {
-			log.Fatalln(err)
-		}
 		log.Infoln("Downloading DCE code assets")
 		s.Util.Githuber.DownloadGithubReleaseAsset(AssetsFileName)
-		s.Util.Unarchive(AssetsFileName, workingDir)
+		s.Util.Unarchive(AssetsFileName, s.Util.GetArtifactsDir())
 		os.Remove(AssetsFileName)
 	}
 

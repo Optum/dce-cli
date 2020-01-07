@@ -54,7 +54,8 @@ func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix st
 		if err != nil {
 			log.Fatalln("Failed to upload", path, err)
 		}
-		log.Println("Uploaded", path, result.Location)
+		log.Debugln("Uploaded", path, result.Location)
+		log.Infoln(".")
 
 		parent := filepath.Base(filepath.Dir(path))
 		if parent == "lambda" {
@@ -81,11 +82,12 @@ func (f fileWalk) Walk(path string, info os.FileInfo, err error) error {
 
 func (u *AWSUtil) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string, namespace string) {
 	client := lambda.New(u.Session)
+	log.Infoln("Updating AWS Lambda functions...")
 
 	for _, l := range lambdaNames {
 
 		name := strings.TrimSuffix(l, ".zip")
-		log.Println("Updating lambda config for: ", name)
+		log.Debugln("Updating Lambda config for: ", name)
 
 		input := &lambda.UpdateFunctionCodeInput{
 			FunctionName: aws.String(name + "-" + namespace),
@@ -99,8 +101,6 @@ func (u *AWSUtil) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string,
 			panic(err)
 		}
 
-		log.Println("Input: ", string(out))
-
 		updateLambdaConfig, _ := client.UpdateFunctionCode(input)
 
 		out, err = json.Marshal(updateLambdaConfig)
@@ -108,8 +108,9 @@ func (u *AWSUtil) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string,
 			panic(err)
 		}
 
-		log.Println("Updated Lambda Config: ", string(out))
+		log.Debugln("Updated Lambda config: ", string(out))
 	}
+	log.Infoln("Finished updating AWS Lambda functions.")
 }
 
 func (u *AWSUtil) ConfigureAWSCLICredentials(accessKeyID, secretAccessKey, sessionToken, profile string) {

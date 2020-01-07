@@ -100,9 +100,6 @@ type Prompter interface {
 
 type FileSystemer interface {
 	WriteConfig() error
-	GetConfigFile() string
-	GetConfigDir() string
-	GetHomeDir() string
 	IsExistingFile(path string) bool
 	ReadFromFile(path string) string
 	ReadInConfig() error
@@ -113,6 +110,39 @@ type FileSystemer interface {
 	ReadDir(path string) []os.FileInfo
 	WriteFile(fileName string, data string)
 	OpenFileWriter(path string) (*os.File, error)
+
+	// GetHomeDir returns the user home dir. For example, on *nix systems this
+	// be the same as `~` expanded, or the value of `$HOME`
+	GetHomeDir() string
+	// GetConfigDir returns the DCE configuration dir, which on *nix systems
+	// is `~/.dce`
+	GetConfigDir() string
+	// GetCacheDir returns the local cache dir, which bt default is `~/.dce/.cache`
+	GetCacheDir() string
+	// GetArtifactsDir returns the cached artifacts dir, which by default is
+	// `~/.dce/.cache/dce/${DCE_VERSION}/`
+	GetArtifactsDir() string
+	// GetTerraformBinDir returns the dir in which the `terraform` bin is installed,
+	// which by default is `~/.dce/.cache/terraform/${TERRAFORM_VERSION}`
+	GetTerraformBinDir() string
+	// GetLocalBackendDir returns the dir for the local terraform backend.
+	// By default, `~/.dce/.cache/module`
+	GetLocalBackendDir() string
+	// CreateConfigDirTree creates all the dirs in the dir specified by GetConfigDir(),
+	// including the dir itself.
+	CreateConfigDirTree() error
+
+	// GetConfigFile returns the full path of the configuration file, such as
+	// `~/.dce/config.yaml`
+	GetConfigFile() string
+	// GetLogFile returns the full path of the log file for the deployment messages.
+	GetLogFile() string
+	// GetLocalBackendFile returns the full path of the local backend file.
+	GetLocalBackendFile() string
+	// GetTerraformBin returns the full path of the terraform binary.
+	GetTerraformBin() string
+	// GetTerraformStateFile returns the full path of the terraform state file
+	GetTerraformStateFile() string
 }
 
 type Weber interface {

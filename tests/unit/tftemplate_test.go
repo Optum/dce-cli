@@ -16,7 +16,8 @@ func TestMainTFTemplate_MissingRequiredValues(t *testing.T) {
 	var err error
 
 	mockFS := &mockFileSystemer
-	mockFS.On("GetConfigDir").Return("/Users/jexmple/.dce")
+	mockFS.On("GetCacheDir").Return("/Users/jexmple/.dce")
+	mockFS.On("GetTerraformStateFile").Return("/Users/jexmple/.dce/terraform.tfstate")
 	tf := util.NewMainTFTemplate(mockFS)
 	tf.Version = "v0.23.0"
 	tf.TFWorkspaceDir = ""
@@ -47,7 +48,8 @@ func TestMainTFTemplate_Write(t *testing.T) {
 	assert.Nil(t, err, "should have been able to read from file")
 
 	mockFS := &mockFileSystemer
-	mockFS.On("GetConfigDir").Return("/Users/jexmple/.dce")
+	mockFS.On("GetCacheDir").Return("/Users/jexmple/.dce")
+	mockFS.On("GetTerraformStateFile").Return("/Users/jexmple/.dce/terraform.tfstate")
 	tf := util.NewMainTFTemplate(mockFS)
 	tf.Version = "v0.23.0"
 	tf.LocalTFStateFilePath = "/Users/jexmple/.dce/terraform.tfstate"

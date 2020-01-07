@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -16,7 +17,9 @@ type GithubUtil struct {
 }
 
 func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string) {
-	assetDownloadURL := constants.GithubAssetDownloadURL + assetName
+	// There is an open issue on being able to get different versions. That
+	// would go here...
+	assetDownloadURL := fmt.Sprintf(constants.GithubAssetDownloadURLFormat, constants.DCEBackendVersion, assetName)
 	req, err := http.NewRequest("GET", assetDownloadURL, nil)
 
 	resp, err := http.DefaultClient.Do(req)

@@ -27,6 +27,48 @@ func (_m *TerraformBinFileSystemUtil) GetConfigDir() string {
 	return r0
 }
 
+// GetLocalBackendDir provides a mock function with given fields:
+func (_m *TerraformBinFileSystemUtil) GetLocalBackendDir() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// GetTerraformBin provides a mock function with given fields:
+func (_m *TerraformBinFileSystemUtil) GetTerraformBin() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// GetTerraformBinDir provides a mock function with given fields:
+func (_m *TerraformBinFileSystemUtil) GetTerraformBinDir() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // IsExistingFile provides a mock function with given fields: path
 func (_m *TerraformBinFileSystemUtil) IsExistingFile(path string) bool {
 	ret := _m.Called(path)
@@ -62,6 +104,11 @@ func (_m *TerraformBinFileSystemUtil) OpenFileWriter(path string) (*os.File, err
 	}
 
 	return r0, r1
+}
+
+// RemoveAll provides a mock function with given fields: path
+func (_m *TerraformBinFileSystemUtil) RemoveAll(path string) {
+	_m.Called(path)
 }
 
 // Unarchive provides a mock function with given fields: source, destination

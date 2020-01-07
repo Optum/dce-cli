@@ -1,4 +1,4 @@
 package constants
 
-// const GithubAssetDownloadURL string = "https://github.com/Optum/dce/releases/latest/download/"
-const GithubAssetDownloadURL string = "https://github.com/Optum/dce/releases/download/v0.23.0/"
+const GithubLatestAssetDownloadURL string = "https://github.com/Optum/dce/releases/latest/download/"
+const GithubAssetDownloadURLFormat string = "https://github.com/Optum/dce/releases/download/v%s/%s"

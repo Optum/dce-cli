@@ -39,6 +39,48 @@ func (_m *FileSystemer) Chdir(path string) {
 	_m.Called(path)
 }
 
+// CreateConfigDirTree provides a mock function with given fields:
+func (_m *FileSystemer) CreateConfigDirTree() error {
+	ret := _m.Called()
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// GetArtifactsDir provides a mock function with given fields:
+func (_m *FileSystemer) GetArtifactsDir() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// GetCacheDir provides a mock function with given fields:
+func (_m *FileSystemer) GetCacheDir() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // GetConfigDir provides a mock function with given fields:
 func (_m *FileSystemer) GetConfigDir() string {
 	ret := _m.Called()
@@ -69,6 +111,90 @@ func (_m *FileSystemer) GetConfigFile() string {
 
 // GetHomeDir provides a mock function with given fields:
 func (_m *FileSystemer) GetHomeDir() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// GetLocalBackendDir provides a mock function with given fields:
+func (_m *FileSystemer) GetLocalBackendDir() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// GetLocalBackendFile provides a mock function with given fields:
+func (_m *FileSystemer) GetLocalBackendFile() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// GetLogFile provides a mock function with given fields:
+func (_m *FileSystemer) GetLogFile() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// GetTerraformBin provides a mock function with given fields:
+func (_m *FileSystemer) GetTerraformBin() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// GetTerraformBinDir provides a mock function with given fields:
+func (_m *FileSystemer) GetTerraformBinDir() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// GetTerraformStateFile provides a mock function with given fields:
+func (_m *FileSystemer) GetTerraformStateFile() string {
 	ret := _m.Called()
 
 	var r0 string
