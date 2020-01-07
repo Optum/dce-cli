@@ -207,5 +207,5 @@ func (u *FileSystemUtil) GetTerraformBin() string {
 
 // GetTerraformStateFile returns the full path of the terraform state file
 func (u *FileSystemUtil) GetTerraformStateFile() string {
-	return filepath.Join(u.GetLocalBackendDir(), "terraform.tfstate")
+	return filepath.Join(u.GetConfigDir(), "terraform.tfstate")
 }

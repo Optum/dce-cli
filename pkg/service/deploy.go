@@ -32,7 +32,9 @@ type DeployService struct {
 func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) {
 
 	// Initialize the folder structure
-	s.Util.CreateConfigDirTree()
+	if err := s.Util.CreateConfigDirTree(); err != nil {
+		log.Fatalln("Error creating directory structure", err)
+	}
 
 	// Generate a namespace if one has not been supplied because the
 	// dce terraform module requires this argument.
