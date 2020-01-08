@@ -32,33 +32,16 @@ func (l *TestLogObservation) Endln(args ...interface{}) {
 	l.Ended = true
 }
 
-func (l *TestLogObservation) Fatalf(format string, args ...interface{}) {
-	exiter()
-	l.Ended = true
-}
-
-func (l *TestLogObservation) Fatal(args ...interface{}) {
-	exiter()
-	l.Ended = true
-}
-
-func (l *TestLogObservation) Fatalln(args ...interface{}) {
-	exiter()
-	l.Ended = true
-}
-
-type ExitFunc func()
-
 var mockPrompter mocks.Prompter
 var mockFileSystemer mocks.FileSystemer
 var mockWeber mocks.Weber
 var mockGithuber mocks.Githuber
 var mockAwser mocks.AWSer
 var mockTerraformer mocks.Terraformer
+var mockTFTemplater mocks.TFTemplater
 var mockAPIer mocks.APIer
 var spyLogger TestLogObservation
 var service *svc.ServiceContainer
-var exiter ExitFunc
 
 func initMocks(config configs.Root) {
 	mockPrompter = mocks.Prompter{}
@@ -68,6 +51,7 @@ func initMocks(config configs.Root) {
 	mockAwser = mocks.AWSer{}
 	mockTerraformer = mocks.Terraformer{}
 	mockAPIer = mocks.APIer{}
+	mockTFTemplater = mocks.TFTemplater{}
 	spyLogger = TestLogObservation{
 		logrus.New(),
 		false,
@@ -86,6 +70,7 @@ func initMocks(config configs.Root) {
 		AWSer:        &mockAwser,
 		Terraformer:  &mockTerraformer,
 		APIer:        &mockAPIer,
+		TFTemplater:  &mockTFTemplater,
 	}
 	service = svc.New(&config, &spyObservation, &mockUtil)
 }

@@ -21,6 +21,9 @@ mocks:
 test:
 	go test -count=1 -v ./...
 
+cover:
+	go test -coverprofile=coverage.out -coverpkg="./pkg/...,./internal/...,./cmd/..."  ./tests/...
+
 test_functional:
 	go test -count=1 -v ./tests/functional/
 
