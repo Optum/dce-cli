@@ -165,6 +165,7 @@ func execCommand(input *execInput, stdout io.Writer, stderr io.Writer) error {
 
 	cmd.Stderr = stderr
 	cmd.Stdout = stdout
+	cmd.Stdin = os.Stdin
 	err := cmd.Run()
 
 	// Check if the command timed out
@@ -290,6 +291,8 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) error {
 
 	if cfg.NoPrompt {
 		argv = append(argv, "-auto-approve")
+	} else {
+		fmt.Print("Are you sure you would like to create DCE resources?\t")
 	}
 
 	for _, tfVar := range tfVars {
