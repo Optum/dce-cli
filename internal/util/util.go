@@ -84,8 +84,8 @@ type AWSer interface {
 }
 
 type Terraformer interface {
-	Init(ctx context.Context, args []string)
-	Apply(ctx context.Context, tfVars []string)
+	Init(ctx context.Context, args []string) error
+	Apply(ctx context.Context, tfVars []string) error
 	GetOutput(ctx context.Context, key string) (string, error)
 }
 
@@ -105,6 +105,7 @@ type FileSystemer interface {
 	ReadInConfig() error
 	Unarchive(source string, destination string)
 	ChToConfigDir() (string, string)
+	ChToTmpDir() (string, string)
 	RemoveAll(path string)
 	Chdir(path string)
 	ReadDir(path string) []os.FileInfo

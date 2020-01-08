@@ -57,7 +57,7 @@ type DeployOverrides struct {
 	BudgetNotificationTemplateSubject string
 }
 type Deployer interface {
-	Deploy(ctx context.Context, overrides *DeployOverrides)
+	Deploy(ctx context.Context, overrides *DeployOverrides) error
 }
 
 type Usager interface {

@@ -3,11 +3,13 @@ package cmd
 import (
 	"context"
 
+	cfg "github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/constants"
 	svc "github.com/Optum/dce-cli/pkg/service"
 	"github.com/spf13/cobra"
-	cfg 	"github.com/Optum/dce-cli/configs"
 )
+
+type ExitFunc func(code int)
 
 var (
 	dceRepoPath     string
@@ -45,6 +47,8 @@ var systemDeployCmd = &cobra.Command{
 	Short: "Deploy DCE to a new master account",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
-		Service.Deploy(ctx, &deployOverrides)
+		if err := Service.Deploy(ctx, &deployOverrides); err != nil {
+			log.Fatalln(err)
+		}
 	},
 }

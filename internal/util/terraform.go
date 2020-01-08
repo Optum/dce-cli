@@ -235,7 +235,7 @@ func (t *TerraformBinUtil) source() string {
 
 // Init will download the Terraform binary, put it into the .dce folder,
 // and then call init.
-func (t *TerraformBinUtil) Init(ctx context.Context, args []string) {
+func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
 	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value("deployLogFile").(string))
 
 	if err != nil {
@@ -251,12 +251,12 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) {
 		archive := fmt.Sprintf("%s.zip", t.bin())
 		err := t.Downloader.Download(t.source(), archive)
 		if err != nil {
-			log.Fatalln(err)
+			return err
 		}
 		t.FileSystem.Unarchive(archive, t.FileSystem.GetTerraformBinDir())
 		// make sure the file is there and executable.
 		if !t.FileSystem.IsExistingFile(t.bin()) {
-			log.Fatalf("%s does not exist")
+			return fmt.Errorf("%s does not exist", t.bin())
 		}
 		t.FileSystem.RemoveAll(archive)
 	}
@@ -268,15 +268,11 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) {
 		Dir:  t.FileSystem.GetLocalBackendDir(),
 	}
 
-	err = execCommand(execArgs, logFile, logFile)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
+	return execCommand(execArgs, logFile, logFile)
 }
 
 // Apply will call `terraform apply` with the given vars.
-func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) {
+func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) error {
 	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
 	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value("deployLogFile").(string))
 
@@ -287,7 +283,7 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) {
 	}
 
 	if !t.FileSystem.IsExistingFile(t.bin()) {
-		log.Fatalf("Could not find binary \"%s\"", t.bin())
+		return fmt.Errorf("Could not find binary \"%s\"", t.bin())
 	}
 
 	argv := []string{"apply", "-no-color"}
@@ -306,11 +302,8 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) {
 		Dir:  t.FileSystem.GetLocalBackendDir(),
 	}
 
-	err = execCommand(execArgs, logFile, logFile)
+	return execCommand(execArgs, logFile, logFile)
 
-	if err != nil {
-		log.Fatalln(err)
-	}
 }
 
 // GetOutput returns the value of the output with the given name.

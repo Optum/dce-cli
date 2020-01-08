@@ -14,8 +14,17 @@ type Terraformer struct {
 }
 
 // Apply provides a mock function with given fields: ctx, tfVars
-func (_m *Terraformer) Apply(ctx context.Context, tfVars []string) {
-	_m.Called(ctx, tfVars)
+func (_m *Terraformer) Apply(ctx context.Context, tfVars []string) error {
+	ret := _m.Called(ctx, tfVars)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = rf(ctx, tfVars)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // GetOutput provides a mock function with given fields: ctx, key
@@ -40,6 +49,15 @@ func (_m *Terraformer) GetOutput(ctx context.Context, key string) (string, error
 }
 
 // Init provides a mock function with given fields: ctx, args
-func (_m *Terraformer) Init(ctx context.Context, args []string) {
-	_m.Called(ctx, args)
+func (_m *Terraformer) Init(ctx context.Context, args []string) error {
+	ret := _m.Called(ctx, args)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = rf(ctx, args)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }

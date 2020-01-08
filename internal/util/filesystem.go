@@ -105,16 +105,35 @@ func (u *FileSystemUtil) ChToConfigDir() (string, string) {
 		os.Mkdir(destinationDir, os.ModeDir|os.FileMode(mode))
 	}
 
-	err := os.Chdir(destinationDir)
+	originDir, err := os.Getwd()
 
 	if err != nil {
 		log.Fatalln(err)
 	}
-	originDir, err := os.Getwd()
+
+	err = os.Chdir(destinationDir)
+
 	if err != nil {
 		log.Fatalln(err)
 	}
-	os.Chdir(destinationDir)
+
+	return destinationDir, originDir
+}
+
+func (u *FileSystemUtil) ChToTmpDir() (string, string) {
+	destinationDir := os.TempDir()
+	originDir, err := os.Getwd()
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = os.Chdir(destinationDir)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	return destinationDir, originDir
 }
 

@@ -32,6 +32,23 @@ func (l *TestLogObservation) Endln(args ...interface{}) {
 	l.Ended = true
 }
 
+func (l *TestLogObservation) Fatalf(format string, args ...interface{}) {
+	exiter()
+	l.Ended = true
+}
+
+func (l *TestLogObservation) Fatal(args ...interface{}) {
+	exiter()
+	l.Ended = true
+}
+
+func (l *TestLogObservation) Fatalln(args ...interface{}) {
+	exiter()
+	l.Ended = true
+}
+
+type ExitFunc func()
+
 var mockPrompter mocks.Prompter
 var mockFileSystemer mocks.FileSystemer
 var mockWeber mocks.Weber
@@ -41,6 +58,7 @@ var mockTerraformer mocks.Terraformer
 var mockAPIer mocks.APIer
 var spyLogger TestLogObservation
 var service *svc.ServiceContainer
+var exiter ExitFunc
 
 func initMocks(config configs.Root) {
 	mockPrompter = mocks.Prompter{}

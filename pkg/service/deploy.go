@@ -14,6 +14,7 @@ import (
 	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/Optum/dce-cli/internal/util"
 	utl "github.com/Optum/dce-cli/internal/util"
+	"github.com/pkg/errors"
 )
 
 const ArtifactsFileName = "terraform_artifacts.zip"
@@ -29,11 +30,11 @@ type DeployService struct {
 // Deploy writes the local `main.tf` file, using the overrides, and then
 // calls Terraform init and apply using configuration directory (`~/.dce`)
 // as the working folder and location of local state.
-func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) {
+func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) error {
 
 	// Initialize the folder structure
 	if err := s.Util.CreateConfigDirTree(); err != nil {
-		log.Fatalln("Error creating directory structure", err)
+		return errors.Wrap(err, "error creating directory structure")
 	}
 
 	// Generate a namespace if one has not been supplied because the
@@ -53,37 +54,48 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 		s.LocalRepo = cfg.DeployLocalPath
 	}
 
-	s.createTFMainFile(overrides, cfg.Overwrite)
+	_, err := s.createTFMainFile(overrides, cfg.Overwrite)
+
+	if err != nil {
+		return errors.Wrap(err, "error creating local backend")
+	}
 
 	log.Infoln("Creating DCE infrastructure")
-	artifactsBucket := s.createDceInfra(ctx, overrides)
+	artifactsBucket, err := s.createDceInfra(ctx, overrides)
+
+	if err != nil {
+		return errors.Wrap(err, "error creating infrastructure")
+	}
+
 	log.Infoln("Artifacts bucket = ", artifactsBucket)
 
 	log.Infoln("Deploying code assets to DCE infrastructure")
 	s.deployCodeAssets(artifactsBucket, overrides)
+	return nil
 }
 
 // createTFMainFile creates the main.tf file. The default behavior, without
 // using a local repository, is to create the file with the bare minimum
 // required to use Terraform with local state.
-func (s *DeployService) createTFMainFile(overrides *DeployOverrides, overwrite bool) string {
+func (s *DeployService) createTFMainFile(overrides *DeployOverrides, overwrite bool) (string, error) {
 	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
 	fileName := s.Util.GetLocalBackendFile()
 
-	_, err := os.Stat(fileName)
-
-	if !os.IsNotExist(err) && !overwrite {
+	if !s.Util.IsExistingFile(fileName) && !overwrite {
 		log.Warnln("'main.tf' already exists and overwrite not specified; using existing file")
 	} else {
-		tfMainContents := s.getLocalTFMainContents(overrides)
+		tfMainContents, err := s.getLocalTFMainContents(overrides)
+		if err != nil {
+			return "", err
+		}
 		s.Util.WriteFile(fileName, tfMainContents)
 	}
-	return fileName
+	return fileName, nil
 }
 
-func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOverrides) string {
+func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOverrides) (string, error) {
 	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
@@ -99,13 +111,7 @@ func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOve
 	s.Util.Terraformer.Apply(ctx, []string{})
 
 	log.Infoln("Retrieving artifacts bucket name from terraform outputs")
-	artifactsBucket, err := s.Util.Terraformer.GetOutput(ctx, "artifacts_bucket_name")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Infoln("artifacts bucket name = ", artifactsBucket)
-
-	return artifactsBucket
+	return s.Util.Terraformer.GetOutput(ctx, "artifacts_bucket_name")
 }
 
 func (s *DeployService) deployCodeAssets(artifactsBucket string, overrides *DeployOverrides) {
@@ -136,7 +142,7 @@ func (s *DeployService) getRandString(n int) string {
 	return string(b)
 }
 
-func (s *DeployService) getLocalTFMainContents(overrides *DeployOverrides) string {
+func (s *DeployService) getLocalTFMainContents(overrides *DeployOverrides) (string, error) {
 	var tfMainContents string
 	if s.LocalRepo != "" {
 		path := filepath.Join(s.LocalRepo, "scripts", "deploy_local", "main.tf")
@@ -148,20 +154,20 @@ func (s *DeployService) getLocalTFMainContents(overrides *DeployOverrides) strin
 
 		err := s.Util.TFTemplater.Write(&buffer)
 		if err != nil {
-			log.Fatalln(err)
+			return "", err
 		}
 		tfMainContents = buffer.String()
 	}
 	log.Debugln("Creating tf main.tf file with: ", tfMainContents)
 
-	return tfMainContents
+	return tfMainContents, nil
 }
 
-func (s *DeployService) retrieveTFModules() string {
+func (s *DeployService) retrieveTFModules() (string, error) {
 	workingDir, err := os.Getwd()
 
 	if err != nil {
-		log.Fatalln(err)
+		return "", err
 	}
 
 	if s.LocalRepo != "" {
@@ -169,16 +175,12 @@ func (s *DeployService) retrieveTFModules() string {
 		s.Util.Unarchive(zippedArtifactsPath, workingDir)
 	}
 
-	return workingDir
+	return workingDir, nil
 }
 
-func (s *DeployService) retrieveCodeAssets() string {
-	oldDir, err := os.Getwd()
-	if err != nil {
-		log.Fatalln("Error getting current working dir", err)
-	}
-	var workingDir = os.TempDir()
-	os.Chdir(workingDir)
+func (s *DeployService) retrieveCodeAssets() (string, error) {
+	tmpDir, oldDir := s.Util.ChToTmpDir()
+
 	defer os.Chdir(oldDir)
 
 	if s.LocalRepo != "" {
@@ -188,10 +190,10 @@ func (s *DeployService) retrieveCodeAssets() string {
 		log.Infoln("Downloading DCE code assets")
 		s.Util.Githuber.DownloadGithubReleaseAsset(AssetsFileName)
 		s.Util.Unarchive(AssetsFileName, s.Util.GetArtifactsDir())
-		os.Remove(AssetsFileName)
+		s.Util.RemoveAll(AssetsFileName)
 	}
 
-	return workingDir
+	return tmpDir, nil
 }
 
 func addOverridesToTemplate(t util.TFTemplater, overrides *DeployOverrides) error {

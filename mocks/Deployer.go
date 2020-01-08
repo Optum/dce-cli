@@ -15,6 +15,15 @@ type Deployer struct {
 }
 
 // Deploy provides a mock function with given fields: ctx, overrides
-func (_m *Deployer) Deploy(ctx context.Context, overrides *service.DeployOverrides) {
-	_m.Called(ctx, overrides)
+func (_m *Deployer) Deploy(ctx context.Context, overrides *service.DeployOverrides) error {
+	ret := _m.Called(ctx, overrides)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *service.DeployOverrides) error); ok {
+		r0 = rf(ctx, overrides)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
