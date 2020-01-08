@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/Optum/dce-cli/configs"
+	"github.com/Optum/dce-cli/internal/constants"
 	"github.com/mholt/archiver"
 	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
@@ -24,6 +25,7 @@ func (u *FileSystemUtil) writeToYAMLFile(path string, _struct interface{}) error
 	}
 
 	if !u.IsExistingFile(path) {
+		os.MkdirAll(u.GetConfigDir(), os.FileMode(0700))
 		var file *os.File
 		file, err = os.Create(path)
 		if err != nil {
@@ -103,16 +105,35 @@ func (u *FileSystemUtil) ChToConfigDir() (string, string) {
 		os.Mkdir(destinationDir, os.ModeDir|os.FileMode(mode))
 	}
 
-	err := os.Chdir(destinationDir)
+	originDir, err := os.Getwd()
 
 	if err != nil {
 		log.Fatalln(err)
 	}
-	originDir, err := os.Getwd()
+
+	err = os.Chdir(destinationDir)
+
 	if err != nil {
 		log.Fatalln(err)
 	}
-	os.Chdir(destinationDir)
+
+	return destinationDir, originDir
+}
+
+func (u *FileSystemUtil) ChToTmpDir() (string, string) {
+	destinationDir := os.TempDir()
+	originDir, err := os.Getwd()
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = os.Chdir(destinationDir)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	return destinationDir, originDir
 }
 
@@ -143,4 +164,67 @@ func (u *FileSystemUtil) ReadDir(path string) []os.FileInfo {
 		log.Fatalln(err)
 	}
 	return files
+}
+
+func (u *FileSystemUtil) OpenFileWriter(path string) (*os.File, error) {
+	return os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+}
+
+func (u *FileSystemUtil) GetCacheDir() string {
+	return filepath.Join(u.GetConfigDir(), ".cache")
+}
+
+// GetArtifactsDir returns the cached artifacts dir, which by default is
+// `~/.dce/.cache/dce/${DCE_VERSION}/`
+func (u *FileSystemUtil) GetArtifactsDir() string {
+	return filepath.Join(u.GetCacheDir(), constants.CommandShortName, constants.DCEBackendVersion)
+}
+
+// GetTerraformBinDir returns the dir in which the `terraform` bin is installed,
+// which by default is `~/.dce/.cache/terraform/${TERRAFORM_VERSION}`
+func (u *FileSystemUtil) GetTerraformBinDir() string {
+	return filepath.Join(u.GetCacheDir(), "terraform", constants.TerraformBinVersion)
+}
+
+// GetLocalBackendDir returns the dir for the local terraform backend.
+// By default, `~/.dce/.cache/module`
+func (u *FileSystemUtil) GetLocalBackendDir() string {
+	return filepath.Join(u.GetCacheDir(), "module")
+}
+
+// CreateConfigDirTree creates all the dirs in the dir specified by GetConfigDir(),
+// including the dir itself.
+func (u *FileSystemUtil) CreateConfigDirTree() error {
+	dirs := []string{
+		u.GetArtifactsDir(),
+		u.GetTerraformBinDir(),
+		u.GetLocalBackendDir(),
+	}
+	for _, dir := range dirs {
+		err := os.MkdirAll(dir, os.FileMode(0700))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// GetLogFile returns the full path of the log file for the deployment messages.
+func (u *FileSystemUtil) GetLogFile() string {
+	return filepath.Join(u.GetConfigDir(), "deploy.log")
+}
+
+// GetLocalBackendFile returns the full path of the local backend file.
+func (u *FileSystemUtil) GetLocalBackendFile() string {
+	return filepath.Join(u.GetLocalBackendDir(), "main.tf")
+}
+
+// GetTerraformBin returns the full path of the terraform binary.
+func (u *FileSystemUtil) GetTerraformBin() string {
+	return filepath.Join(u.GetTerraformBinDir(), constants.TerraformBinName)
+}
+
+// GetTerraformStateFile returns the full path of the terraform state file
+func (u *FileSystemUtil) GetTerraformStateFile() string {
+	return filepath.Join(u.GetConfigDir(), "terraform.tfstate")
 }

@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	context "context"
+
 	service "github.com/Optum/dce-cli/pkg/service"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -12,7 +14,16 @@ type Deployer struct {
 	mock.Mock
 }
 
-// Deploy provides a mock function with given fields: deployLocal, overrides
-func (_m *Deployer) Deploy(deployLocal string, overrides *service.DeployOverrides) {
-	_m.Called(deployLocal, overrides)
+// Deploy provides a mock function with given fields: ctx, overrides
+func (_m *Deployer) Deploy(ctx context.Context, overrides *service.DeployOverrides) error {
+	ret := _m.Called(ctx, overrides)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *service.DeployOverrides) error); ok {
+		r0 = rf(ctx, overrides)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }

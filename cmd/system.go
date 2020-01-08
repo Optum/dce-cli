@@ -1,18 +1,28 @@
 package cmd
 
 import (
+	"context"
+
+	cfg "github.com/Optum/dce-cli/configs"
+	"github.com/Optum/dce-cli/internal/constants"
 	svc "github.com/Optum/dce-cli/pkg/service"
 	"github.com/spf13/cobra"
 )
 
-var deployLocalPath string
-var dceRepoPath string
+type ExitFunc func(code int)
 
-var deployOverrides svc.DeployOverrides
+var (
+	dceRepoPath     string
+	deployOverrides svc.DeployOverrides
+	deployConfig    cfg.DeployConfig
+)
 
 func init() {
 	deployOverrides = svc.DeployOverrides{}
-	systemDeployCmd.Flags().StringVarP(&deployLocalPath, "local", "l", "", "Path to a local DCE repo to deploy.")
+	deployConfig = cfg.DeployConfig{}
+	systemDeployCmd.Flags().StringVarP(&deployConfig.DeployLocalPath, "local", "l", "", "Path to a local DCE repo to deploy.")
+	systemDeployCmd.Flags().BoolVarP(&deployConfig.Overwrite, "overwrite", "o", false, "Overwrite local backend state.")
+	systemDeployCmd.Flags().BoolVar(&deployConfig.NoPrompt, "noprompt", false, "Skip prompting for resource creation.")
 	systemDeployCmd.Flags().StringVarP(&deployOverrides.Namespace, "namespace", "n", "", "Set a custom terraform namespace (Optional)")
 	systemDeployCmd.Flags().StringVarP(&deployOverrides.AWSRegion, "region", "r", "", "The aws region that DCE will be deployed to (Default: us-east-1)")
 	systemDeployCmd.Flags().StringArrayVarP(&deployOverrides.GlobalTags, "tag", "t", []string{}, "Tags to be placed on all DCE resources. E.g. `dce system deploy --tag key1:value1 --tag key2:value2`")
@@ -36,6 +46,9 @@ var systemDeployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Deploy DCE to a new master account",
 	Run: func(cmd *cobra.Command, args []string) {
-		Service.Deploy(deployLocalPath, &deployOverrides)
+		ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+		if err := Service.Deploy(ctx, &deployOverrides); err != nil {
+			log.Fatalln(err)
+		}
 	},
 }

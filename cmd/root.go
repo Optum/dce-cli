@@ -18,9 +18,10 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/mitchellh/go-homedir"
 	"os"
 	"path/filepath"
+
+	"github.com/mitchellh/go-homedir"
 
 	"github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/constants"
@@ -36,6 +37,7 @@ var Config = &configs.Root{}
 var Service *svc.ServiceContainer
 var Util *utl.UtilContainer
 var Observation *observ.ObservationContainer
+
 // Expose logger as global for ease of use
 var log observ.Logger
 var Log observ.Logger
@@ -52,7 +54,7 @@ func init() {
 	// default to ~/.dce.yml
 	RootCmd.PersistentFlags().StringVar(
 		&cfgFile, "config",
-		filepath.Join(homeDir, constants.DefaultConfigFileName),
+		filepath.Join(homeDir, ".dce", constants.DefaultConfigFileName),
 		"config file",
 	)
 }
@@ -67,7 +69,7 @@ var RootCmd = &cobra.Command{
 
   - Admins to provision DCE to a master account and administer said account
   - Users to lease accounts and execute commands against them`,
-  PersistentPreRunE: preRun,
+	PersistentPreRunE: preRun,
 }
 
 func preRun(cmd *cobra.Command, args []string) error {
@@ -109,7 +111,7 @@ type FmtOutputFormatter struct {
 
 func (f *FmtOutputFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	var serialized []byte
-	serialized = []byte(entry.Message)
+	serialized = []byte(fmt.Sprintf("%s\n", entry.Message))
 	return serialized, nil
 }
 
