@@ -83,7 +83,7 @@ func (s *DeployService) createTFMainFile(overrides *DeployOverrides, overwrite b
 
 	fileName := s.Util.GetLocalBackendFile()
 
-	if !s.Util.IsExistingFile(fileName) && !overwrite {
+	if s.Util.IsExistingFile(fileName) && !overwrite {
 		log.Warnln("'main.tf' already exists and overwrite not specified; using existing file")
 	} else {
 		tfMainContents, err := s.getLocalTFMainContents(overrides)

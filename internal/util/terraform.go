@@ -31,8 +31,7 @@ type TerraformUtil struct {
 // Init initialized a terraform working directory
 func (u *TerraformUtil) Init(ctx context.Context, args []string) {
 	logFile, err := os.Create(ctx.Value("deployLogFile").(string))
-	log.Println("Running terraform init")
-	// logger.SetOutput(logFile)
+	log.Info("Running terraform init")
 
 	if err != nil {
 		logFile = nil
@@ -85,7 +84,7 @@ func (u *TerraformUtil) Apply(ctx context.Context, tfVars []string) {
 
 // GetOutput gets terraform output value for provided key
 func (u *TerraformUtil) GetOutput(ctx context.Context, key string) (string, error) {
-	log.Println("Retrieving terraform output for: " + key)
+	log.Infof("Retrieving terraform output for: %s", key)
 	outputCaptorUI := &UIOutputCaptor{
 		BasicUi: &cli.BasicUi{
 			Reader:      os.Stdin,

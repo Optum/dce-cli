@@ -57,7 +57,7 @@ func TestDeployService_FileExists(t *testing.T) {
 	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
 	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
 	mockFileSystemer.On("GetLocalBackendFile").Return(filename)
-	mockFileSystemer.On("IsExistingFile", filename).Return(false)
+	mockFileSystemer.On("IsExistingFile", filename).Return(true)
 	mockFileSystemer.On("Chdir", originDir).Return()
 
 	mockFileSystemer.On("GetLogFile").Return(logfile)
@@ -107,7 +107,7 @@ func TestDeployService_DoesNotFileExist(t *testing.T) {
 	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
 	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
 	mockFileSystemer.On("GetLocalBackendFile").Return(filename)
-	mockFileSystemer.On("IsExistingFile", filename).Return(true)
+	mockFileSystemer.On("IsExistingFile", filename).Return(false)
 
 	// file is being created...
 	mockTFTemplater.On("AddVariable", "namespace", "string", "somethingpredictable").Return(nil)
@@ -165,7 +165,7 @@ func TestDeployService_DoesNotFileExistAndUsingLocalRepo(t *testing.T) {
 	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
 	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
 	mockFileSystemer.On("GetLocalBackendFile").Return(filename)
-	mockFileSystemer.On("IsExistingFile", filename).Return(true)
+	mockFileSystemer.On("IsExistingFile", filename).Return(false)
 
 	// file is being created...
 	mockFileSystemer.On("ReadFromFile", mock.Anything).Return("filecontents")
