@@ -1,6 +1,8 @@
 package util
 
 import (
+	"context"
+	"io"
 	"os"
 	"time"
 
@@ -25,6 +27,7 @@ type UtilContainer struct {
 	FileSystemer
 	Weber
 	Durationer
+	TFTemplater
 }
 
 var log observ.Logger
@@ -51,19 +54,24 @@ func New(config *configs.Root, configFile string, observation *observ.Observatio
 		})
 	}
 
+	filesystem := &FileSystemUtil{Config: config, ConfigFile: configFile}
+	weber := &WebUtil{Observation: observation}
+
 	utilContainer := UtilContainer{
 		Config:       config,
 		Observation:  observation,
 		AWSSession:   awsSession,
 		AWSer:        &AWSUtil{Config: config, Observation: observation, Session: awsSession},
 		APIer:        apiClient,
-		Terraformer:  &TerraformUtil{Config: config, Observation: observation},
+		Terraformer:  &TerraformBinUtil{Config: config, Observation: observation, FileSystem: filesystem, Downloader: weber},
 		Githuber:     &GithubUtil{Config: config, Observation: observation},
 		Prompter:     &PromptUtil{Config: config, Observation: observation},
-		FileSystemer: &FileSystemUtil{Config: config, ConfigFile: configFile},
-		Weber:        &WebUtil{Observation: observation},
+		FileSystemer: filesystem,
+		Weber:        weber,
 		Durationer:   NewDurationUtil(),
 	}
+
+	utilContainer.TFTemplater = NewMainTFTemplate(utilContainer.FileSystemer)
 
 	return &utilContainer
 }
@@ -75,9 +83,9 @@ type AWSer interface {
 }
 
 type Terraformer interface {
-	Init(args []string)
-	Apply(tfVars []string)
-	GetOutput(key string) string
+	Init(ctx context.Context, args []string) error
+	Apply(ctx context.Context, tfVars []string) error
+	GetOutput(ctx context.Context, key string) (string, error)
 }
 
 type Githuber interface {
@@ -91,17 +99,50 @@ type Prompter interface {
 
 type FileSystemer interface {
 	WriteConfig() error
-	GetConfigFile() string
-	GetHomeDir() string
 	IsExistingFile(path string) bool
 	ReadFromFile(path string) string
 	ReadInConfig() error
 	Unarchive(source string, destination string)
-	MvToTempDir(prefix string) (string, string)
+	ChToConfigDir() (string, string)
+	ChToTmpDir() (string, string)
 	RemoveAll(path string)
 	Chdir(path string)
 	ReadDir(path string) []os.FileInfo
 	WriteFile(fileName string, data string)
+	OpenFileWriter(path string) (*os.File, error)
+
+	// GetHomeDir returns the user home dir. For example, on *nix systems this
+	// be the same as `~` expanded, or the value of `$HOME`
+	GetHomeDir() string
+	// GetConfigDir returns the DCE configuration dir, which on *nix systems
+	// is `~/.dce`
+	GetConfigDir() string
+	// GetCacheDir returns the local cache dir, which bt default is `~/.dce/.cache`
+	GetCacheDir() string
+	// GetArtifactsDir returns the cached artifacts dir, which by default is
+	// `~/.dce/.cache/dce/${DCE_VERSION}/`
+	GetArtifactsDir() string
+	// GetTerraformBinDir returns the dir in which the `terraform` bin is installed,
+	// which by default is `~/.dce/.cache/terraform/${TERRAFORM_VERSION}`
+	GetTerraformBinDir() string
+	// GetLocalBackendDir returns the dir for the local terraform backend.
+	// By default, `~/.dce/.cache/module`
+	GetLocalTFModuleDir() string
+	// CreateConfigDirTree creates all the dirs in the dir specified by GetConfigDir(),
+	// including the dir itself.
+	CreateConfigDirTree() error
+
+	// GetConfigFile returns the full path of the configuration file, such as
+	// `~/.dce/config.yaml`
+	GetConfigFile() string
+	// GetLogFile returns the full path of the log file for the deployment messages.
+	GetLogFile() string
+	// GetLocalBackendFile returns the full path of the local backend file.
+	GetLocalMainTFFile() string
+	// GetTerraformBin returns the full path of the terraform binary.
+	GetTerraformBin() string
+	// GetTerraformStateFile returns the full path of the terraform state file
+	GetTerraformStateFile() string
 }
 
 type Weber interface {
@@ -111,4 +152,9 @@ type Weber interface {
 type Durationer interface {
 	ExpandEpochTime(str string) (int64, error)
 	ParseDuration(str string) (time.Duration, error)
+}
+
+type TFTemplater interface {
+	AddVariable(name string, vartype string, vardefault string) error
+	Write(w io.Writer) error
 }

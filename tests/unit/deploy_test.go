@@ -1,13 +1,16 @@
 package unit
 
 import (
+	"context"
+	"fmt"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/Optum/dce-cli/configs"
+	cfg "github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/constants"
 	svc "github.com/Optum/dce-cli/pkg/service"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -20,258 +23,185 @@ type mockFileInfo struct {
 func (m *mockFileInfo) Name() string { return doesntMatter }
 func (m *mockFileInfo) IsDir() bool  { return true }
 
-func TestDeployTFOverrides(t *testing.T) {
-	config := configs.Root{}
+func TestDeployService_ErrorCreatingDirs(t *testing.T) {
 
-	t.Run("GIVEN region is overridden", func(t *testing.T) {
-		region := "someRegion"
-		deployOverrides := svc.DeployOverrides{
-			AWSRegion: region,
-		}
-		deployLocalPath := ""
-		t.Run("WHEN Deploy", func(t *testing.T) {
-			initMocks(config)
-			mockMethods()
-			service.Deploy(deployLocalPath, &deployOverrides)
-			mockTerraformer.AssertExpectations(t)
-			t.Run("THEN terraform apply is executed with the provided region", func(t *testing.T) {
-				calledCountdown := 2
-				mockTerraformer.AssertCalled(t, "Apply", mock.MatchedBy(func(args []string) bool {
-					isMatch := false
-					if len(args) == 3 {
-						isMatch = (args[0] == `aws_region=`+region) &&
-							strings.Contains(args[2], `namespace=`)
-					}
-					if len(args) == 1 {
-						isMatch = strings.Contains(args[0], `namespace=`)
-					}
-					calledCountdown--
-					return isMatch && calledCountdown == 0
-				}))
-			})
-		})
-	})
-	t.Run("GIVEN tags are added", func(t *testing.T) {
-		deployOverrides := svc.DeployOverrides{
-			GlobalTags: []string{"a:b", "c:d"},
-		}
-		deployLocalPath := ""
-		t.Run("WHEN Deploy", func(t *testing.T) {
-			initMocks(config)
-			mockMethods()
+	emptyConfig := configs.Root{}
+	initMocks(emptyConfig)
 
-			service.Deploy(deployLocalPath, &deployOverrides)
-			mockTerraformer.AssertExpectations(t)
+	mockFileSystemer.On("CreateConfigDirTree").Return(fmt.Errorf("Could not create folders: %s", "bad"))
 
-			t.Run("THEN terraform apply is executed with the provided tags and default tags", func(t *testing.T) {
-				calledCountdown := 2
-				mockTerraformer.AssertCalled(t, "Apply", mock.MatchedBy(func(args []string) bool {
-					isMatch := false
-					if len(args) == 2 {
-						isMatch = (args[0] == `global_tags={`+constants.GlobalTFTagDefaults+`,"a":"b","c":"d"}`) &&
-							strings.Contains(args[1], `namespace=`)
-					}
-					if len(args) == 1 {
-						isMatch = strings.Contains(args[0], `namespace=`)
-					}
-					calledCountdown--
-					return isMatch && calledCountdown == 0
-				}))
-				mockTerraformer.AssertNumberOfCalls(t, "Apply", 2)
-			})
-		})
-	})
-	t.Run("GIVEN namespace is overridden", func(t *testing.T) {
-		expectedNamspace := "expectedNamspace"
-		deployOverrides := svc.DeployOverrides{
-			Namespace: expectedNamspace,
-		}
-		deployLocalPath := ""
-		t.Run("WHEN Deploy", func(t *testing.T) {
-			initMocks(config)
-			mockMethods()
+	deployConfig := cfg.DeployConfig{}
+	overrides := svc.DeployOverrides{}
+	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
 
-			service.Deploy(deployLocalPath, &deployOverrides)
-			mockTerraformer.AssertExpectations(t)
-			t.Run("THEN terraform apply is executed with the provided namespace", func(t *testing.T) {
-				calledCountdown := 2
-				mockTerraformer.AssertCalled(t, "Apply", mock.MatchedBy(func(args []string) bool {
-					isMatch := false
-					if len(args) == 2 {
-						isMatch = (args[0] == `global_tags={`+constants.GlobalTFTagDefaults+`}`) &&
-							strings.Contains(args[1], `namespace=`+expectedNamspace)
-					}
-					if len(args) == 1 {
-						isMatch = strings.Contains(args[0], `namespace=`)
-					}
-					calledCountdown--
-					return isMatch && calledCountdown == 0
-				}))
-			})
-		})
-	})
-	t.Run("GIVEN BudgetNotificationFromEmail is overridden", func(t *testing.T) {
-		emailTemplate := "emailTemplate"
-		deployOverrides := svc.DeployOverrides{
-			BudgetNotificationFromEmail: emailTemplate,
-		}
-		deployLocalPath := ""
-		t.Run("WHEN Deploy", func(t *testing.T) {
-			initMocks(config)
-			mockMethods()
+	err := service.Deploy(ctx, &overrides)
 
-			service.Deploy(deployLocalPath, &deployOverrides)
-			mockTerraformer.AssertExpectations(t)
-			t.Run("THEN terraform apply is executed with the provided email", func(t *testing.T) {
-				calledCountdown := 2
-				mockTerraformer.AssertCalled(t, "Apply", mock.MatchedBy(func(args []string) bool {
-					isMatch := false
-					if len(args) == 3 {
-						isMatch = (args[2] == `budget_notification_from_email=`+emailTemplate) &&
-							strings.Contains(args[1], `namespace=`)
-					}
-					if len(args) == 1 {
-						isMatch = strings.Contains(args[0], `namespace=`)
-					}
-					calledCountdown--
-					return isMatch && calledCountdown == 0
-				}))
+	mockFileSystemer.AssertExpectations(t)
 
-				mockTerraformer.AssertNumberOfCalls(t, "Apply", 2)
-			})
-		})
-	})
-	t.Run("GIVEN BudgetNotificationBCCEmails is overridden", func(t *testing.T) {
-		emailTemplate := "emailTemplate"
-		deployOverrides := svc.DeployOverrides{
-			BudgetNotificationBCCEmails: []string{emailTemplate},
-		}
-		deployLocalPath := ""
-		t.Run("WHEN Deploy", func(t *testing.T) {
-			initMocks(config)
-			mockMethods()
-
-			service.Deploy(deployLocalPath, &deployOverrides)
-			mockTerraformer.AssertExpectations(t)
-			t.Run("THEN terraform apply is executed with the provided email and default tags", func(t *testing.T) {
-				calledCountdown := 2
-				mockTerraformer.AssertCalled(t, "Apply", mock.MatchedBy(func(args []string) bool {
-					isMatch := false
-					if len(args) == 3 {
-						isMatch = (args[2] == `budget_notification_bcc_emails=["`+emailTemplate+`"]`) &&
-							strings.Contains(args[1], `namespace=`)
-					}
-					if len(args) == 1 {
-						isMatch = strings.Contains(args[0], `namespace=`)
-					}
-					calledCountdown--
-					return isMatch && calledCountdown == 0
-				}))
-			})
-		})
-	})
-	t.Run("GIVEN BudgetNotificationTemplateHTML is overridden", func(t *testing.T) {
-		emailTemplate := "emailTemplate"
-		deployOverrides := svc.DeployOverrides{
-			BudgetNotificationTemplateHTML: emailTemplate,
-		}
-		deployLocalPath := ""
-		t.Run("WHEN Deploy", func(t *testing.T) {
-			initMocks(config)
-			mockMethods()
-
-			service.Deploy(deployLocalPath, &deployOverrides)
-			mockTerraformer.AssertExpectations(t)
-			t.Run("THEN terraform apply is executed with the provided email and default tags", func(t *testing.T) {
-				calledCountdown := 2
-				mockTerraformer.AssertCalled(t, "Apply", mock.MatchedBy(func(args []string) bool {
-					isMatch := false
-					if len(args) == 3 {
-						isMatch = (args[2] == `budget_notification_template_html=`+emailTemplate) &&
-							strings.Contains(args[1], `namespace=`)
-					}
-					if len(args) == 1 {
-						isMatch = strings.Contains(args[0], `namespace=`)
-					}
-					calledCountdown--
-					return isMatch && calledCountdown == 0
-				}))
-			})
-		})
-	})
-	t.Run("GIVEN BudgetNotificationTemplateText is overridden", func(t *testing.T) {
-		emailTemplate := "emailTemplate"
-		deployOverrides := svc.DeployOverrides{
-			BudgetNotificationTemplateText: emailTemplate,
-		}
-		deployLocalPath := ""
-		t.Run("WHEN Deploy", func(t *testing.T) {
-			initMocks(config)
-			mockMethods()
-
-			service.Deploy(deployLocalPath, &deployOverrides)
-			mockTerraformer.AssertExpectations(t)
-			t.Run("THEN terraform apply is executed with the provided email and default tags", func(t *testing.T) {
-				calledCountdown := 2
-				mockTerraformer.AssertCalled(t, "Apply", mock.MatchedBy(func(args []string) bool {
-					isMatch := false
-					if len(args) == 3 {
-						isMatch = (args[2] == `budget_notification_template_text=`+emailTemplate) &&
-							strings.Contains(args[1], `namespace=`)
-					}
-					if len(args) == 1 {
-						isMatch = strings.Contains(args[0], `namespace=`)
-					}
-					calledCountdown--
-					return isMatch && calledCountdown == 0
-				}))
-			})
-		})
-	})
-	t.Run("GIVEN BudgetNotificationTemplateSubject is overridden", func(t *testing.T) {
-		emailTemplate := "emailTemplate"
-		deployOverrides := svc.DeployOverrides{
-			BudgetNotificationTemplateSubject: emailTemplate,
-		}
-		deployLocalPath := ""
-		t.Run("WHEN Deploy", func(t *testing.T) {
-			initMocks(config)
-			mockMethods()
-
-			service.Deploy(deployLocalPath, &deployOverrides)
-			mockTerraformer.AssertExpectations(t)
-			t.Run("THEN terraform apply is executed with the provided email and default tags", func(t *testing.T) {
-				calledCountdown := 2
-				mockTerraformer.AssertCalled(t, "Apply", mock.MatchedBy(func(args []string) bool {
-					isMatch := false
-					if len(args) == 3 {
-						isMatch = (args[2] == `budget_notification_template_subject=`+emailTemplate) &&
-							strings.Contains(args[1], `namespace=`)
-					}
-					if len(args) == 1 {
-						isMatch = strings.Contains(args[0], `namespace=`)
-					}
-					calledCountdown--
-					return isMatch && calledCountdown == 0
-				}))
-			})
-		})
-	})
+	assert.NotNil(t, err, "expected error calling Deploy()")
 }
 
-func mockMethods() {
-	mockGithuber.On("DownloadGithubReleaseAsset", mock.Anything)
-	mockFileSystemer.On("Unarchive", mock.Anything, mock.Anything)
-	mockFileSystemer.On("MvToTempDir", mock.Anything, mock.Anything).Return(doesntMatter, doesntMatter)
-	mockFileSystemer.On("RemoveAll", mock.Anything, mock.Anything)
-	mockFileSystemer.On("Chdir", mock.Anything, mock.Anything)
+func TestDeployService_FileExists(t *testing.T) {
 
-	mockFileSystemer.On("ReadDir", mock.Anything).Return([]os.FileInfo{&mockFileInfo{}})
-	mockFileSystemer.On("WriteFile", mock.Anything, mock.Anything)
-	mockTerraformer.On("Init", mock.Anything)
-	mockTerraformer.On("Apply", mock.Anything)
-	mockTerraformer.On("GetOutput", mock.Anything).Return(doesntMatter)
+	newDir := "/newdir"
+	originDir := "/origindir"
+	filename := "/file.txt"
+	logfile := "/log.txt"
+	s3bucket := "mys3bucket"
+	lambdas := []string{"lambda1", "lambda2"}
+	codebuilds := []string{"codebuild1", "codebuild2"}
 
-	mockAwser.On("UploadDirectoryToS3", mock.Anything, mock.Anything, mock.Anything).Return([]string{}, []string{})
-	mockAwser.On("UpdateLambdasFromS3Assets", mock.Anything, mock.Anything, mock.Anything)
+	emptyConfig := configs.Root{}
+	initMocks(emptyConfig)
+
+	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
+	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
+	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
+	mockFileSystemer.On("IsExistingFile", filename).Return(true)
+	mockFileSystemer.On("Chdir", originDir).Return()
+
+	mockFileSystemer.On("GetLogFile").Return(logfile)
+
+	mockTerraformer.On("Init", mock.Anything, []string{}).Return(nil)
+	mockTerraformer.On("Apply", mock.Anything, []string{}).Return(nil)
+	mockTerraformer.On("GetOutput", mock.Anything, "artifacts_bucket_name").Return(s3bucket, nil)
+
+	mockFileSystemer.On("ChToTmpDir").Return(doesntMatter, doesntMatter)
+	mockGithuber.On("DownloadGithubReleaseAsset", "build_artifacts.zip")
+	mockFileSystemer.On("GetArtifactsDir").Return(doesntMatter)
+	mockFileSystemer.On("Unarchive", "build_artifacts.zip", doesntMatter)
+	mockFileSystemer.On("RemoveAll", "build_artifacts.zip")
+
+	mockAwser.On("UploadDirectoryToS3", doesntMatter, s3bucket, "").Return(lambdas, codebuilds)
+	mockAwser.On("UpdateLambdasFromS3Assets", lambdas, s3bucket, "somethingpredictable")
+
+	deployConfig := cfg.DeployConfig{
+		UseCached: true,
+	}
+	overrides := svc.DeployOverrides{
+		Namespace: "somethingpredictable",
+	}
+	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+
+	err := service.Deploy(ctx, &overrides)
+
+	mockFileSystemer.AssertExpectations(t)
+	mockTerraformer.AssertExpectations(t)
+	mockAwser.AssertExpectations(t)
+	mockTFTemplater.AssertExpectations(t)
+
+	assert.Nil(t, err, "expected no error calling Deploy() in happy path")
+}
+
+func TestDeployService_DoesNotFileExist(t *testing.T) {
+
+	newDir := "/newdir"
+	originDir := "/origindir"
+	filename := "/file.txt"
+	logfile := "/log.txt"
+	s3bucket := "mys3bucket"
+	lambdas := []string{"lambda1", "lambda2"}
+	codebuilds := []string{"codebuild1", "codebuild2"}
+
+	emptyConfig := configs.Root{}
+	initMocks(emptyConfig)
+
+	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
+	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
+	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
+	mockFileSystemer.On("IsExistingFile", filename).Return(false)
+
+	// file is being created...
+	mockTFTemplater.On("AddVariable", "namespace", "string", "somethingpredictable").Return(nil)
+	mockTFTemplater.On("AddVariable", "budget_notification_from_email", "string", "no-reply@example.com").Return(nil)
+	mockTFTemplater.On("Write", mock.Anything).Return(nil)
+	mockFileSystemer.On("WriteFile", "/file.txt", "").Return()
+
+	// then everything resumes along the happy path as before...
+	mockFileSystemer.On("Chdir", originDir).Return()
+
+	mockFileSystemer.On("GetLogFile").Return(logfile)
+
+	mockTerraformer.On("Init", mock.Anything, []string{}).Return(nil)
+	mockTerraformer.On("Apply", mock.Anything, []string{}).Return(nil)
+	mockTerraformer.On("GetOutput", mock.Anything, "artifacts_bucket_name").Return(s3bucket, nil)
+
+	mockFileSystemer.On("ChToTmpDir").Return(doesntMatter, doesntMatter)
+	mockGithuber.On("DownloadGithubReleaseAsset", "build_artifacts.zip")
+	mockFileSystemer.On("GetArtifactsDir").Return(doesntMatter)
+	mockFileSystemer.On("Unarchive", "build_artifacts.zip", doesntMatter)
+	mockFileSystemer.On("RemoveAll", "build_artifacts.zip")
+
+	mockAwser.On("UploadDirectoryToS3", doesntMatter, s3bucket, "").Return(lambdas, codebuilds)
+	mockAwser.On("UpdateLambdasFromS3Assets", lambdas, s3bucket, "somethingpredictable")
+
+	deployConfig := cfg.DeployConfig{}
+	overrides := svc.DeployOverrides{
+		Namespace: "somethingpredictable",
+	}
+	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+
+	err := service.Deploy(ctx, &overrides)
+
+	mockFileSystemer.AssertExpectations(t)
+	mockTerraformer.AssertExpectations(t)
+	mockAwser.AssertExpectations(t)
+	mockTFTemplater.AssertExpectations(t)
+
+	assert.Nil(t, err, "expected no error calling Deploy() in happy path")
+}
+
+func TestDeployService_DoesNotFileExistAndUsingLocalRepo(t *testing.T) {
+
+	newDir := "/newdir"
+	originDir := "/origindir"
+	filename := "/file.txt"
+	logfile := "/log.txt"
+	s3bucket := "mys3bucket"
+	lambdas := []string{"lambda1", "lambda2"}
+	codebuilds := []string{"codebuild1", "codebuild2"}
+
+	emptyConfig := configs.Root{}
+	initMocks(emptyConfig)
+
+	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
+	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
+	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
+	mockFileSystemer.On("IsExistingFile", filename).Return(false)
+
+	// file is being created...
+	mockFileSystemer.On("ReadFromFile", mock.Anything).Return("filecontents")
+	mockFileSystemer.On("WriteFile", "/file.txt", "filecontents").Return()
+
+	// then everything resumes along the happy path as before...
+	mockFileSystemer.On("Chdir", originDir).Return()
+
+	mockFileSystemer.On("Unarchive", "/local/bin/terraform_artifacts.zip", mock.Anything)
+	mockFileSystemer.On("GetLogFile").Return(logfile)
+	mockTerraformer.On("Init", mock.Anything, []string{}).Return(nil)
+	mockTerraformer.On("Apply", mock.Anything, []string{}).Return(nil)
+	mockTerraformer.On("GetOutput", mock.Anything, "artifacts_bucket_name").Return(s3bucket, nil)
+
+	mockFileSystemer.On("ChToTmpDir").Return(doesntMatter, doesntMatter)
+	mockFileSystemer.On("GetArtifactsDir").Return(doesntMatter)
+	mockFileSystemer.On("Unarchive", "/local/bin/build_artifacts.zip", doesntMatter)
+
+	mockAwser.On("UploadDirectoryToS3", doesntMatter, s3bucket, "").Return(lambdas, codebuilds)
+	mockAwser.On("UpdateLambdasFromS3Assets", lambdas, s3bucket, "somethingpredictable")
+
+	deployConfig := cfg.DeployConfig{
+		DeployLocalPath: "/local",
+	}
+	overrides := svc.DeployOverrides{
+		Namespace: "somethingpredictable",
+	}
+	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+
+	err := service.Deploy(ctx, &overrides)
+
+	mockFileSystemer.AssertExpectations(t)
+	mockTerraformer.AssertExpectations(t)
+	mockAwser.AssertExpectations(t)
+
+	assert.Nil(t, err, "expected no error calling Deploy() in happy path")
 }

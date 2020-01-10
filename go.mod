@@ -31,6 +31,7 @@ require (
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/groupcache v0.0.0-20190129154638-5b532d6fd5ef // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.9.0 // indirect
+	github.com/hashicorp/go-hclog v0.0.0-20181001195459-61d530d6c27f
 	github.com/hashicorp/terraform v0.12.10
 	github.com/manifoldco/promptui v0.3.2
 	github.com/mholt/archiver v3.1.1+incompatible
@@ -39,6 +40,7 @@ require (
 	github.com/nwaples/rardecode v1.0.0 // indirect
 	github.com/pierrec/lz4 v2.3.0+incompatible // indirect
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
+	github.com/pkg/errors v0.8.0
 	github.com/prometheus/client_golang v0.9.3 // indirect
 	github.com/shurcooL/githubv4 v0.0.0-20191006152017-6d1ea27df521
 	github.com/shurcooL/graphql v0.0.0-20181231061246-d48a9a75455f // indirect

@@ -1,14 +1,15 @@
 package integration
 
 import (
-	"github.com/Optum/dce-cli/configs"
-	"github.com/stretchr/testify/require"
-	"go.uber.org/thriftrw/ptr"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path"
 	"testing"
+
+	"github.com/Optum/dce-cli/configs"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/thriftrw/ptr"
+	"gopkg.in/yaml.v2"
 )
 
 func TestInitCommand(t *testing.T) {
@@ -113,8 +114,7 @@ func TestInitCommand(t *testing.T) {
 						Host:  ptr.String("dce.example.com"),
 						Token: ptr.String("my-api-token"),
 					},
-					Region:      ptr.String("us-west-2"),
-					GithubToken: ptr.String("my-gh-token"),
+					Region: ptr.String("us-west-2"),
 				})
 
 				cli := NewCLITest(t)
@@ -140,8 +140,7 @@ func TestInitCommand(t *testing.T) {
 						BasePath: ptr.String("/api-new"),
 						Token:    ptr.String("my-api-token"),
 					},
-					Region:      ptr.String("us-west-2"),
-					GithubToken: ptr.String("my-gh-token"),
+					Region: ptr.String("us-west-2"),
 				}, confFile)
 			})
 
