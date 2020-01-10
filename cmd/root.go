@@ -151,6 +151,7 @@ func onInit(cmd *cobra.Command, args []string) error {
 // initialize anything related to logging, metrics, or tracing
 func initObservation() {
 	logrusInstance := logrus.New()
+	logrusInstance.SetOutput(os.Stderr)
 
 	//TODO: Make configurable
 	var logLevel logrus.Level

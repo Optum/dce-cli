@@ -16,10 +16,10 @@ type API struct {
 }
 
 type Terraform struct {
-	Bin    *string
-	Source *string
+	Bin     *string
+	Source  *string
+	Backend map[string]interface{} `yaml:"backend,omitempty"`
 }
-
 type DeployConfig struct {
 	Overwrite       bool
 	DeployLocalPath string
