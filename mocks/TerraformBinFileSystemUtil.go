@@ -27,8 +27,8 @@ func (_m *TerraformBinFileSystemUtil) GetConfigDir() string {
 	return r0
 }
 
-// GetLocalBackendDir provides a mock function with given fields:
-func (_m *TerraformBinFileSystemUtil) GetLocalBackendDir() string {
+// GetLocalTFModuleDir provides a mock function with given fields:
+func (_m *TerraformBinFileSystemUtil) GetLocalTFModuleDir() string {
 	ret := _m.Called()
 
 	var r0 string

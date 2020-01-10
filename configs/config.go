@@ -21,9 +21,9 @@ type Terraform struct {
 }
 
 type DeployConfig struct {
-	Overwrite       bool
+	UseCached       bool
 	DeployLocalPath string
-	NoPrompt        bool
+	BatchMode       bool
 }
 
 var Regions = []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2"}

@@ -188,7 +188,7 @@ func (u *FileSystemUtil) GetTerraformBinDir() string {
 
 // GetLocalBackendDir returns the dir for the local terraform backend.
 // By default, `~/.dce/.cache/module`
-func (u *FileSystemUtil) GetLocalBackendDir() string {
+func (u *FileSystemUtil) GetLocalTFModuleDir() string {
 	return filepath.Join(u.GetCacheDir(), "module")
 }
 
@@ -198,7 +198,7 @@ func (u *FileSystemUtil) CreateConfigDirTree() error {
 	dirs := []string{
 		u.GetArtifactsDir(),
 		u.GetTerraformBinDir(),
-		u.GetLocalBackendDir(),
+		u.GetLocalTFModuleDir(),
 	}
 	for _, dir := range dirs {
 		err := os.MkdirAll(dir, os.FileMode(0700))
@@ -215,8 +215,8 @@ func (u *FileSystemUtil) GetLogFile() string {
 }
 
 // GetLocalBackendFile returns the full path of the local backend file.
-func (u *FileSystemUtil) GetLocalBackendFile() string {
-	return filepath.Join(u.GetLocalBackendDir(), "main.tf")
+func (u *FileSystemUtil) GetLocalMainTFFile() string {
+	return filepath.Join(u.GetLocalTFModuleDir(), "main.tf")
 }
 
 // GetTerraformBin returns the full path of the terraform binary.
