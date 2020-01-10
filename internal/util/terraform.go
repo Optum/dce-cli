@@ -31,7 +31,7 @@ type TerraformUtil struct {
 // Init initialized a terraform working directory
 func (u *TerraformUtil) Init(ctx context.Context, args []string) {
 	logFile, err := os.Create(ctx.Value("deployLogFile").(string))
-	log.Println("Running terraform init")
+	log.Debug("Running terraform init")
 	// logger.SetOutput(logFile)
 
 	if err != nil {
@@ -292,7 +292,7 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) error {
 	if cfg.NoPrompt {
 		argv = append(argv, "-auto-approve")
 	} else {
-		fmt.Print("Are you sure you would like to create DCE resources?\t")
+		fmt.Print("Are you sure you would like to create DCE resources? (must type \"yes\" if yes)\t")
 	}
 
 	for _, tfVar := range tfVars {

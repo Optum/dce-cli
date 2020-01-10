@@ -60,7 +60,6 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 		return errors.Wrap(err, "error creating local backend")
 	}
 
-	log.Infoln("Creating DCE infrastructure")
 	artifactsBucket, err := s.createDceInfra(ctx, overrides)
 
 	if err != nil {
@@ -83,7 +82,7 @@ func (s *DeployService) createTFMainFile(overrides *DeployOverrides, overwrite b
 
 	fileName := s.Util.GetLocalBackendFile()
 
-	if !s.Util.IsExistingFile(fileName) && !overwrite {
+	if s.Util.IsExistingFile(fileName) && !overwrite {
 		log.Warnln("'main.tf' already exists and overwrite not specified; using existing file")
 	} else {
 		tfMainContents, err := s.getLocalTFMainContents(overrides)
@@ -104,13 +103,13 @@ func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOve
 	deployLogFileName := s.Util.GetLogFile()
 	ctx = context.WithValue(ctx, "deployLogFile", deployLogFileName)
 
-	log.Infoln("Initializing terraform working directory")
+	log.Infoln("Initializing")
 	s.Util.Terraformer.Init(ctx, []string{})
 
-	log.Infoln("Applying DCE infrastructure")
+	log.Infoln("Creating DCE infrastructure")
 	s.Util.Terraformer.Apply(ctx, []string{})
 
-	log.Infoln("Retrieving artifacts bucket name from terraform outputs")
+	log.Infoln("Retrieving artifacts location")
 	return s.Util.Terraformer.GetOutput(ctx, "artifacts_bucket_name")
 }
 
@@ -120,7 +119,7 @@ func (s *DeployService) deployCodeAssets(artifactsBucket string, overrides *Depl
 
 	s.retrieveCodeAssets()
 
-	log.Debugln("Using \"%s\" for the artifact bucket.", artifactsBucket)
+	log.Debugln("Using \"%s\" for the artifact location.", artifactsBucket)
 
 	lambdas, codebuilds := s.Util.UploadDirectoryToS3(s.Util.GetArtifactsDir(), artifactsBucket, "")
 	log.Debugln("Uploaded lambdas to S3: ", lambdas)
