@@ -15,14 +15,12 @@ import (
 	"github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
-	tfBackendInit "github.com/hashicorp/terraform/backend/init"
-	tfCommand "github.com/hashicorp/terraform/command"
-	tfDiscovery "github.com/hashicorp/terraform/svchost/disco"
 	"github.com/pkg/errors"
 
 	"github.com/mitchellh/cli"
 )
 
+<<<<<<< HEAD
 type TerraformUtil struct {
 	Config      *configs.Root
 	Observation *observ.ObservationContainer
@@ -119,6 +117,8 @@ func getTerraformUI(f *os.File) *cli.BasicUi {
 	}
 }
 
+=======
+>>>>>>> feature/52-use-local-state-by-default
 // UIOutputCaptor effectively extends cli.BasicUi and overrides Output method to capture output string.
 type UIOutputCaptor struct {
 	Captor *string
@@ -196,7 +196,7 @@ type TerraformBinFileSystemUtil interface {
 	GetTerraformBin() string
 	RemoveAll(path string)
 	GetTerraformBinDir() string
-	GetLocalBackendDir() string
+	GetLocalTFModuleDir() string
 }
 
 type TerraformBinUtil struct {
@@ -266,7 +266,7 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
 	execArgs := &execInput{
 		Name: t.bin(),
 		Args: argv,
-		Dir:  t.FileSystem.GetLocalBackendDir(),
+		Dir:  t.FileSystem.GetLocalTFModuleDir(),
 	}
 
 	return execCommand(execArgs, logFile, logFile)
@@ -289,9 +289,11 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) error {
 
 	argv := []string{"apply", "-no-color"}
 
-	if cfg.NoPrompt {
+	if cfg.BatchMode {
 		argv = append(argv, "-auto-approve")
 	} else {
+		// The underlying terraform command's stdin is set to this stdin,
+		// so  the user's answer here is passes along to terraform.
 		fmt.Print("Are you sure you would like to create DCE resources? (must type \"yes\" if yes)\t")
 	}
 
@@ -302,7 +304,7 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) error {
 	execArgs := &execInput{
 		Name: t.bin(),
 		Args: argv,
-		Dir:  t.FileSystem.GetLocalBackendDir(),
+		Dir:  t.FileSystem.GetLocalTFModuleDir(),
 	}
 
 	return execCommand(execArgs, logFile, logFile)
@@ -333,7 +335,7 @@ func (t *TerraformBinUtil) GetOutput(ctx context.Context, key string) (string, e
 			key,
 			"-no-color",
 		},
-		Dir: t.FileSystem.GetLocalBackendDir(),
+		Dir: t.FileSystem.GetLocalTFModuleDir(),
 	},
 		&stdout,
 		logFile)

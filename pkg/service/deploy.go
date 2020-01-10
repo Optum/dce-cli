@@ -54,7 +54,7 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 		s.LocalRepo = cfg.DeployLocalPath
 	}
 
-	_, err := s.createTFMainFile(overrides, cfg.Overwrite)
+	_, err := s.createTFMainFile(overrides, cfg.UseCached)
 
 	if err != nil {
 		return errors.Wrap(err, "error creating local backend")
@@ -76,14 +76,14 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 // createTFMainFile creates the main.tf file. The default behavior, without
 // using a local repository, is to create the file with the bare minimum
 // required to use Terraform with local state.
-func (s *DeployService) createTFMainFile(overrides *DeployOverrides, overwrite bool) (string, error) {
+func (s *DeployService) createTFMainFile(overrides *DeployOverrides, usecached bool) (string, error) {
 	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
-	fileName := s.Util.GetLocalBackendFile()
+	fileName := s.Util.GetLocalMainTFFile()
 
-	if s.Util.IsExistingFile(fileName) && !overwrite {
-		log.Warnln("'main.tf' already exists and overwrite not specified; using existing file")
+	if s.Util.IsExistingFile(fileName) && usecached {
+		log.Warnln("'main.tf' already exists and --use-cached specified; using existing file")
 	} else {
 		tfMainContents, err := s.getLocalTFMainContents(overrides)
 		if err != nil {
