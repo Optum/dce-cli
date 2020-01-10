@@ -1,4 +1,5 @@
 ## vNext
+- Moved quick start to readthedocs
 - Download deployment assets from the public url rather than using Github's GraphQL API
 
 ## v0.3.0
