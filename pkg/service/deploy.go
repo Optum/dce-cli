@@ -73,6 +73,22 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 	return nil
 }
 
+// PostDeploy is intended to run after a successful call to Deploy()
+func (s *DeployService) PostDeploy(ctx context.Context) error {
+
+	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
+
+	if *s.Config.Terraform.TFInitOptions != cfg.TFInitOptions ||
+		*s.Config.Terraform.TFApplyOptions != cfg.TFApplyOptions {
+
+		s.Config.Terraform.TFInitOptions = &cfg.TFInitOptions
+		s.Config.Terraform.TFApplyOptions = &cfg.TFApplyOptions
+		s.Util.WriteConfig()
+	}
+
+	return nil
+}
+
 // createTFMainFile creates the main.tf file. The default behavior, without
 // using a local repository, is to create the file with the bare minimum
 // required to use Terraform with local state.
@@ -95,22 +111,36 @@ func (s *DeployService) createTFMainFile(overrides *DeployOverrides, usecached b
 }
 
 func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOverrides) (string, error) {
+	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
+
 	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
 	s.retrieveTFModules()
 
 	deployLogFileName := s.Util.GetLogFile()
-	ctx = context.WithValue(ctx, "deployLogFile", deployLogFileName)
+	ctx = context.WithValue(ctx, constants.DeployLogFile, deployLogFileName)
 
 	log.Infoln("Initializing")
-	s.Util.Terraformer.Init(ctx, []string{})
+	initopts, _ := util.ParseOptions(&cfg.TFInitOptions)
+	if err := s.Util.Terraformer.Init(ctx, initopts); err != nil {
+		return "", err
+	}
 
 	log.Infoln("Creating DCE infrastructure")
-	s.Util.Terraformer.Apply(ctx, []string{})
+	applyopts, _ := util.ParseOptions(&cfg.TFApplyOptions)
+	if err := s.Util.Terraformer.Apply(ctx, applyopts); err != nil {
+		return "", err
+	}
 
 	log.Infoln("Retrieving artifacts location")
-	return s.Util.Terraformer.GetOutput(ctx, "artifacts_bucket_name")
+	output, err := s.Util.Terraformer.GetOutput(ctx, "artifacts_bucket_name")
+
+	if err != nil {
+		return "", err
+	}
+
+	return output, nil
 }
 
 func (s *DeployService) deployCodeAssets(artifactsBucket string, overrides *DeployOverrides) {

@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"time"
 
@@ -19,6 +20,12 @@ import (
 
 	"github.com/mitchellh/cli"
 )
+
+var paramSplitRegex *regexp.Regexp
+
+func init() {
+	paramSplitRegex = regexp.MustCompile("\\s+")
+}
 
 // UIOutputCaptor effectively extends cli.BasicUi and overrides Output method to capture output string.
 type UIOutputCaptor struct {
@@ -37,6 +44,16 @@ type execInput struct {
 	Args    []string // Arguments to pass to the command
 	Dir     string   // Working directory
 	Timeout float64  // Max execution time (seconds) of the command
+}
+
+// ParseOptions parses the given options into an array of strings. It provides for any whitespace between
+// the options.
+func ParseOptions(s *string) ([]string, error) {
+	if s == nil || len(*s) == 0 {
+		return []string{}, nil
+	}
+	opts := paramSplitRegex.Split(*s, -1)
+	return opts, nil
 }
 
 func execCommand(input *execInput, stdout io.Writer, stderr io.Writer) error {
@@ -85,10 +102,13 @@ func execCommand(input *execInput, stdout io.Writer, stderr io.Writer) error {
 	return nil
 }
 
+// TerraformBinDownloader - interface for the downloader to download the Terraform
+// binary from a URL ans save it locally.
 type TerraformBinDownloader interface {
 	Download(url string, localpath string) error
 }
 
+// TerraformBinFileSystemUtil - interface for interacting with the file system.
 type TerraformBinFileSystemUtil interface {
 	GetConfigDir() string
 	IsExistingFile(path string) bool
@@ -100,6 +120,7 @@ type TerraformBinFileSystemUtil interface {
 	GetLocalTFModuleDir() string
 }
 
+// TerraformBinUtil uses the Teraform binary to peform the init and apply
 type TerraformBinUtil struct {
 	Config      *configs.Root
 	Observation *observ.ObservationContainer
@@ -138,7 +159,7 @@ func (t *TerraformBinUtil) source() string {
 // Init will download the Terraform binary, put it into the .dce folder,
 // and then call init.
 func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
-	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value("deployLogFile").(string))
+	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value(constants.DeployLogFile).(string))
 
 	if err != nil {
 		logFile = nil
@@ -176,7 +197,7 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
 // Apply will call `terraform apply` with the given vars.
 func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) error {
 	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
-	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value("deployLogFile").(string))
+	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value(constants.DeployLogFile).(string))
 
 	if err != nil {
 		logFile = nil
@@ -220,7 +241,7 @@ func (t *TerraformBinUtil) GetOutput(ctx context.Context, key string) (string, e
 	// diagnose issues.
 	var stdout bytes.Buffer
 
-	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value("deployLogFile").(string))
+	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value(constants.DeployLogFile).(string))
 
 	if err != nil {
 		logFile = nil

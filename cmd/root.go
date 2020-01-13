@@ -106,6 +106,26 @@ func Execute() {
 	fmt.Println("")
 }
 
+// Coalesce returns the first non-empty vluae, but takes into account a loading order
+func Coalesce(arg string, config string, envvar string, def string) string {
+
+	if len(arg) > 0 {
+		return arg
+	}
+
+	if len(config) > 0 {
+		return config
+	}
+
+	envval, ok := os.LookupEnv(envvar)
+
+	if ok && len(envval) > 0 {
+		return envval
+	}
+
+	return def
+}
+
 type FmtOutputFormatter struct {
 }
 
@@ -132,7 +152,7 @@ func onInit(cmd *cobra.Command, args []string) error {
 			return errors.New("Config file not found. Please type 'dce init' to generate one.")
 		}
 	} else {
-		// Load config from dce.yaml
+		// Load config from the configuration file
 		err := fsUtil.ReadInConfig()
 		if err != nil {
 			return fmt.Errorf("Failed to parse dce.yml: %s", err)

@@ -41,6 +41,87 @@ func TestDeployService_ErrorCreatingDirs(t *testing.T) {
 	assert.NotNil(t, err, "expected error calling Deploy()")
 }
 
+func TestDeployService_InitThrowsError(t *testing.T) {
+
+	newDir := "/newdir"
+	originDir := "/origindir"
+	filename := "/file.txt"
+	logfile := "/log.txt"
+	expectedErr := fmt.Errorf("error runninng init")
+
+	emptyConfig := configs.Root{}
+	initMocks(emptyConfig)
+
+	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
+	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
+	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
+	mockFileSystemer.On("IsExistingFile", filename).Return(true)
+	mockFileSystemer.On("Chdir", originDir).Return()
+
+	mockFileSystemer.On("GetLogFile").Return(logfile)
+
+	mockTerraformer.On("Init", mock.Anything, []string{}).Return(expectedErr)
+
+	deployConfig := cfg.DeployConfig{
+		UseCached: true,
+	}
+	overrides := svc.DeployOverrides{
+		Namespace: "somethingpredictable",
+	}
+	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+
+	err := service.Deploy(ctx, &overrides)
+
+	mockFileSystemer.AssertExpectations(t)
+	mockTerraformer.AssertExpectations(t)
+	mockAwser.AssertExpectations(t)
+	mockTFTemplater.AssertExpectations(t)
+
+	assert.NotNil(t, err, "expected error calling Deploy() when Init() errs")
+	assert.Equal(t, "error creating infrastructure: error runninng init", err.Error())
+}
+
+func TestDeployService_ApplyThrowsError(t *testing.T) {
+
+	newDir := "/newdir"
+	originDir := "/origindir"
+	filename := "/file.txt"
+	logfile := "/log.txt"
+	expectedErr := fmt.Errorf("error runninng apply")
+
+	emptyConfig := configs.Root{}
+	initMocks(emptyConfig)
+
+	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
+	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
+	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
+	mockFileSystemer.On("IsExistingFile", filename).Return(true)
+	mockFileSystemer.On("Chdir", originDir).Return()
+
+	mockFileSystemer.On("GetLogFile").Return(logfile)
+
+	mockTerraformer.On("Init", mock.Anything, []string{}).Return(nil)
+	mockTerraformer.On("Apply", mock.Anything, []string{}).Return(expectedErr)
+
+	deployConfig := cfg.DeployConfig{
+		UseCached: true,
+	}
+	overrides := svc.DeployOverrides{
+		Namespace: "somethingpredictable",
+	}
+	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+
+	err := service.Deploy(ctx, &overrides)
+
+	mockFileSystemer.AssertExpectations(t)
+	mockTerraformer.AssertExpectations(t)
+	mockAwser.AssertExpectations(t)
+	mockTFTemplater.AssertExpectations(t)
+
+	assert.NotNil(t, err, "expected error calling Deploy() when Apply() errors")
+	assert.Equal(t, "error creating infrastructure: error runninng apply", err.Error())
+}
+
 func TestDeployService_FileExists(t *testing.T) {
 
 	newDir := "/newdir"
@@ -77,6 +158,68 @@ func TestDeployService_FileExists(t *testing.T) {
 
 	deployConfig := cfg.DeployConfig{
 		UseCached: true,
+	}
+	overrides := svc.DeployOverrides{
+		Namespace: "somethingpredictable",
+	}
+	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+
+	err := service.Deploy(ctx, &overrides)
+
+	mockFileSystemer.AssertExpectations(t)
+	mockTerraformer.AssertExpectations(t)
+	mockAwser.AssertExpectations(t)
+	mockTFTemplater.AssertExpectations(t)
+
+	assert.Nil(t, err, "expected no error calling Deploy() in happy path")
+}
+
+func TestDeployService_FileExistsWithOpts(t *testing.T) {
+
+	newDir := "/newdir"
+	originDir := "/origindir"
+	filename := "/file.txt"
+	logfile := "/log.txt"
+	s3bucket := "mys3bucket"
+	lambdas := []string{"lambda1", "lambda2"}
+	codebuilds := []string{"codebuild1", "codebuild2"}
+	initOpts := []string{
+		"-backend-config=\"address=demo.consul.io\"",
+		"-backend-config=\"path=example_app/terraform_state\"",
+	}
+	applyOpts := []string{
+		"-compact-warnings",
+		"-backup=\"path\"",
+	}
+
+	emptyConfig := configs.Root{}
+	initMocks(emptyConfig)
+
+	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
+	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
+	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
+	mockFileSystemer.On("IsExistingFile", filename).Return(true)
+	mockFileSystemer.On("Chdir", originDir).Return()
+
+	mockFileSystemer.On("GetLogFile").Return(logfile)
+
+	mockTerraformer.On("Init", mock.Anything, initOpts).Return(nil)
+	mockTerraformer.On("Apply", mock.Anything, applyOpts).Return(nil)
+	mockTerraformer.On("GetOutput", mock.Anything, "artifacts_bucket_name").Return(s3bucket, nil)
+
+	mockFileSystemer.On("ChToTmpDir").Return(doesntMatter, doesntMatter)
+	mockGithuber.On("DownloadGithubReleaseAsset", "build_artifacts.zip")
+	mockFileSystemer.On("GetArtifactsDir").Return(doesntMatter)
+	mockFileSystemer.On("Unarchive", "build_artifacts.zip", doesntMatter)
+	mockFileSystemer.On("RemoveAll", "build_artifacts.zip")
+
+	mockAwser.On("UploadDirectoryToS3", doesntMatter, s3bucket, "").Return(lambdas, codebuilds)
+	mockAwser.On("UpdateLambdasFromS3Assets", lambdas, s3bucket, "somethingpredictable")
+
+	deployConfig := cfg.DeployConfig{
+		UseCached:      true,
+		TFInitOptions:  "-backend-config=\"address=demo.consul.io\" -backend-config=\"path=example_app/terraform_state\"",
+		TFApplyOptions: "-compact-warnings     -backup=\"path\"",
 	}
 	overrides := svc.DeployOverrides{
 		Namespace: "somethingpredictable",

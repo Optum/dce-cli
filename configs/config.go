@@ -16,15 +16,18 @@ type API struct {
 }
 
 type Terraform struct {
-	Bin     *string
-	Source  *string
-	Backend map[string]interface{} `yaml:"backend,omitempty"`
+	Bin            *string
+	Source         *string
+	TFInitOptions  *string `yaml:"tfInitOptions,omitempty"`
+	TFApplyOptions *string `yaml:"tfApplyOptions,omitempty"`
 }
 
 type DeployConfig struct {
 	UseCached       bool
 	DeployLocalPath string
 	BatchMode       bool
+	TFInitOptions   string
+	TFApplyOptions  string
 }
 
 var Regions = []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2"}
