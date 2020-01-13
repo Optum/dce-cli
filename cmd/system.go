@@ -9,8 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type ExitFunc func(code int)
-
 var (
 	dceRepoPath     string
 	deployOverrides svc.DeployOverrides
@@ -21,8 +19,8 @@ func init() {
 	deployOverrides = svc.DeployOverrides{}
 	deployConfig = cfg.DeployConfig{}
 	systemDeployCmd.Flags().StringVarP(&deployConfig.DeployLocalPath, "local", "l", "", "Path to a local DCE repo to deploy.")
-	systemDeployCmd.Flags().BoolVarP(&deployConfig.Overwrite, "overwrite", "o", false, "Overwrite local backend state.")
-	systemDeployCmd.Flags().BoolVar(&deployConfig.NoPrompt, "noprompt", false, "Skip prompting for resource creation.")
+	systemDeployCmd.Flags().BoolVarP(&deployConfig.UseCached, "use-cached", "c", true, "Overwrite local backend state.")
+	systemDeployCmd.Flags().BoolVarP(&deployConfig.BatchMode, "batch-mode", "b", false, "Skip prompting for resource creation.")
 	systemDeployCmd.Flags().StringVarP(&deployOverrides.Namespace, "namespace", "n", "", "Set a custom terraform namespace (Optional)")
 	systemDeployCmd.Flags().StringVarP(&deployOverrides.AWSRegion, "region", "r", "", "The aws region that DCE will be deployed to (Default: us-east-1)")
 	systemDeployCmd.Flags().StringArrayVarP(&deployOverrides.GlobalTags, "tag", "t", []string{}, "Tags to be placed on all DCE resources. E.g. `dce system deploy --tag key1:value1 --tag key2:value2`")

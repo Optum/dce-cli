@@ -56,7 +56,7 @@ func TestDeployService_FileExists(t *testing.T) {
 
 	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
 	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
-	mockFileSystemer.On("GetLocalBackendFile").Return(filename)
+	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
 	mockFileSystemer.On("IsExistingFile", filename).Return(true)
 	mockFileSystemer.On("Chdir", originDir).Return()
 
@@ -75,7 +75,9 @@ func TestDeployService_FileExists(t *testing.T) {
 	mockAwser.On("UploadDirectoryToS3", doesntMatter, s3bucket, "").Return(lambdas, codebuilds)
 	mockAwser.On("UpdateLambdasFromS3Assets", lambdas, s3bucket, "somethingpredictable")
 
-	deployConfig := cfg.DeployConfig{}
+	deployConfig := cfg.DeployConfig{
+		UseCached: true,
+	}
 	overrides := svc.DeployOverrides{
 		Namespace: "somethingpredictable",
 	}
@@ -106,7 +108,7 @@ func TestDeployService_DoesNotFileExist(t *testing.T) {
 
 	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
 	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
-	mockFileSystemer.On("GetLocalBackendFile").Return(filename)
+	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
 	mockFileSystemer.On("IsExistingFile", filename).Return(false)
 
 	// file is being created...
@@ -164,7 +166,7 @@ func TestDeployService_DoesNotFileExistAndUsingLocalRepo(t *testing.T) {
 
 	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
 	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
-	mockFileSystemer.On("GetLocalBackendFile").Return(filename)
+	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
 	mockFileSystemer.On("IsExistingFile", filename).Return(false)
 
 	// file is being created...

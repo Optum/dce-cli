@@ -58,12 +58,11 @@ func New(config *configs.Root, configFile string, observation *observ.Observatio
 	weber := &WebUtil{Observation: observation}
 
 	utilContainer := UtilContainer{
-		Config:      config,
-		Observation: observation,
-		AWSSession:  awsSession,
-		AWSer:       &AWSUtil{Config: config, Observation: observation, Session: awsSession},
-		APIer:       apiClient,
-		// Terraformer:  &TerraformUtil{Config: config, Observation: observation},
+		Config:       config,
+		Observation:  observation,
+		AWSSession:   awsSession,
+		AWSer:        &AWSUtil{Config: config, Observation: observation, Session: awsSession},
+		APIer:        apiClient,
 		Terraformer:  &TerraformBinUtil{Config: config, Observation: observation, FileSystem: filesystem, Downloader: weber},
 		Githuber:     &GithubUtil{Config: config, Observation: observation},
 		Prompter:     &PromptUtil{Config: config, Observation: observation},
@@ -128,7 +127,7 @@ type FileSystemer interface {
 	GetTerraformBinDir() string
 	// GetLocalBackendDir returns the dir for the local terraform backend.
 	// By default, `~/.dce/.cache/module`
-	GetLocalBackendDir() string
+	GetLocalTFModuleDir() string
 	// CreateConfigDirTree creates all the dirs in the dir specified by GetConfigDir(),
 	// including the dir itself.
 	CreateConfigDirTree() error
@@ -139,7 +138,7 @@ type FileSystemer interface {
 	// GetLogFile returns the full path of the log file for the deployment messages.
 	GetLogFile() string
 	// GetLocalBackendFile returns the full path of the local backend file.
-	GetLocalBackendFile() string
+	GetLocalMainTFFile() string
 	// GetTerraformBin returns the full path of the terraform binary.
 	GetTerraformBin() string
 	// GetTerraformStateFile returns the full path of the terraform state file

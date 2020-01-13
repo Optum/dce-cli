@@ -144,8 +144,8 @@ func (_m *FileSystemer) GetHomeDir() string {
 	return r0
 }
 
-// GetLocalBackendDir provides a mock function with given fields:
-func (_m *FileSystemer) GetLocalBackendDir() string {
+// GetLocalMainTFFile provides a mock function with given fields:
+func (_m *FileSystemer) GetLocalMainTFFile() string {
 	ret := _m.Called()
 
 	var r0 string
@@ -158,8 +158,8 @@ func (_m *FileSystemer) GetLocalBackendDir() string {
 	return r0
 }
 
-// GetLocalBackendFile provides a mock function with given fields:
-func (_m *FileSystemer) GetLocalBackendFile() string {
+// GetLocalTFModuleDir provides a mock function with given fields:
+func (_m *FileSystemer) GetLocalTFModuleDir() string {
 	ret := _m.Called()
 
 	var r0 string
