@@ -28,7 +28,6 @@ type UtilContainer struct {
 	Weber
 	Durationer
 	TFTemplater
-	ConfigMasker
 }
 
 var log observ.Logger
@@ -161,11 +160,4 @@ type Durationer interface {
 type TFTemplater interface {
 	AddVariable(name string, vartype string, vardefault string) error
 	Write(w io.Writer) error
-}
-
-// ConfigMasker is an interface for config value ordering strategies
-type ConfigMasker interface {
-	// Apply applies a consistent order of precedence and allows said
-	// order
-	Apply(arg string, config string, envvar string, def string) string
 }
