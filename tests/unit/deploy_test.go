@@ -367,3 +367,27 @@ func TestDeployService_PostDeploy(t *testing.T) {
 	mockFileSystemer.AssertExpectations(t)
 
 }
+
+func TestDeployService_PostDeployEqualValues(t *testing.T) {
+	expectedOption := "-compact-warnings"
+	empty := ""
+	emptyConfig := configs.Root{
+		Terraform: configs.Terraform{
+			TFInitOptions:  &empty,
+			TFApplyOptions: &expectedOption,
+		},
+	}
+	initMocks(emptyConfig)
+	deployConfig := cfg.DeployConfig{
+		TFInitOptions:  "",
+		TFApplyOptions: expectedOption,
+	}
+
+	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+
+	err := service.PostDeploy(ctx)
+	assert.Nil(t, err)
+
+	mockFileSystemer.AssertExpectations(t)
+
+}
