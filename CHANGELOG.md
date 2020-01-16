@@ -1,4 +1,4 @@
-## vNext
+## v0.3.1
 - Moved quick start to readthedocs
 - Download deployment assets from the public url rather than using Github's GraphQL API
 - Use local terraform backend by default; located in `~/.dce/.cache/module/main.tf`
