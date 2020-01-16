@@ -28,7 +28,6 @@ type UtilContainer struct {
 	Weber
 	Durationer
 	TFTemplater
-	ConfigMasker
 }
 
 var log observ.Logger
