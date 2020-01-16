@@ -1,3 +1,7 @@
+## vNext
+- Added `--tf-init-options` and `--tf-apply-options` for greater control over underlying provisioner
+- Persist API host name and path after running `system deploy`
+
 ## v0.3.1
 - Moved quick start to readthedocs
 - Download deployment assets from the public url rather than using Github's GraphQL API
