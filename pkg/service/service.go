@@ -58,6 +58,7 @@ type DeployOverrides struct {
 }
 type Deployer interface {
 	Deploy(ctx context.Context, overrides *DeployOverrides) error
+	PostDeploy(ctx context.Context) error
 }
 
 type Usager interface {
