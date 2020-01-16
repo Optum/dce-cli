@@ -350,12 +350,17 @@ func TestDeployService_DoesNotFileExistAndUsingLocalRepo(t *testing.T) {
 }
 
 func TestDeployService_PostDeploy(t *testing.T) {
+	logfile := "/log.txt"
+	apiURL := "https://some-api-id.execute-api.us-east-1.amazonaws.com/api"
+
 	emptyConfig := configs.Root{}
 	initMocks(emptyConfig)
 	deployConfig := cfg.DeployConfig{
 		TFInitOptions:  "",
 		TFApplyOptions: "-compact-warnings",
 	}
+	mockFileSystemer.On("GetLogFile").Return(logfile)
+	mockTerraformer.On("GetOutput", mock.Anything, "api_url").Return(apiURL, nil)
 
 	mockFileSystemer.On("WriteConfig").Return(nil)
 
@@ -364,30 +369,9 @@ func TestDeployService_PostDeploy(t *testing.T) {
 	err := service.PostDeploy(ctx)
 	assert.Nil(t, err)
 
-	mockFileSystemer.AssertExpectations(t)
-
-}
-
-func TestDeployService_PostDeployEqualValues(t *testing.T) {
-	expectedOption := "-compact-warnings"
-	empty := ""
-	emptyConfig := configs.Root{
-		Terraform: configs.Terraform{
-			TFInitOptions:  &empty,
-			TFApplyOptions: &expectedOption,
-		},
-	}
-	initMocks(emptyConfig)
-	deployConfig := cfg.DeployConfig{
-		TFInitOptions:  "",
-		TFApplyOptions: expectedOption,
-	}
-
-	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
-
-	err := service.PostDeploy(ctx)
-	assert.Nil(t, err)
+	assert.Equal(t, *service.Config.API.Host, "some-api-id.execute-api.us-east-1.amazonaws.com")
+	assert.Equal(t, *service.Config.API.BasePath, "/api")
 
 	mockFileSystemer.AssertExpectations(t)
-
+	mockTerraformer.AssertExpectations(t)
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"math/rand"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -76,17 +77,29 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 // PostDeploy is intended to run after a successful call to Deploy()
 func (s *DeployService) PostDeploy(ctx context.Context) error {
 
+	if ctx.Value(constants.DeployLogFile) == nil {
+		deployLogFileName := s.Util.GetLogFile()
+		ctx = context.WithValue(ctx, constants.DeployLogFile, deployLogFileName)
+	}
+
+	apiURL, err := s.Util.GetOutput(ctx, "api_url")
+
+	if err == nil {
+		url, err := url.Parse(apiURL)
+		if err == nil {
+			hostName := url.Hostname()
+			basePath := url.EscapedPath()
+			s.Config.API.Host = &hostName
+			s.Config.API.BasePath = &basePath
+		}
+	}
+
 	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
 
-	if (s.Config.Terraform.TFInitOptions == nil && len(cfg.TFInitOptions) != 0) ||
-		(s.Config.Terraform.TFApplyOptions == nil && len(cfg.TFApplyOptions) != 0) ||
-		strings.Compare(*s.Config.Terraform.TFInitOptions, cfg.TFInitOptions) != 0 ||
-		strings.Compare(*s.Config.Terraform.TFApplyOptions, cfg.TFApplyOptions) != 0 {
+	s.Config.Terraform.TFInitOptions = &cfg.TFInitOptions
+	s.Config.Terraform.TFApplyOptions = &cfg.TFApplyOptions
 
-		s.Config.Terraform.TFInitOptions = &cfg.TFInitOptions
-		s.Config.Terraform.TFApplyOptions = &cfg.TFApplyOptions
-		s.Util.WriteConfig()
-	}
+	s.Util.WriteConfig()
 
 	return nil
 }

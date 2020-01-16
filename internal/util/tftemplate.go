@@ -43,6 +43,11 @@ output "artifacts_bucket_name" {
 	description = "S3 bucket for artifacts like AWS Lambda code"
 	value = module.dce.artifacts_bucket_name
 }
+
+output "api_url" {
+	description = "URL of DCE API"
+	value = module.dce.api_url
+}
 `
 
 // TFVar represents a variable that is in the
