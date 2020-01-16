@@ -135,6 +135,7 @@ func (t *TerraformBinUtil) bin() string {
 
 	if bin == nil || len(*bin) == 0 {
 		s := t.FileSystem.GetTerraformBin()
+		t.Config.Terraform.Bin = &s
 		return s
 	}
 	return *bin
@@ -151,6 +152,7 @@ func (t *TerraformBinUtil) source() string {
 			runtime.GOOS,
 			runtime.GOARCH,
 		)
+		t.Config.Terraform.Source = &s
 		return s
 	}
 	return *source
@@ -195,7 +197,7 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
 }
 
 // Apply will call `terraform apply` with the given vars.
-func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) error {
+func (t *TerraformBinUtil) Apply(ctx context.Context, args []string) error {
 	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
 	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value(constants.DeployLogFile).(string))
 
@@ -210,6 +212,7 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) error {
 	}
 
 	argv := []string{"apply", "-no-color"}
+	argv = append(argv, args...)
 
 	if cfg.BatchMode {
 		argv = append(argv, "-auto-approve")
@@ -219,10 +222,6 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) error {
 		fmt.Print("Are you sure you would like to create DCE resources? (must type \"yes\" if yes)\t")
 	}
 
-	for _, tfVar := range tfVars {
-		argv = append(argv, "-var", tfVar)
-	}
-
 	execArgs := &execInput{
 		Name: t.bin(),
 		Args: argv,
@@ -230,7 +229,6 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, tfVars []string) error {
 	}
 
 	return execCommand(execArgs, logFile, logFile)
-
 }
 
 // GetOutput returns the value of the output with the given name.

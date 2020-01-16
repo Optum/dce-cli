@@ -348,3 +348,22 @@ func TestDeployService_DoesNotFileExistAndUsingLocalRepo(t *testing.T) {
 
 	assert.Nil(t, err, "expected no error calling Deploy() in happy path")
 }
+
+func TestDeployService_PostDeploy(t *testing.T) {
+	emptyConfig := configs.Root{}
+	initMocks(emptyConfig)
+	deployConfig := cfg.DeployConfig{
+		TFInitOptions:  "",
+		TFApplyOptions: "-compact-warnings",
+	}
+
+	mockFileSystemer.On("WriteConfig").Return(nil)
+
+	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+
+	err := service.PostDeploy(ctx)
+	assert.Nil(t, err)
+
+	mockFileSystemer.AssertExpectations(t)
+
+}

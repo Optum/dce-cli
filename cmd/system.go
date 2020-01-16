@@ -15,6 +15,12 @@ var (
 	deployConfig    cfg.DeployConfig
 )
 
+const (
+	DCETFInitOptionsEnvVar  string = "DCE_TF_INIT_OPTIONS"
+	DCETFApplyOptionsEnvVar string = "DCE_TF_APPLY_OPTIONS"
+	Empty                   string = ""
+)
+
 func init() {
 	deployOverrides = svc.DeployOverrides{}
 	deployConfig = cfg.DeployConfig{}
@@ -46,6 +52,11 @@ var systemDeployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Deploy DCE to a new master account",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Before running the command, resolve the configuration by using
+		// the default load order.
+		deployConfig.TFInitOptions = *cfg.Coalesce(&deployConfig.TFInitOptions, Config.Terraform.TFInitOptions, stringp(DCETFInitOptionsEnvVar), stringp(Empty))
+		deployConfig.TFApplyOptions = *cfg.Coalesce(&deployConfig.TFApplyOptions, Config.Terraform.TFApplyOptions, stringp(DCETFApplyOptionsEnvVar), stringp(Empty))
+
 		ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
 		if err := Service.Deploy(ctx, &deployOverrides); err != nil {
 			// log.Fatalln(err)
@@ -59,7 +70,17 @@ var systemDeployCmd = &cobra.Command{
 	// though, because of cases like bad tf opts we don't want to
 	// create an usuable state.
 	PostRunE: func(cmd *cobra.Command, args []string) error {
+		deployConfig.TFInitOptions = *cfg.Coalesce(&deployConfig.TFInitOptions, Config.Terraform.TFInitOptions, stringp(DCETFInitOptionsEnvVar), stringp(Empty))
+		deployConfig.TFApplyOptions = *cfg.Coalesce(&deployConfig.TFApplyOptions, Config.Terraform.TFApplyOptions, stringp(DCETFApplyOptionsEnvVar), stringp(Empty))
 
+		ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+		if err := Service.PostDeploy(ctx); err != nil {
+			return err
+		}
 		return nil
 	},
+}
+
+func stringp(s string) *string {
+	return &s
 }

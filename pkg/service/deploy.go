@@ -78,11 +78,8 @@ func (s *DeployService) PostDeploy(ctx context.Context) error {
 
 	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
 
-	if *s.Config.Terraform.TFInitOptions != cfg.TFInitOptions ||
-		*s.Config.Terraform.TFApplyOptions != cfg.TFApplyOptions {
-
-		s.Config.Terraform.TFInitOptions = &cfg.TFInitOptions
-		s.Config.Terraform.TFApplyOptions = &cfg.TFApplyOptions
+	if s.Config.Terraform.TFInitOptions != &cfg.TFInitOptions ||
+		s.Config.Terraform.TFApplyOptions != &cfg.TFApplyOptions {
 		s.Util.WriteConfig()
 	}
 
