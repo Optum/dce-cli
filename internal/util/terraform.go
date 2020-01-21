@@ -56,7 +56,11 @@ func ParseOptions(s *string) ([]string, error) {
 	return opts, nil
 }
 
+// execCommand executes the command specified by `input` and writes
+// output and STDERR to `stdout` or `stderr`, respectively. If either
+// in nil, the OS STDOUT and STDERR are used.
 func execCommand(input *execInput, stdout io.Writer, stderr io.Writer) error {
+
 	// Create a context, in order to enforce a Timeout on the command.
 	// See https://medium.com/@vCabbage/go-timeout-commands-with-os-exec-commandcontext-ba0c861ed738
 	// and https://siadat.github.io/post/context
@@ -81,8 +85,20 @@ func execCommand(input *execInput, stdout io.Writer, stderr io.Writer) error {
 		cmd.Dir = input.Dir
 	}
 
-	cmd.Stderr = stderr
-	cmd.Stdout = stdout
+	if stdout == nil {
+		log.Warnln("stdout: no file supplied; using STDOUT")
+		cmd.Stdout = os.Stdout
+	} else {
+		cmd.Stdout = stdout
+	}
+
+	if stderr == nil {
+		log.Warnln("stderr: no file supplied; using STDERR")
+		cmd.Stderr = os.Stderr
+	} else {
+		cmd.Stderr = stderr
+	}
+
 	cmd.Stdin = os.Stdin
 	err := cmd.Run()
 
@@ -215,7 +231,7 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, args []string) error {
 	argv = append(argv, args...)
 
 	if cfg.BatchMode {
-		argv = append(argv, "-auto-approve")
+		argv = append(argv, "-auto-approve", "input=false")
 	} else {
 		// The underlying terraform command's stdin is set to this stdin,
 		// so  the user's answer here is passes along to terraform.
