@@ -372,8 +372,8 @@ func TestDeployService_PostDeployDefault(t *testing.T) {
 	assert.Equal(t, *service.Config.API.Host, "some-api-id.execute-api.us-east-1.amazonaws.com")
 	assert.Equal(t, *service.Config.API.BasePath, "/api")
 	// In default behavior, these should be left alone
-	assert.Nil(t, *service.Config.Terraform.TFInitOptions, "TFInitOptions should be unset by default")
-	assert.Nil(t, *service.Config.Terraform.TFApplyOptions, "TFApplyOptions should be unset by default")
+	assert.Nil(t, service.Config.Terraform.TFInitOptions, "TFInitOptions should be unset by default")
+	assert.Nil(t, service.Config.Terraform.TFApplyOptions, "TFApplyOptions should be unset by default")
 
 	mockFileSystemer.AssertExpectations(t)
 	mockTerraformer.AssertExpectations(t)
