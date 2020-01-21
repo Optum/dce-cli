@@ -42,6 +42,8 @@ type DeployConfig struct {
 	TFInitOptions string
 	// TFApplyOptions are options passed along to `terraform apply`
 	TFApplyOptions string
+	// SaveTFOptions, if yes, will save the provided terraform options to the config file.
+	SaveTFOptions bool
 }
 
 var Regions = []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2"}

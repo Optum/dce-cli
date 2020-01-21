@@ -29,6 +29,7 @@ func init() {
 	systemDeployCmd.Flags().BoolVarP(&deployConfig.BatchMode, "batch-mode", "b", false, "Skip prompting for resource creation.")
 	systemDeployCmd.Flags().StringVar(&deployConfig.TFInitOptions, "tf-init-options", "", "Options to pass to the underlying `tf init` command.")
 	systemDeployCmd.Flags().StringVar(&deployConfig.TFApplyOptions, "tf-apply-options", "", "Options to pass to the underlying `tf apply` command.")
+	systemDeployCmd.Flags().BoolVar(&deployConfig.SaveTFOptions, "save-options", false, "Skip prompting for resource creation.")
 	systemDeployCmd.Flags().StringVarP(&deployOverrides.Namespace, "namespace", "n", "", "Set a custom terraform namespace (Optional)")
 	systemDeployCmd.Flags().StringVarP(&deployOverrides.AWSRegion, "region", "r", "", "The aws region that DCE will be deployed to (Default: us-east-1)")
 	systemDeployCmd.Flags().StringArrayVarP(&deployOverrides.GlobalTags, "tag", "t", []string{}, "Tags to be placed on all DCE resources. E.g. `dce system deploy --tag key1:value1 --tag key2:value2`")

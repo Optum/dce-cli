@@ -349,7 +349,7 @@ func TestDeployService_DoesNotFileExistAndUsingLocalRepo(t *testing.T) {
 	assert.Nil(t, err, "expected no error calling Deploy() in happy path")
 }
 
-func TestDeployService_PostDeploy(t *testing.T) {
+func TestDeployService_PostDeployDefault(t *testing.T) {
 	logfile := "/log.txt"
 	apiURL := "https://some-api-id.execute-api.us-east-1.amazonaws.com/api"
 
@@ -371,6 +371,40 @@ func TestDeployService_PostDeploy(t *testing.T) {
 
 	assert.Equal(t, *service.Config.API.Host, "some-api-id.execute-api.us-east-1.amazonaws.com")
 	assert.Equal(t, *service.Config.API.BasePath, "/api")
+	// In default behavior, these should be left alone
+	assert.Nil(t, *service.Config.Terraform.TFInitOptions, "TFInitOptions should be unset by default")
+	assert.Nil(t, *service.Config.Terraform.TFApplyOptions, "TFApplyOptions should be unset by default")
+
+	mockFileSystemer.AssertExpectations(t)
+	mockTerraformer.AssertExpectations(t)
+}
+
+func TestDeployService_PostDeploySaveOpts(t *testing.T) {
+	logfile := "/log.txt"
+	apiURL := "https://some-api-id.execute-api.us-east-1.amazonaws.com/api"
+
+	emptyConfig := configs.Root{}
+	initMocks(emptyConfig)
+	deployConfig := cfg.DeployConfig{
+		SaveTFOptions:  true,
+		TFInitOptions:  "",
+		TFApplyOptions: "-compact-warnings",
+	}
+	mockFileSystemer.On("GetLogFile").Return(logfile)
+	mockTerraformer.On("GetOutput", mock.Anything, "api_url").Return(apiURL, nil)
+
+	mockFileSystemer.On("WriteConfig").Return(nil)
+
+	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+
+	err := service.PostDeploy(ctx)
+	assert.Nil(t, err)
+
+	assert.Equal(t, *service.Config.API.Host, "some-api-id.execute-api.us-east-1.amazonaws.com")
+	assert.Equal(t, *service.Config.API.BasePath, "/api")
+	// In default behavior, these should be left alone
+	assert.Equal(t, *service.Config.Terraform.TFInitOptions, deployConfig.TFInitOptions, "TFInitOptions should be set because save was specified")
+	assert.Equal(t, *service.Config.Terraform.TFApplyOptions, deployConfig.TFApplyOptions, "TFApplyOptions should be set because savw was specified")
 
 	mockFileSystemer.AssertExpectations(t)
 	mockTerraformer.AssertExpectations(t)
