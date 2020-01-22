@@ -3,6 +3,7 @@
 - Added `--save-options` flag to persist the `--tf-init-options` and `--tf-apply-options` to the
   configuration file when specified. Default behavior is false.
 - Persist API host name and path after running `system deploy`
+- **Potential breaking change**: explicitly configured logging output to go to STDOUT; command output should go to STDOUT
 
 ## v0.3.1
 - Moved quick start to readthedocs
