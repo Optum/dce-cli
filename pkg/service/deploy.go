@@ -158,7 +158,7 @@ func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOve
 	// of accidental invocation. Ksip running the apply altogether if they
 	// don't answer to the affirmative
 	if !cfg.BatchMode {
-		approval := s.Util.PromptBasic("Do you realliy want to create DCE resources in your AWS account? (type \"yes\" or \"no\")", validateYesOrNo)
+		approval := s.Util.PromptBasic("Do you really want to create DCE resources in your AWS account? (type \"yes\" or \"no\")", validateYesOrNo)
 
 		if approval == nil || !strings.HasPrefix(strings.ToLower(*approval), "y") {
 			return "", fmt.Errorf("user exited")
