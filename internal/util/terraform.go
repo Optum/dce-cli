@@ -200,7 +200,6 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
 
 // Apply will call `terraform apply` with the given vars.
 func (t *TerraformBinUtil) Apply(ctx context.Context, args []string) error {
-	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
 	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value(constants.DeployLogFile).(string))
 
 	if err != nil {
@@ -213,12 +212,12 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, args []string) error {
 		return fmt.Errorf("Could not find binary \"%s\"", t.bin())
 	}
 
-	argv := []string{"apply", "-no-color"}
+	// -auto-approve and -input=false used to be only added when
+	// a user used the --batch-mode flag, but now that concern is taken
+	// care of at a higher level. It is assumed if the process has gotten
+	// this far that all necessary prompting and inputs have been collected.
+	argv := []string{"apply", "-no-color", "-auto-approve", "-input=false"}
 	argv = append(argv, args...)
-
-	if cfg.BatchMode {
-		argv = append(argv, "-auto-approve", "input=false")
-	}
 
 	execArgs := &execInput{
 		Name: t.bin(),

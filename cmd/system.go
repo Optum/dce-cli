@@ -60,6 +60,7 @@ var systemDeployCmd = &cobra.Command{
 
 		ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
 		if err := Service.Deploy(ctx, &deployOverrides); err != nil {
+			cmd.SilenceUsage = true
 			return err
 		}
 		return nil
