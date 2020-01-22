@@ -41,6 +41,47 @@ func TestDeployService_ErrorCreatingDirs(t *testing.T) {
 	assert.NotNil(t, err, "expected error calling Deploy()")
 }
 
+func TestDeployService_DeclineToCreate(t *testing.T) {
+	newDir := "/newdir"
+	originDir := "/origindir"
+	filename := "/file.txt"
+	logfile := "/log.txt"
+	decline := "no"
+
+	emptyConfig := configs.Root{}
+	initMocks(emptyConfig)
+
+	mockFileSystemer.On("CreateConfigDirTree").Return(nil)
+	mockFileSystemer.On("ChToConfigDir").Return(newDir, originDir)
+	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
+	mockFileSystemer.On("IsExistingFile", filename).Return(true)
+	mockFileSystemer.On("Chdir", originDir).Return()
+
+	mockPrompter.On("PromptBasic", mock.Anything, mock.Anything).Return(&decline)
+
+	mockFileSystemer.On("GetLogFile").Return(logfile)
+
+	mockTerraformer.On("Init", mock.Anything, []string{}).Return(nil)
+
+	deployConfig := cfg.DeployConfig{
+		UseCached: true,
+	}
+	overrides := svc.DeployOverrides{
+		Namespace: "somethingpredictable",
+	}
+	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+
+	err := service.Deploy(ctx, &overrides)
+
+	mockFileSystemer.AssertExpectations(t)
+	mockTerraformer.AssertExpectations(t)
+	mockAwser.AssertExpectations(t)
+	mockTFTemplater.AssertExpectations(t)
+	mockPrompter.AssertExpectations(t)
+
+	assert.NotNil(t, err, "expected use decline")
+}
+
 func TestDeployService_InitThrowsError(t *testing.T) {
 
 	newDir := "/newdir"
@@ -88,6 +129,7 @@ func TestDeployService_ApplyThrowsError(t *testing.T) {
 	filename := "/file.txt"
 	logfile := "/log.txt"
 	expectedErr := fmt.Errorf("error runninng apply")
+	affirm := "yes"
 
 	emptyConfig := configs.Root{}
 	initMocks(emptyConfig)
@@ -97,6 +139,8 @@ func TestDeployService_ApplyThrowsError(t *testing.T) {
 	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
 	mockFileSystemer.On("IsExistingFile", filename).Return(true)
 	mockFileSystemer.On("Chdir", originDir).Return()
+
+	mockPrompter.On("PromptBasic", mock.Anything, mock.Anything).Return(&affirm)
 
 	mockFileSystemer.On("GetLogFile").Return(logfile)
 
@@ -117,6 +161,7 @@ func TestDeployService_ApplyThrowsError(t *testing.T) {
 	mockTerraformer.AssertExpectations(t)
 	mockAwser.AssertExpectations(t)
 	mockTFTemplater.AssertExpectations(t)
+	mockPrompter.AssertExpectations(t)
 
 	assert.NotNil(t, err, "expected error calling Deploy() when Apply() errors")
 	assert.Equal(t, "error creating infrastructure: error runninng apply", err.Error())
@@ -131,6 +176,7 @@ func TestDeployService_FileExists(t *testing.T) {
 	s3bucket := "mys3bucket"
 	lambdas := []string{"lambda1", "lambda2"}
 	codebuilds := []string{"codebuild1", "codebuild2"}
+	affirm := "yes"
 
 	emptyConfig := configs.Root{}
 	initMocks(emptyConfig)
@@ -140,6 +186,8 @@ func TestDeployService_FileExists(t *testing.T) {
 	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
 	mockFileSystemer.On("IsExistingFile", filename).Return(true)
 	mockFileSystemer.On("Chdir", originDir).Return()
+
+	mockPrompter.On("PromptBasic", mock.Anything, mock.Anything).Return(&affirm)
 
 	mockFileSystemer.On("GetLogFile").Return(logfile)
 
@@ -170,6 +218,7 @@ func TestDeployService_FileExists(t *testing.T) {
 	mockTerraformer.AssertExpectations(t)
 	mockAwser.AssertExpectations(t)
 	mockTFTemplater.AssertExpectations(t)
+	mockPrompter.AssertExpectations(t)
 
 	assert.Nil(t, err, "expected no error calling Deploy() in happy path")
 }
@@ -183,6 +232,7 @@ func TestDeployService_FileExistsWithOpts(t *testing.T) {
 	s3bucket := "mys3bucket"
 	lambdas := []string{"lambda1", "lambda2"}
 	codebuilds := []string{"codebuild1", "codebuild2"}
+	affirm := "yes"
 	initOpts := []string{
 		"-backend-config=\"address=demo.consul.io\"",
 		"-backend-config=\"path=example_app/terraform_state\"",
@@ -200,6 +250,8 @@ func TestDeployService_FileExistsWithOpts(t *testing.T) {
 	mockFileSystemer.On("GetLocalMainTFFile").Return(filename)
 	mockFileSystemer.On("IsExistingFile", filename).Return(true)
 	mockFileSystemer.On("Chdir", originDir).Return()
+
+	mockPrompter.On("PromptBasic", mock.Anything, mock.Anything).Return(&affirm)
 
 	mockFileSystemer.On("GetLogFile").Return(logfile)
 
@@ -245,6 +297,7 @@ func TestDeployService_DoesNotFileExist(t *testing.T) {
 	s3bucket := "mys3bucket"
 	lambdas := []string{"lambda1", "lambda2"}
 	codebuilds := []string{"codebuild1", "codebuild2"}
+	affirm := "yes"
 
 	emptyConfig := configs.Root{}
 	initMocks(emptyConfig)
@@ -262,6 +315,8 @@ func TestDeployService_DoesNotFileExist(t *testing.T) {
 
 	// then everything resumes along the happy path as before...
 	mockFileSystemer.On("Chdir", originDir).Return()
+
+	mockPrompter.On("PromptBasic", mock.Anything, mock.Anything).Return(&affirm)
 
 	mockFileSystemer.On("GetLogFile").Return(logfile)
 
@@ -290,6 +345,7 @@ func TestDeployService_DoesNotFileExist(t *testing.T) {
 	mockTerraformer.AssertExpectations(t)
 	mockAwser.AssertExpectations(t)
 	mockTFTemplater.AssertExpectations(t)
+	mockPrompter.AssertExpectations(t)
 
 	assert.Nil(t, err, "expected no error calling Deploy() in happy path")
 }
@@ -303,6 +359,7 @@ func TestDeployService_DoesNotFileExistAndUsingLocalRepo(t *testing.T) {
 	s3bucket := "mys3bucket"
 	lambdas := []string{"lambda1", "lambda2"}
 	codebuilds := []string{"codebuild1", "codebuild2"}
+	affirm := "yes"
 
 	emptyConfig := configs.Root{}
 	initMocks(emptyConfig)
@@ -315,6 +372,8 @@ func TestDeployService_DoesNotFileExistAndUsingLocalRepo(t *testing.T) {
 	// file is being created...
 	mockFileSystemer.On("ReadFromFile", mock.Anything).Return("filecontents")
 	mockFileSystemer.On("WriteFile", "/file.txt", "filecontents").Return()
+
+	mockPrompter.On("PromptBasic", mock.Anything, mock.Anything).Return(&affirm)
 
 	// then everything resumes along the happy path as before...
 	mockFileSystemer.On("Chdir", originDir).Return()
@@ -345,11 +404,12 @@ func TestDeployService_DoesNotFileExistAndUsingLocalRepo(t *testing.T) {
 	mockFileSystemer.AssertExpectations(t)
 	mockTerraformer.AssertExpectations(t)
 	mockAwser.AssertExpectations(t)
+	mockPrompter.AssertExpectations(t)
 
 	assert.Nil(t, err, "expected no error calling Deploy() in happy path")
 }
 
-func TestDeployService_PostDeploy(t *testing.T) {
+func TestDeployService_PostDeployDefault(t *testing.T) {
 	logfile := "/log.txt"
 	apiURL := "https://some-api-id.execute-api.us-east-1.amazonaws.com/api"
 
@@ -371,7 +431,75 @@ func TestDeployService_PostDeploy(t *testing.T) {
 
 	assert.Equal(t, *service.Config.API.Host, "some-api-id.execute-api.us-east-1.amazonaws.com")
 	assert.Equal(t, *service.Config.API.BasePath, "/api")
+	// In default behavior, these should be left alone
+	assert.Nil(t, service.Config.Terraform.TFInitOptions, "TFInitOptions should be unset by default")
+	assert.Nil(t, service.Config.Terraform.TFApplyOptions, "TFApplyOptions should be unset by default")
 
 	mockFileSystemer.AssertExpectations(t)
 	mockTerraformer.AssertExpectations(t)
+}
+
+func TestDeployService_PostDeploySaveOpts(t *testing.T) {
+	logfile := "/log.txt"
+	apiURL := "https://some-api-id.execute-api.us-east-1.amazonaws.com/api"
+
+	emptyConfig := configs.Root{}
+	initMocks(emptyConfig)
+	deployConfig := cfg.DeployConfig{
+		SaveTFOptions:  true,
+		TFInitOptions:  "",
+		TFApplyOptions: "-compact-warnings",
+	}
+	mockFileSystemer.On("GetLogFile").Return(logfile)
+	mockTerraformer.On("GetOutput", mock.Anything, "api_url").Return(apiURL, nil)
+
+	mockFileSystemer.On("WriteConfig").Return(nil)
+
+	ctx := context.WithValue(context.Background(), constants.DeployConfig, &deployConfig)
+
+	err := service.PostDeploy(ctx)
+	assert.Nil(t, err)
+
+	assert.Equal(t, *service.Config.API.Host, "some-api-id.execute-api.us-east-1.amazonaws.com")
+	assert.Equal(t, *service.Config.API.BasePath, "/api")
+	// In default behavior, these should be left alone
+	assert.Equal(t, *service.Config.Terraform.TFInitOptions, deployConfig.TFInitOptions, "TFInitOptions should be set because save was specified")
+	assert.Equal(t, *service.Config.Terraform.TFApplyOptions, deployConfig.TFApplyOptions, "TFApplyOptions should be set because savw was specified")
+
+	mockFileSystemer.AssertExpectations(t)
+	mockTerraformer.AssertExpectations(t)
+}
+
+func Test_mockFileInfo_Name(t *testing.T) {
+	tests := []struct {
+		name string
+		m    *mockFileInfo
+		want string
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.m.Name(); got != tt.want {
+				t.Errorf("mockFileInfo.Name() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_mockFileInfo_IsDir(t *testing.T) {
+	tests := []struct {
+		name string
+		m    *mockFileInfo
+		want bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.m.IsDir(); got != tt.want {
+				t.Errorf("mockFileInfo.IsDir() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

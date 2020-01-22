@@ -3,12 +3,13 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/Optum/dce-cli/configs"
-	observ "github.com/Optum/dce-cli/internal/observation"
-	utl "github.com/Optum/dce-cli/internal/util"
 	"net/url"
 	"path"
 	"time"
+
+	"github.com/Optum/dce-cli/configs"
+	observ "github.com/Optum/dce-cli/internal/observation"
+	utl "github.com/Optum/dce-cli/internal/util"
 )
 
 type AuthService struct {
@@ -34,9 +35,9 @@ func (s *AuthService) Authenticate() error {
 	// The user will then need to copy the auth code
 	// into their CLI prompt.
 	authUrl := url.URL{
-		Scheme:     "https",
-		Host:       *s.Config.API.Host,
-		Path:       path.Join(*s.Config.API.BasePath, "/auth"),
+		Scheme: "https",
+		Host:   *s.Config.API.Host,
+		Path:   path.Join(*s.Config.API.BasePath, "/auth"),
 	}
 	s.Util.OpenURL(authUrl.String())
 
@@ -44,7 +45,6 @@ func (s *AuthService) Authenticate() error {
 	authCode := s.Util.PromptBasic(
 		"Enter API Token: ", nil,
 	)
-
 
 	// Update the dce.yml config, with the token
 	log.Printf("Saving API Token to %s", s.Util.GetConfigFile())

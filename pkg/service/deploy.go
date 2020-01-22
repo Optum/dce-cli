@@ -3,10 +3,12 @@ package service
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"math/rand"
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -17,6 +19,12 @@ import (
 	utl "github.com/Optum/dce-cli/internal/util"
 	"github.com/pkg/errors"
 )
+
+var affirmAnswerRegex *regexp.Regexp
+
+func init() {
+	affirmAnswerRegex = regexp.MustCompile(`^([Yy]([Ee][Ss])?)|([Nn][Oo]?)$`)
+}
 
 const ArtifactsFileName = "terraform_artifacts.zip"
 const AssetsFileName = "build_artifacts.zip"
@@ -96,8 +104,12 @@ func (s *DeployService) PostDeploy(ctx context.Context) error {
 
 	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
 
-	s.Config.Terraform.TFInitOptions = &cfg.TFInitOptions
-	s.Config.Terraform.TFApplyOptions = &cfg.TFApplyOptions
+	// if the user wants to save them, update them here otherwise
+	// leave tham alone..
+	if cfg.SaveTFOptions {
+		s.Config.Terraform.TFInitOptions = &cfg.TFInitOptions
+		s.Config.Terraform.TFApplyOptions = &cfg.TFApplyOptions
+	}
 
 	s.Util.WriteConfig()
 
@@ -140,6 +152,17 @@ func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOve
 	initopts, _ := util.ParseOptions(&cfg.TFInitOptions)
 	if err := s.Util.Terraformer.Init(ctx, initopts); err != nil {
 		return "", err
+	}
+
+	// First, prompt thte user to giuve them a chance to opt out in case
+	// of accidental invocation. Ksip running the apply altogether if they
+	// don't answer to the affirmative
+	if !cfg.BatchMode {
+		approval := s.Util.PromptBasic("Do you really want to create DCE resources in your AWS account? (type \"yes\" or \"no\")", validateYesOrNo)
+
+		if approval == nil || !strings.HasPrefix(strings.ToLower(*approval), "y") {
+			return "", fmt.Errorf("user exited")
+		}
 	}
 
 	log.Infoln("Creating DCE infrastructure")
@@ -286,4 +309,11 @@ func addOverridesToTemplate(t util.TFTemplater, overrides *DeployOverrides) erro
 		_ = t.AddVariable("budget_notification_template_subject", "string", overrides.BudgetNotificationTemplateSubject)
 	}
 	return nil
+}
+
+func validateYesOrNo(input string) error {
+	if affirmAnswerRegex.MatchString(input) {
+		return nil
+	}
+	return fmt.Errorf("\"%s\" is invalid", input)
 }

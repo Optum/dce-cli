@@ -17,26 +17,12 @@ import (
 	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/pkg/errors"
-
-	"github.com/mitchellh/cli"
 )
 
 var paramSplitRegex *regexp.Regexp
 
 func init() {
 	paramSplitRegex = regexp.MustCompile("\\s+")
-}
-
-// UIOutputCaptor effectively extends cli.BasicUi and overrides Output method to capture output string.
-type UIOutputCaptor struct {
-	Captor *string
-	*cli.BasicUi
-}
-
-// Output overrides cli.BasicUi Output method in UIOutputCaptor
-func (u *UIOutputCaptor) Output(message string) {
-	u.Captor = &message
-	u.BasicUi.Output(message)
 }
 
 type execInput struct {
@@ -56,7 +42,11 @@ func ParseOptions(s *string) ([]string, error) {
 	return opts, nil
 }
 
+// execCommand executes the command specified by `input` and writes
+// output and STDERR to `stdout` or `stderr`, respectively. If either
+// in nil, the OS STDOUT and STDERR are used.
 func execCommand(input *execInput, stdout io.Writer, stderr io.Writer) error {
+
 	// Create a context, in order to enforce a Timeout on the command.
 	// See https://medium.com/@vCabbage/go-timeout-commands-with-os-exec-commandcontext-ba0c861ed738
 	// and https://siadat.github.io/post/context
@@ -81,8 +71,20 @@ func execCommand(input *execInput, stdout io.Writer, stderr io.Writer) error {
 		cmd.Dir = input.Dir
 	}
 
-	cmd.Stderr = stderr
-	cmd.Stdout = stdout
+	if stdout == nil {
+		log.Warnln("stdout: no file supplied; using STDOUT")
+		cmd.Stdout = os.Stdout
+	} else {
+		cmd.Stdout = stdout
+	}
+
+	if stderr == nil {
+		log.Warnln("stderr: no file supplied; using STDERR")
+		cmd.Stderr = os.Stderr
+	} else {
+		cmd.Stderr = stderr
+	}
+
 	cmd.Stdin = os.Stdin
 	err := cmd.Run()
 
@@ -198,7 +200,6 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
 
 // Apply will call `terraform apply` with the given vars.
 func (t *TerraformBinUtil) Apply(ctx context.Context, args []string) error {
-	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
 	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value(constants.DeployLogFile).(string))
 
 	if err != nil {
@@ -211,16 +212,12 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, args []string) error {
 		return fmt.Errorf("Could not find binary \"%s\"", t.bin())
 	}
 
-	argv := []string{"apply", "-no-color"}
+	// -auto-approve and -input=false used to be only added when
+	// a user used the --batch-mode flag, but now that concern is taken
+	// care of at a higher level. It is assumed if the process has gotten
+	// this far that all necessary prompting and inputs have been collected.
+	argv := []string{"apply", "-no-color", "-auto-approve", "-input=false"}
 	argv = append(argv, args...)
-
-	if cfg.BatchMode {
-		argv = append(argv, "-auto-approve")
-	} else {
-		// The underlying terraform command's stdin is set to this stdin,
-		// so  the user's answer here is passes along to terraform.
-		fmt.Print("Are you sure you would like to create DCE resources? (must type \"yes\" if yes)\t")
-	}
 
 	execArgs := &execInput{
 		Name: t.bin(),
