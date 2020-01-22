@@ -57,7 +57,11 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 		overrides.BudgetNotificationFromEmail = "no-reply@example.com"
 	}
 
-	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
+	cfg, ok := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
+
+	if !ok {
+		return fmt.Errorf("Missing or bad context value with key: %s", constants.DeployConfig)
+	}
 
 	if cfg.DeployLocalPath != "" {
 		s.LocalRepo = cfg.DeployLocalPath
