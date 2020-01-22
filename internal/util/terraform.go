@@ -17,26 +17,12 @@ import (
 	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/pkg/errors"
-
-	"github.com/mitchellh/cli"
 )
 
 var paramSplitRegex *regexp.Regexp
 
 func init() {
 	paramSplitRegex = regexp.MustCompile("\\s+")
-}
-
-// UIOutputCaptor effectively extends cli.BasicUi and overrides Output method to capture output string.
-type UIOutputCaptor struct {
-	Captor *string
-	*cli.BasicUi
-}
-
-// Output overrides cli.BasicUi Output method in UIOutputCaptor
-func (u *UIOutputCaptor) Output(message string) {
-	u.Captor = &message
-	u.BasicUi.Output(message)
 }
 
 type execInput struct {
@@ -232,10 +218,6 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, args []string) error {
 
 	if cfg.BatchMode {
 		argv = append(argv, "-auto-approve", "input=false")
-	} else {
-		// The underlying terraform command's stdin is set to this stdin,
-		// so  the user's answer here is passes along to terraform.
-		fmt.Print("Are you sure you would like to create DCE resources? (must type \"yes\" if yes)\t")
 	}
 
 	execArgs := &execInput{
