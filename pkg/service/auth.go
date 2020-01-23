@@ -46,7 +46,7 @@ func (s *AuthService) Authenticate() error {
 		"Enter API Token: ", nil,
 	)
 
-	// Update the dce.yml config, with the token
+	// Update the config, with the token
 	log.Printf("Saving API Token to %s", s.Util.GetConfigFile())
 	s.Config.API.Token = authCode
 	err := s.Util.WriteConfig()

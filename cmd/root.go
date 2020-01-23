@@ -43,12 +43,12 @@ var Log observ.Logger
 func init() {
 	// Global Flags
 	// ---------------
-	// --config flag, to specify path to dce.yml config
+	// --config flag, to specify path to the configuration file
 	// default to ~/.dce/config.yaml
 	RootCmd.PersistentFlags().StringVar(
 		&cfgFile, "config",
 		"",
-		"config file (default is \"$HOME/.dce/config.yaml\")",
+		fmt.Sprintf("config file (default is \"%s\")", constants.ConfigFileDefaultLocationUnexpanded),
 	)
 }
 
@@ -136,7 +136,7 @@ func onInit(cmd *cobra.Command, args []string) error {
 		// Load config from the configuration file
 		err := fsUtil.ReadInConfig()
 		if err != nil {
-			return fmt.Errorf("Failed to parse dce.yml: %s", err)
+			return fmt.Errorf("Failed to parse configuration file: %s", err)
 		}
 	}
 
