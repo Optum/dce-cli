@@ -149,11 +149,14 @@ type Weber interface {
 	OpenURL(url string)
 }
 
+// Durationer is an interface for exanding strings into times.
 type Durationer interface {
 	ExpandEpochTime(str string) (int64, error)
 	ParseDuration(str string) (time.Duration, error)
 }
 
+// TFTemplater is an interface for the templater that generates
+// the main.tf file.
 type TFTemplater interface {
 	AddVariable(name string, vartype string, vardefault string) error
 	Write(w io.Writer) error

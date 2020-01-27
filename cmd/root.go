@@ -21,8 +21,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/mitchellh/go-homedir"
-
 	"github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
@@ -43,19 +41,14 @@ var log observ.Logger
 var Log observ.Logger
 
 func init() {
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-
 	// Global Flags
 	// ---------------
 	// --config flag, to specify path to dce.yml config
-	// default to ~/.dce.yml
+	// default to ~/.dce/config.yaml
 	RootCmd.PersistentFlags().StringVar(
 		&cfgFile, "config",
-		filepath.Join(homeDir, ".dce", constants.DefaultConfigFileName),
-		"config file",
+		"",
+		"config file (default is \"$HOME/.dce/config.yaml\")",
 	)
 }
 
@@ -122,6 +115,14 @@ func onInit(cmd *cobra.Command, args []string) error {
 	log = Observation.Logger
 	Log = log
 
+	if len(cfgFile) == 0 {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatalf("error: %v", err)
+		}
+		cfgFile = filepath.Join(homeDir, ".dce", constants.DefaultConfigFileName)
+	}
+
 	fsUtil := &utl.FileSystemUtil{Config: Config, ConfigFile: cfgFile}
 
 	// Initialize config
@@ -132,7 +133,7 @@ func onInit(cmd *cobra.Command, args []string) error {
 			return errors.New("Config file not found. Please type 'dce init' to generate one.")
 		}
 	} else {
-		// Load config from dce.yaml
+		// Load config from the configuration file
 		err := fsUtil.ReadInConfig()
 		if err != nil {
 			return fmt.Errorf("Failed to parse dce.yml: %s", err)
@@ -151,6 +152,7 @@ func onInit(cmd *cobra.Command, args []string) error {
 // initialize anything related to logging, metrics, or tracing
 func initObservation() {
 	logrusInstance := logrus.New()
+	logrusInstance.SetOutput(os.Stderr)
 
 	//TODO: Make configurable
 	var logLevel logrus.Level

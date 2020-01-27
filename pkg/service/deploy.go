@@ -3,9 +3,12 @@ package service
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"math/rand"
+	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -16,6 +19,12 @@ import (
 	utl "github.com/Optum/dce-cli/internal/util"
 	"github.com/pkg/errors"
 )
+
+var affirmAnswerRegex *regexp.Regexp
+
+func init() {
+	affirmAnswerRegex = regexp.MustCompile(`^([Yy]([Ee][Ss])?)|([Nn][Oo]?)$`)
+}
 
 const ArtifactsFileName = "terraform_artifacts.zip"
 const AssetsFileName = "build_artifacts.zip"
@@ -48,7 +57,11 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 		overrides.BudgetNotificationFromEmail = "no-reply@example.com"
 	}
 
-	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
+	cfg, ok := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
+
+	if !ok {
+		return fmt.Errorf("Missing or bad context value with key: %s", constants.DeployConfig)
+	}
 
 	if cfg.DeployLocalPath != "" {
 		s.LocalRepo = cfg.DeployLocalPath
@@ -70,6 +83,40 @@ func (s *DeployService) Deploy(ctx context.Context, overrides *DeployOverrides) 
 
 	log.Infoln("Deploying code assets to DCE infrastructure")
 	s.deployCodeAssets(artifactsBucket, overrides)
+	return nil
+}
+
+// PostDeploy is intended to run after a successful call to Deploy()
+func (s *DeployService) PostDeploy(ctx context.Context) error {
+
+	if ctx.Value(constants.DeployLogFile) == nil {
+		deployLogFileName := s.Util.GetLogFile()
+		ctx = context.WithValue(ctx, constants.DeployLogFile, deployLogFileName)
+	}
+
+	apiURL, err := s.Util.GetOutput(ctx, "api_url")
+
+	if err == nil {
+		url, err := url.Parse(apiURL)
+		if err == nil {
+			hostName := url.Hostname()
+			basePath := url.EscapedPath()
+			s.Config.API.Host = &hostName
+			s.Config.API.BasePath = &basePath
+		}
+	}
+
+	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
+
+	// if the user wants to save them, update them here otherwise
+	// leave tham alone..
+	if cfg.SaveTFOptions {
+		s.Config.Terraform.TFInitOptions = &cfg.TFInitOptions
+		s.Config.Terraform.TFApplyOptions = &cfg.TFApplyOptions
+	}
+
+	s.Util.WriteConfig()
+
 	return nil
 }
 
@@ -95,22 +142,47 @@ func (s *DeployService) createTFMainFile(overrides *DeployOverrides, usecached b
 }
 
 func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOverrides) (string, error) {
+	cfg := ctx.Value(constants.DeployConfig).(*configs.DeployConfig)
+
 	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
 	s.retrieveTFModules()
 
 	deployLogFileName := s.Util.GetLogFile()
-	ctx = context.WithValue(ctx, "deployLogFile", deployLogFileName)
+	ctx = context.WithValue(ctx, constants.DeployLogFile, deployLogFileName)
 
 	log.Infoln("Initializing")
-	s.Util.Terraformer.Init(ctx, []string{})
+	initopts, _ := util.ParseOptions(&cfg.TFInitOptions)
+	if err := s.Util.Terraformer.Init(ctx, initopts); err != nil {
+		return "", err
+	}
+
+	// First, prompt thte user to giuve them a chance to opt out in case
+	// of accidental invocation. Ksip running the apply altogether if they
+	// don't answer to the affirmative
+	if !cfg.BatchMode {
+		approval := s.Util.PromptBasic("Do you really want to create DCE resources in your AWS account? (type \"yes\" or \"no\")", validateYesOrNo)
+
+		if approval == nil || !strings.HasPrefix(strings.ToLower(*approval), "y") {
+			return "", fmt.Errorf("user exited")
+		}
+	}
 
 	log.Infoln("Creating DCE infrastructure")
-	s.Util.Terraformer.Apply(ctx, []string{})
+	applyopts, _ := util.ParseOptions(&cfg.TFApplyOptions)
+	if err := s.Util.Terraformer.Apply(ctx, applyopts); err != nil {
+		return "", err
+	}
 
 	log.Infoln("Retrieving artifacts location")
-	return s.Util.Terraformer.GetOutput(ctx, "artifacts_bucket_name")
+	output, err := s.Util.Terraformer.GetOutput(ctx, "artifacts_bucket_name")
+
+	if err != nil {
+		return "", err
+	}
+
+	return output, nil
 }
 
 func (s *DeployService) deployCodeAssets(artifactsBucket string, overrides *DeployOverrides) {
@@ -241,4 +313,11 @@ func addOverridesToTemplate(t util.TFTemplater, overrides *DeployOverrides) erro
 		_ = t.AddVariable("budget_notification_template_subject", "string", overrides.BudgetNotificationTemplateSubject)
 	}
 	return nil
+}
+
+func validateYesOrNo(input string) error {
+	if affirmAnswerRegex.MatchString(input) {
+		return nil
+	}
+	return fmt.Errorf("\"%s\" is invalid", input)
 }
