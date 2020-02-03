@@ -1,5 +1,5 @@
-# Disposable Cloud Environment (DCE) CLI
-> **DCE is your playground in the cloud**
+# Disposable Cloud Environment<sup>TM</SUP> CLI
+> **DCE<sup>TM</SUP> is your playground in the cloud**
 
 This is the CLI for [DCE](https://github.com/Optum/dce). For usage information, view the complete [command reference](./docs/dce.md).
 
