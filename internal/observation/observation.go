@@ -1,7 +1,13 @@
 package observation
 
+import (
+	"io"
+	"os"
+)
+
 type ObservationContainer struct {
 	Logger
+	OutputWriter
 }
 
 func New(levelLogger LevelLogger) *ObservationContainer {
@@ -11,8 +17,13 @@ func New(levelLogger LevelLogger) *ObservationContainer {
 	}
 
 	return &ObservationContainer{
-		Logger: logger,
+		Logger:       logger,
+		OutputWriter: os.Stdout,
 	}
+}
+
+type OutputWriter interface {
+	io.Writer
 }
 
 type Logger interface {

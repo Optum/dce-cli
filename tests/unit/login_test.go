@@ -59,14 +59,21 @@ func TestLeaseLoginGivenFlags(t *testing.T) {
 			if tc.isWeberCalled {
 				mockWeber.On("OpenURL", expectedConsoleURL)
 			}
+
+			if tc.printCreds {
+				mockOutputWriter.On("Write", []byte(tc.expectedOut)).Return(0, nil)
+			}
+
 			// Act
 			service.LoginToLease(tc.leaseID, tc.profile, tc.openBrowser, tc.printCreds)
 
 			// Assert
 			mockWeber.AssertExpectations(t)
 			mockAPIer.AssertExpectations(t)
-
-			assert.Contains(t, spyLogger.Msg, tc.expectedOut)
+			mockOutputWriter.AssertExpectations(t)
+			if !(tc.openBrowser || tc.printCreds) {
+				assert.Contains(t, spyLogger.Msg, tc.expectedOut)
+			}
 		})
 	}
 }

@@ -48,7 +48,9 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln("Lease created:", string(jsonPayload))
+	log.Infoln("Lease created.")
+	out.Write(jsonPayload)
+
 }
 
 func (s *LeasesService) EndLease(accountID, principalID string) {
@@ -79,7 +81,7 @@ func (s *LeasesService) GetLease(leaseID string) {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln(string(jsonPayload))
+	out.Write(jsonPayload)
 
 }
 
@@ -101,7 +103,7 @@ func (s *LeasesService) ListLeases(acctID, principalID, nextAcctID, nextPrincipa
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln(string(jsonPayload))
+	out.Write(jsonPayload)
 }
 
 func (s *LeasesService) LoginToLease(leaseID, loginProfile string, loginOpenBrowser, loginPrintCreds bool) {
@@ -118,7 +120,8 @@ func (s *LeasesService) LoginToLease(leaseID, loginProfile string, loginOpenBrow
 		if err != nil {
 			log.Fatalln("err: ", err)
 		}
-		log.Debug(string(jsonPayload))
+		// This should stay in the logs?
+		log.Infoln(string(jsonPayload))
 	}
 
 	responsePayload := res.GetPayload()
@@ -145,6 +148,6 @@ func (s *LeasesService) LoginToLease(leaseID, loginProfile string, loginOpenBrow
 			responsePayload.AccessKeyID,
 			responsePayload.SecretAccessKey,
 			responsePayload.SessionToken)
-		log.Infoln(creds)
+		out.Write([]byte(creds))
 	}
 }
