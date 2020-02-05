@@ -23,6 +23,10 @@ pool:
 
 steps:
 
+- bash: |
+    GIT_VERSION="$(git describe --always --long --dirty)"
+    echo "##vso[task.setvariable variable=VERSION]${GIT_VERSION}"
+
 - task: GoTool@0
   inputs:
     version: '1.13'
@@ -36,7 +40,7 @@ steps:
 - script: |
     set -x
     # etcd depdendency bug workaround. See commends in go.mod for more details.
-    go build -v .
+    go build -v "-X github.com/Optum/dce-cli/cmd.version=$(VERSION)" .
     sudo rm /home/vsts/go/pkg/mod/github.com/coreos/etcd@v3.3.10+incompatible/client/keys.generated.go
     make test
   displayName: 'Run tests'
@@ -46,19 +50,19 @@ steps:
     mkdir dist && cd dist
     # zip for windows and calculate sha256 hash
     WINFILE=dce_windows_amd64.zip
-    env GOOS=windows GOARCH=amd64 go build -v -o ./dce ..
+    env GOOS=windows GOARCH=amd64 go build -v "-X github.com/Optum/dce-cli/cmd.version=$(VERSION)" -o ./dce ..
     zip -m $WINFILE ./dce
     WINSHA=$(IFS=' '; read -ra ADDR <<< $(sha256sum $WINFILE); echo "${ADDR[0]}")
 
     # zip for linux and calculate sha256 hash
     LINFILE=dce_linux_amd64.zip
-    env GOOS=linux GOARCH=amd64 go build -v -o ./dce ..
+    env GOOS=linux GOARCH=amd64 go build -v "-X github.com/Optum/dce-cli/cmd.version=$(VERSION)" -o ./dce ..
     zip -m $LINFILE ./dce
     LINSHA=$(IFS=' '; read -ra ADDR <<< $(sha256sum $LINFILE); echo "${ADDR[0]}")
 
     # zip for mac and calculate sha256 hash
     MACFILE=dce_darwin_amd64.zip
-    env GOOS=darwin GOARCH=amd64 go build -v -o ./dce ..
+    env GOOS=darwin GOARCH=amd64 go build -v "-X github.com/Optum/dce-cli/cmd.version=$(VERSION)" -o ./dce ..
     zip -m $MACFILE ./dce
     MACSHA=$(IFS=' '; read -ra ADDR <<< $(sha256sum $MACFILE); echo "${ADDR[0]}")
     cat> ../release.md <<- EOF
