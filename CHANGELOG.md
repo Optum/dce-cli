@@ -1,4 +1,4 @@
-## v0.4.1
+## vNext
 - Added `version` command to support viewing the current release version of the running binary
 
 ## v0.4.0

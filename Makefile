@@ -33,7 +33,7 @@ test_unit:
 	go test -count=1 -v ./tests/unit/
 
 build:
-	go build "-X github.com/Optum/dce-cli/cmd.version=${VERSION}" .
+	go build -ldflags "-X github.com/Optum/dce-cli/cmd.version=${VERSION}" .
 
 .PHONY: docs
 docs:
