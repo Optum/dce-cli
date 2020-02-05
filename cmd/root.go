@@ -43,12 +43,12 @@ var Log observ.Logger
 func init() {
 	// Global Flags
 	// ---------------
-	// --config flag, to specify path to the configuration file
+	// --config flag, to specify path to dce.yml config
 	// default to ~/.dce/config.yaml
 	RootCmd.PersistentFlags().StringVar(
 		&cfgFile, "config",
 		"",
-		fmt.Sprintf("config file (default is \"%s\")", constants.ConfigFileDefaultLocationUnexpanded),
+		"config file (default is \"$HOME/.dce/config.yaml\")",
 	)
 }
 
