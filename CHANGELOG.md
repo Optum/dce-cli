@@ -1,8 +1,9 @@
-<<<<<<< HEAD
 ## vNext
 =======
+- **Potential breaking change**: Updated commands to output logging messages to STDERR, while JSON
+  and other output goes to STDOUT
+
 ## v0.4.0
->>>>>>> 420e9af78976162fa5c3e98e89560471fc9bdcae
 - Added `--tf-init-options` and `--tf-apply-options` for greater control over underlying provisioner
 - Added `--save-options` flag to persist the `--tf-init-options` and `--tf-apply-options` to the
   configuration file when specified. Default behavior is false.
