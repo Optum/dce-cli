@@ -22,7 +22,7 @@ Disposable Cloud Environment (DCE)
 
 * [dce accounts](dce_accounts.md)	 - Manage dce accounts
 * [dce auth](dce_auth.md)	 - Login to dce
-* [dce init](dce_init.md)	 - First time DCE cli setup. Creates config file at "$HOME/.dce/config.yaml" (by default) or at the location specifief by "--config"
+* [dce init](dce_init.md)	 - First time DCE cli setup. Creates config file at "$HOME/.dce/config.yaml" (by default) or at the location specified by "--config"
 * [dce leases](dce_leases.md)	 - Manage dce leases
 * [dce system](dce_system.md)	 - Deploy and configure the DCE system
 * [dce usage](dce_usage.md)	 - View lease budget information

@@ -13,7 +13,7 @@ func init() {
 
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: fmt.Sprintf("First time DCE cli setup. Creates config file at \"%s\" (by default) or at the location specifief by \"--config\"", constants.ConfigFileDefaultLocationUnexpanded),
+	Short: fmt.Sprintf("First time DCE cli setup. Creates config file at \"%s\" (by default) or at the location specified by \"--config\"", constants.ConfigFileDefaultLocationUnexpanded),
 	Run: func(cmd *cobra.Command, args []string) {
 		Service.InitializeDCE()
 	},

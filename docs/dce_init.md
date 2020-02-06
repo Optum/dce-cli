@@ -1,10 +1,10 @@
 ## dce init
 
-First time DCE cli setup. Creates config file at "$HOME/.dce/config.yaml" (by default) or at the location specifief by "--config"
+First time DCE cli setup. Creates config file at "$HOME/.dce/config.yaml" (by default) or at the location specified by "--config"
 
 ### Synopsis
 
-First time DCE cli setup. Creates config file at "$HOME/.dce/config.yaml" (by default) or at the location specifief by "--config"
+First time DCE cli setup. Creates config file at "$HOME/.dce/config.yaml" (by default) or at the location specified by "--config"
 
 ```
 dce init [flags]
