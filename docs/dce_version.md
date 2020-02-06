@@ -1,19 +1,19 @@
-## dce init
+## dce version
 
-First time DCE cli setup. Creates config file at ~/.dce.yaml
+View the running version of dce-cli
 
 ### Synopsis
 
-First time DCE cli setup. Creates config file at ~/.dce.yaml
+View the running version of dce-cli
 
 ```
-dce init [flags]
+dce version [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for init
+  -h, --help   help for version
 ```
 
 ### Options inherited from parent commands
