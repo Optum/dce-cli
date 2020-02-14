@@ -21,6 +21,7 @@ type APIer interface {
 	GetUsage(*operations.GetUsageParams, runtime.ClientAuthInfoWriter) (*operations.GetUsageOK, error)
 	PostAccounts(*operations.PostAccountsParams, runtime.ClientAuthInfoWriter) (*operations.PostAccountsCreated, error)
 	PostLeases(*operations.PostLeasesParams, runtime.ClientAuthInfoWriter) (*operations.PostLeasesCreated, error)
+	PostLeasesAuth(*operations.PostLeasesAuthParams, runtime.ClientAuthInfoWriter) (*operations.PostLeasesAuthCreated, error)
 	PostLeasesIDAuth(*operations.PostLeasesIDAuthParams, runtime.ClientAuthInfoWriter) (*operations.PostLeasesIDAuthCreated, error)
 	PutAccountsID(*operations.PutAccountsIDParams, runtime.ClientAuthInfoWriter) (*operations.PutAccountsIDOK, error)
 	SetTransport(runtime.ClientTransport)
