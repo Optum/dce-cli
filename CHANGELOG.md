@@ -1,5 +1,7 @@
 ## vNext
+
 - Added `version` command to support viewing the current release version of the running binary
+- Add `dce leases login` command (without Lease ID)
 
 ## v0.4.0
 - Added `--tf-init-options` and `--tf-apply-options` for greater control over underlying provisioner
