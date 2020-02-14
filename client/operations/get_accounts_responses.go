@@ -51,7 +51,7 @@ func NewGetAccountsOK() *GetAccountsOK {
 
 /*GetAccountsOK handles this case with default header values.
 
-A list of accounts
+OK
 */
 type GetAccountsOK struct {
 	AccessControlAllowHeaders string
@@ -59,6 +59,9 @@ type GetAccountsOK struct {
 	AccessControlAllowMethods string
 
 	AccessControlAllowOrigin string
+	/*Appears only when there is another page of results in the query. The value contains the URL for the next page of the results and follows the `<url>; rel="next"` convention.
+	 */
+	Link string
 
 	Payload []*GetAccountsOKBodyItems0
 }
@@ -81,6 +84,9 @@ func (o *GetAccountsOK) readResponse(response runtime.ClientResponse, consumer r
 
 	// response header Access-Control-Allow-Origin
 	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+
+	// response header Link
+	o.Link = response.GetHeader("Link")
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
@@ -121,7 +127,7 @@ type GetAccountsOKBodyItems0 struct {
 	// "NotReady": The account is in "dirty" state, and needs to be reset before it may be leased.
 	// "Leased": The account is leased to a principal
 	//
-	// Enum: [Ready NotReady Leased]
+	// Enum: [Ready NotReady Leased Orphaned]
 	AccountStatus string `json:"accountStatus,omitempty"`
 
 	// ARN for an IAM role within this AWS account. The DCE master account will assume this IAM role to execute operations within this AWS account. This IAM role is configured by the client, and must be configured with [a Trust Relationship with the DCE master account.](/https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html)
@@ -164,7 +170,7 @@ var getAccountsOKBodyItems0TypeAccountStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["Ready","NotReady","Leased"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["Ready","NotReady","Leased","Orphaned"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -182,6 +188,9 @@ const (
 
 	// GetAccountsOKBodyItems0AccountStatusLeased captures enum value "Leased"
 	GetAccountsOKBodyItems0AccountStatusLeased string = "Leased"
+
+	// GetAccountsOKBodyItems0AccountStatusOrphaned captures enum value "Orphaned"
+	GetAccountsOKBodyItems0AccountStatusOrphaned string = "Orphaned"
 )
 
 // prop value enum
