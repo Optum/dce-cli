@@ -116,7 +116,10 @@ func NewMainTFTemplate(fs FileSystemer) *MainTFTemplate {
 
 	tfWorkDir := filepath.Join(fs.GetCacheDir(), "tf-workspace")
 	if _, err := os.Stat(tfWorkDir); os.IsNotExist(err) {
-		os.Mkdir(tfWorkDir, os.ModeDir|os.FileMode(int(0700)))
+		err := os.Mkdir(tfWorkDir, os.ModeDir|os.FileMode(int(0700)))
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 
 	tfStateFilePath := fs.GetTerraformStateFile()

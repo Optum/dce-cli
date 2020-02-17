@@ -18,27 +18,35 @@ type FileSystemUtil struct {
 }
 
 func (u *FileSystemUtil) writeToYAMLFile(path string, _struct interface{}) error {
-
+	var deferredErr error = nil
 	_yaml, err := yaml.Marshal(_struct)
 	if err != nil {
 		return err
 	}
 
 	if !u.IsExistingFile(path) {
-		os.MkdirAll(u.GetConfigDir(), os.FileMode(0700))
+		err := os.MkdirAll(u.GetConfigDir(), os.FileMode(0700))
+		if err != nil {
+			return err
+		}
 		var file *os.File
 		file, err = os.Create(path)
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+		defer func() {
+			err := file.Close()
+			if err != nil {
+				deferredErr = err
+			}
+		}()
 	}
 
 	err = ioutil.WriteFile(path, _yaml, 0644)
 	if err != nil {
 		return err
 	}
-	return nil
+	return deferredErr
 }
 
 // WriteConfig writes the Config objects as YAML
@@ -102,7 +110,10 @@ func (u *FileSystemUtil) ChToConfigDir() (string, string) {
 
 	mode := int(0700)
 	if _, err := os.Stat(destinationDir); os.IsNotExist(err) {
-		os.Mkdir(destinationDir, os.ModeDir|os.FileMode(mode))
+		err := os.Mkdir(destinationDir, os.ModeDir|os.FileMode(mode))
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 
 	originDir, err := os.Getwd()

@@ -14,8 +14,12 @@ func init() {
 
 	accountsAddCmd.Flags().StringVarP(&accountID, "account-id", "a", "", "The ID of the existing account to add to the DCE accounts pool (WARNING: Account will be nuked.)")
 	accountsAddCmd.Flags().StringVarP(&adminRoleARN, "admin-role-arn", "r", "", "The admin role arn to be assumed by the DCE master account. Trust policy must be configured with DCE master account as trusted entity.")
-	accountsAddCmd.MarkFlagRequired("account-id")
-	accountsAddCmd.MarkFlagRequired("admin-role-arn")
+	if err := accountsAddCmd.MarkFlagRequired("account-id"); err != nil {
+		log.Fatalln("err: ", err)
+	}
+	if err := accountsAddCmd.MarkFlagRequired("admin-role-arn"); err != nil {
+		log.Fatalln("err: ", err)
+	}
 	accountsCmd.AddCommand(accountsAddCmd)
 
 	accountsCmd.AddCommand(accountsRemoveCmd)
