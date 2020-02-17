@@ -49,7 +49,7 @@ func NewAPIClient(input *NewAPIClientInput) *operations.Client {
 		&sig4HTTTPClient,
 	)
 	client := apiclient.New(httpTransport, strfmt.Default)
-	return client.Operations
+	return client.Operations.(*operations.Client)
 }
 
 // Adapted from https://stackoverflow.com/questions/39527847/is-there-middleware-for-go-http-client

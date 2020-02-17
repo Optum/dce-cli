@@ -8,9 +8,8 @@ package models
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
@@ -24,7 +23,7 @@ type Account struct {
 	// "NotReady": The account is in "dirty" state, and needs to be reset before it may be leased.
 	// "Leased": The account is leased to a principal
 	//
-	// Enum: [Ready NotReady Leased]
+	// Enum: [Ready NotReady Leased Orphaned]
 	AccountStatus string `json:"accountStatus,omitempty"`
 
 	// ARN for an IAM role within this AWS account. The DCE master account will assume this IAM role to execute operations within this AWS account. This IAM role is configured by the client, and must be configured with [a Trust Relationship with the DCE master account.](/https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html)
@@ -67,7 +66,7 @@ var accountTypeAccountStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["Ready","NotReady","Leased"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["Ready","NotReady","Leased","Orphaned"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -85,6 +84,9 @@ const (
 
 	// AccountAccountStatusLeased captures enum value "Leased"
 	AccountAccountStatusLeased string = "Leased"
+
+	// AccountAccountStatusOrphaned captures enum value "Orphaned"
+	AccountAccountStatusOrphaned string = "Orphaned"
 )
 
 // prop value enum

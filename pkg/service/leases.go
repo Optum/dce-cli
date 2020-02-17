@@ -33,7 +33,7 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 
 	if err != nil && expiry > 0 {
 		expiryf := float64(expiry)
-		postBody.ExpiresOn = &expiryf
+		postBody.ExpiresOn = expiryf
 	}
 
 	params := &operations.PostLeasesParams{

@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new c o r s API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,31 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-OptionsAccounts cs o r s support
+// ClientService is the interface for Client methods
+type ClientService interface {
+	OptionsAccounts(params *OptionsAccountsParams) (*OptionsAccountsOK, error)
 
-Enable CORS by returning correct headers
+	OptionsAccountsID(params *OptionsAccountsIDParams) (*OptionsAccountsIDOK, error)
+
+	OptionsAuth(params *OptionsAuthParams) (*OptionsAuthOK, error)
+
+	OptionsAuthFile(params *OptionsAuthFileParams) (*OptionsAuthFileOK, error)
+
+	OptionsLeases(params *OptionsLeasesParams) (*OptionsLeasesOK, error)
+
+	OptionsLeasesID(params *OptionsLeasesIDParams) (*OptionsLeasesIDOK, error)
+
+	OptionsLeasesIDAuth(params *OptionsLeasesIDAuthParams) (*OptionsLeasesIDAuthOK, error)
+
+	OptionsUsage(params *OptionsUsageParams) (*OptionsUsageOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  OptionsAccounts cs o r s support
+
+  Enable CORS by returning correct headers
 
 */
 func (a *Client) OptionsAccounts(params *OptionsAccountsParams) (*OptionsAccountsOK, error) {
@@ -64,9 +84,9 @@ func (a *Client) OptionsAccounts(params *OptionsAccountsParams) (*OptionsAccount
 }
 
 /*
-OptionsAccountsID cs o r s support
+  OptionsAccountsID cs o r s support
 
-Enable CORS by returning correct headers
+  Enable CORS by returning correct headers
 
 */
 func (a *Client) OptionsAccountsID(params *OptionsAccountsIDParams) (*OptionsAccountsIDOK, error) {
@@ -101,9 +121,83 @@ func (a *Client) OptionsAccountsID(params *OptionsAccountsIDParams) (*OptionsAcc
 }
 
 /*
-OptionsLeases cs o r s support
+  OptionsAuth cs o r s support
 
-Enable CORS by returning correct headers
+  Enable CORS by returning correct headers
+
+*/
+func (a *Client) OptionsAuth(params *OptionsAuthParams) (*OptionsAuthOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewOptionsAuthParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "OptionsAuth",
+		Method:             "OPTIONS",
+		PathPattern:        "/auth",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &OptionsAuthReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*OptionsAuthOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for OptionsAuth: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  OptionsAuthFile cs o r s support
+
+  Enable CORS by returning correct headers
+
+*/
+func (a *Client) OptionsAuthFile(params *OptionsAuthFileParams) (*OptionsAuthFileOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewOptionsAuthFileParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "OptionsAuthFile",
+		Method:             "OPTIONS",
+		PathPattern:        "/auth/{file+}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &OptionsAuthFileReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*OptionsAuthFileOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for OptionsAuthFile: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  OptionsLeases cs o r s support
+
+  Enable CORS by returning correct headers
 
 */
 func (a *Client) OptionsLeases(params *OptionsLeasesParams) (*OptionsLeasesOK, error) {
@@ -138,9 +232,9 @@ func (a *Client) OptionsLeases(params *OptionsLeasesParams) (*OptionsLeasesOK, e
 }
 
 /*
-OptionsLeasesID cs o r s support
+  OptionsLeasesID cs o r s support
 
-Enable CORS by returning correct headers
+  Enable CORS by returning correct headers
 
 */
 func (a *Client) OptionsLeasesID(params *OptionsLeasesIDParams) (*OptionsLeasesIDOK, error) {
@@ -175,9 +269,9 @@ func (a *Client) OptionsLeasesID(params *OptionsLeasesIDParams) (*OptionsLeasesI
 }
 
 /*
-OptionsLeasesIDAuth cs o r s support
+  OptionsLeasesIDAuth cs o r s support
 
-Enable CORS by returning correct headers
+  Enable CORS by returning correct headers
 
 */
 func (a *Client) OptionsLeasesIDAuth(params *OptionsLeasesIDAuthParams) (*OptionsLeasesIDAuthOK, error) {
@@ -212,9 +306,9 @@ func (a *Client) OptionsLeasesIDAuth(params *OptionsLeasesIDAuthParams) (*Option
 }
 
 /*
-OptionsUsage cs o r s support
+  OptionsUsage cs o r s support
 
-Enable CORS by returning correct headers
+  Enable CORS by returning correct headers
 
 */
 func (a *Client) OptionsUsage(params *OptionsUsageParams) (*OptionsUsageOK, error) {

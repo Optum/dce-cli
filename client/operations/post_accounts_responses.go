@@ -111,6 +111,9 @@ type PostAccountsBody struct {
 	// AWS Account ID
 	// Required: true
 	ID *string `json:"id"`
+
+	// Arbitrary metadata to attach to the account object.
+	Metadata interface{} `json:"metadata,omitempty"`
 }
 
 // Validate validates this post accounts body

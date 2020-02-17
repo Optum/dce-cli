@@ -13,6 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -20,7 +21,7 @@ import (
 // NewGetAccountsParams creates a new GetAccountsParams object
 // with the default values initialized.
 func NewGetAccountsParams() *GetAccountsParams {
-
+	var ()
 	return &GetAccountsParams{
 
 		timeout: cr.DefaultTimeout,
@@ -30,7 +31,7 @@ func NewGetAccountsParams() *GetAccountsParams {
 // NewGetAccountsParamsWithTimeout creates a new GetAccountsParams object
 // with the default values initialized, and the ability to set a timeout on a request
 func NewGetAccountsParamsWithTimeout(timeout time.Duration) *GetAccountsParams {
-
+	var ()
 	return &GetAccountsParams{
 
 		timeout: timeout,
@@ -40,7 +41,7 @@ func NewGetAccountsParamsWithTimeout(timeout time.Duration) *GetAccountsParams {
 // NewGetAccountsParamsWithContext creates a new GetAccountsParams object
 // with the default values initialized, and the ability to set a context for a request
 func NewGetAccountsParamsWithContext(ctx context.Context) *GetAccountsParams {
-
+	var ()
 	return &GetAccountsParams{
 
 		Context: ctx,
@@ -50,7 +51,7 @@ func NewGetAccountsParamsWithContext(ctx context.Context) *GetAccountsParams {
 // NewGetAccountsParamsWithHTTPClient creates a new GetAccountsParams object
 // with the default values initialized, and the ability to set a custom HTTPClient for a request
 func NewGetAccountsParamsWithHTTPClient(client *http.Client) *GetAccountsParams {
-
+	var ()
 	return &GetAccountsParams{
 		HTTPClient: client,
 	}
@@ -60,6 +61,43 @@ func NewGetAccountsParamsWithHTTPClient(client *http.Client) *GetAccountsParams 
 for the get accounts operation typically these are written to a http.Request
 */
 type GetAccountsParams struct {
+
+	/*AdminRoleArn
+	  The Admin Role ARN for the account.
+
+	*/
+	AdminRoleArn *string
+	/*ID
+	  Account ID.
+
+	*/
+	ID *string
+	/*Limit
+	  The maximum number of accounts to evaluate (not necessarily the number of matching accounts). If there is another page, the URL for page will be in the response Link header.
+
+	*/
+	Limit *int64
+	/*NextID
+	  Account ID with which to begin the scan operation. This is used to traverse through paginated results.
+
+	*/
+	NextID *string
+	/*PrincipalPolicyHash
+	  The Principal Policy version for the account.
+
+	*/
+	PrincipalPolicyHash *string
+	/*PrincipalRoleArn
+	  The Principal Role ARN for the account.
+
+	*/
+	PrincipalRoleArn *string
+	/*Status
+	  Status of the account.
+
+	*/
+	Status *string
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -98,6 +136,83 @@ func (o *GetAccountsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithAdminRoleArn adds the adminRoleArn to the get accounts params
+func (o *GetAccountsParams) WithAdminRoleArn(adminRoleArn *string) *GetAccountsParams {
+	o.SetAdminRoleArn(adminRoleArn)
+	return o
+}
+
+// SetAdminRoleArn adds the adminRoleArn to the get accounts params
+func (o *GetAccountsParams) SetAdminRoleArn(adminRoleArn *string) {
+	o.AdminRoleArn = adminRoleArn
+}
+
+// WithID adds the id to the get accounts params
+func (o *GetAccountsParams) WithID(id *string) *GetAccountsParams {
+	o.SetID(id)
+	return o
+}
+
+// SetID adds the id to the get accounts params
+func (o *GetAccountsParams) SetID(id *string) {
+	o.ID = id
+}
+
+// WithLimit adds the limit to the get accounts params
+func (o *GetAccountsParams) WithLimit(limit *int64) *GetAccountsParams {
+	o.SetLimit(limit)
+	return o
+}
+
+// SetLimit adds the limit to the get accounts params
+func (o *GetAccountsParams) SetLimit(limit *int64) {
+	o.Limit = limit
+}
+
+// WithNextID adds the nextID to the get accounts params
+func (o *GetAccountsParams) WithNextID(nextID *string) *GetAccountsParams {
+	o.SetNextID(nextID)
+	return o
+}
+
+// SetNextID adds the nextId to the get accounts params
+func (o *GetAccountsParams) SetNextID(nextID *string) {
+	o.NextID = nextID
+}
+
+// WithPrincipalPolicyHash adds the principalPolicyHash to the get accounts params
+func (o *GetAccountsParams) WithPrincipalPolicyHash(principalPolicyHash *string) *GetAccountsParams {
+	o.SetPrincipalPolicyHash(principalPolicyHash)
+	return o
+}
+
+// SetPrincipalPolicyHash adds the principalPolicyHash to the get accounts params
+func (o *GetAccountsParams) SetPrincipalPolicyHash(principalPolicyHash *string) {
+	o.PrincipalPolicyHash = principalPolicyHash
+}
+
+// WithPrincipalRoleArn adds the principalRoleArn to the get accounts params
+func (o *GetAccountsParams) WithPrincipalRoleArn(principalRoleArn *string) *GetAccountsParams {
+	o.SetPrincipalRoleArn(principalRoleArn)
+	return o
+}
+
+// SetPrincipalRoleArn adds the principalRoleArn to the get accounts params
+func (o *GetAccountsParams) SetPrincipalRoleArn(principalRoleArn *string) {
+	o.PrincipalRoleArn = principalRoleArn
+}
+
+// WithStatus adds the status to the get accounts params
+func (o *GetAccountsParams) WithStatus(status *string) *GetAccountsParams {
+	o.SetStatus(status)
+	return o
+}
+
+// SetStatus adds the status to the get accounts params
+func (o *GetAccountsParams) SetStatus(status *string) {
+	o.Status = status
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *GetAccountsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -105,6 +220,118 @@ func (o *GetAccountsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		return err
 	}
 	var res []error
+
+	if o.AdminRoleArn != nil {
+
+		// query param adminRoleArn
+		var qrAdminRoleArn string
+		if o.AdminRoleArn != nil {
+			qrAdminRoleArn = *o.AdminRoleArn
+		}
+		qAdminRoleArn := qrAdminRoleArn
+		if qAdminRoleArn != "" {
+			if err := r.SetQueryParam("adminRoleArn", qAdminRoleArn); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.ID != nil {
+
+		// query param id
+		var qrID string
+		if o.ID != nil {
+			qrID = *o.ID
+		}
+		qID := qrID
+		if qID != "" {
+			if err := r.SetQueryParam("id", qID); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.Limit != nil {
+
+		// query param limit
+		var qrLimit int64
+		if o.Limit != nil {
+			qrLimit = *o.Limit
+		}
+		qLimit := swag.FormatInt64(qrLimit)
+		if qLimit != "" {
+			if err := r.SetQueryParam("limit", qLimit); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.NextID != nil {
+
+		// query param nextId
+		var qrNextID string
+		if o.NextID != nil {
+			qrNextID = *o.NextID
+		}
+		qNextID := qrNextID
+		if qNextID != "" {
+			if err := r.SetQueryParam("nextId", qNextID); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.PrincipalPolicyHash != nil {
+
+		// query param principalPolicyHash
+		var qrPrincipalPolicyHash string
+		if o.PrincipalPolicyHash != nil {
+			qrPrincipalPolicyHash = *o.PrincipalPolicyHash
+		}
+		qPrincipalPolicyHash := qrPrincipalPolicyHash
+		if qPrincipalPolicyHash != "" {
+			if err := r.SetQueryParam("principalPolicyHash", qPrincipalPolicyHash); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.PrincipalRoleArn != nil {
+
+		// query param principalRoleArn
+		var qrPrincipalRoleArn string
+		if o.PrincipalRoleArn != nil {
+			qrPrincipalRoleArn = *o.PrincipalRoleArn
+		}
+		qPrincipalRoleArn := qrPrincipalRoleArn
+		if qPrincipalRoleArn != "" {
+			if err := r.SetQueryParam("principalRoleArn", qPrincipalRoleArn); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.Status != nil {
+
+		// query param status
+		var qrStatus string
+		if o.Status != nil {
+			qrStatus = *o.Status
+		}
+		qStatus := qrStatus
+		if qStatus != "" {
+			if err := r.SetQueryParam("status", qStatus); err != nil {
+				return err
+			}
+		}
+
+	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
