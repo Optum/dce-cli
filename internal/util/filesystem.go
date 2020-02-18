@@ -95,7 +95,7 @@ func (u *FileSystemUtil) IsExistingFile(path string) bool {
 // i.e. ensure `path` comes from a trusted source.
 func (u *FileSystemUtil) ReadFromFile(path string) string {
 	/*
-		#nosec: added disclaimer to function docs
+		#nosec CWE-22: added disclaimer to function docs
 	 */
 	contents, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -188,7 +188,7 @@ func (u *FileSystemUtil) ReadDir(path string) []os.FileInfo {
 // The file permissions are set to 0644, i.e. user-executable and user/group/other-readable.
 func (u *FileSystemUtil) OpenFileWriter(path string) (*os.File, error) {
 	/*
-		#nosec: CWE-276 called out the file permissions in function docs
+		#nosec CWE-276: called out the file permissions in function docs
 	 */
 	return os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 }

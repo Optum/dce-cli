@@ -26,7 +26,7 @@ func (w *WebUtil) OpenURL(url string) {
 func (w *WebUtil) Download(url string, localpath string) error {
 
 	/*
-		#nosec: added disclaimer to function docs
+		#nosec CWE-88: added disclaimer to function docs
 	*/
 	resp, err := http.Get(url)
 	if err != nil {

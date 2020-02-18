@@ -44,7 +44,7 @@ func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix st
 			log.Fatalln("Unable to get relative path:", path, err)
 		}
 		/*
-		#nosec: added disclaimer to function docs
+		#nosec CWE-22: added disclaimer to function docs
 		 */
 		file, err := os.Open(path)
 		if err != nil {
@@ -124,21 +124,21 @@ func (u *AWSUtil) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string,
 // by ensuring inputs come from a trusted source.
 func (u *AWSUtil) ConfigureAWSCLICredentials(accessKeyID, secretAccessKey, sessionToken, profile string) {
 	/*
-		#nosec: CWE-78 this value is populated by response data sent from the DCE backend, which is a trusted source.
+		#nosec CWE-78: this value is populated by response data sent from the DCE backend, which is a trusted source.
 	*/
 	_, err := exec.Command("aws", "configure", "--profile", profile, "set", "aws_access_key_id", accessKeyID).CombinedOutput()
 	if err != nil {
 		log.Fatalln(err)
 	}
 	/*
-		#nosec: CWE-78 this value is populated by response data sent from the DCE backend, which is a trusted source.
+		#nosec CWE-78: this value is populated by response data sent from the DCE backend, which is a trusted source.
 	*/
 	_, err = exec.Command("aws", "configure", "--profile", profile, "set", "aws_secret_access_key", secretAccessKey).CombinedOutput()
 	if err != nil {
 		log.Fatalln(err)
 	}
 	/*
-		#nosec: CWE-78 this value is populated by response data sent from the DCE backend, which is a trusted source.
+		#nosec CWE-78: this value is populated by response data sent from the DCE backend, which is a trusted source.
 	*/
 	_, err = exec.Command("aws", "configure", "--profile", profile, "set", "aws_session_token", sessionToken).CombinedOutput()
 	if err != nil {

@@ -68,7 +68,7 @@ func execCommand(input *execInput, stdout io.Writer, stderr io.Writer) error {
 	defer cancel()
 
 	/*
-		#nosec: CWE-78 added disclaimer to function docs
+		#nosec CWE-78: added disclaimer to function docs
 	*/
 	// Configure the shell command
 	cmd := exec.CommandContext(ctx, input.Name, input.Args...)
