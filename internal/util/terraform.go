@@ -45,6 +45,8 @@ func ParseOptions(s *string) ([]string, error) {
 // execCommand executes the command specified by `input` and writes
 // output and STDERR to `stdout` or `stderr`, respectively. If either
 // in nil, the OS STDOUT and STDERR are used.
+// Care should be taken to mitigate CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+// by ensuring that 'input' comes from a trusted source.
 func execCommand(input *execInput, stdout io.Writer, stderr io.Writer) error {
 
 	// Create a context, in order to enforce a Timeout on the command.
@@ -65,6 +67,9 @@ func execCommand(input *execInput, stdout io.Writer, stderr io.Writer) error {
 	// Cleanup context, on completion
 	defer cancel()
 
+	/*
+		#nosec: CWE-78 added disclaimer to function docs
+	*/
 	// Configure the shell command
 	cmd := exec.CommandContext(ctx, input.Name, input.Args...)
 	if input.Dir != "" {
