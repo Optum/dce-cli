@@ -41,26 +41,26 @@ func init() {
 	leasesCreateCmd.Flags().StringVarP(&expiresOn, "expires-on", "E", "7d", "The leased accounts expiry date as a long (UNIX epoch) or string (eg., '7d', '8h'")
 	leasesCreateCmd.Flags().StringArrayVarP(&email, "email", "e", nil, "The email address that budget notifications will be sent to")
 	if err := leasesCreateCmd.MarkFlagRequired("principal-id"); err != nil {
-		log.Fatalln("err: ", err)
+		log.Fatalln(err)
 	}
 	if err := leasesCreateCmd.MarkFlagRequired("budget-amount"); err != nil {
-		log.Fatalln("err: ", err)
+		log.Fatalln(err)
 	}
 	if err := leasesCreateCmd.MarkFlagRequired("budget-currency"); err != nil {
-		log.Fatalln("err: ", err)
+		log.Fatalln(err)
 	}
 	if err := leasesCreateCmd.MarkFlagRequired("email"); err != nil {
-		log.Fatalln("err: ", err)
+		log.Fatalln(err)
 	}
 	leasesCmd.AddCommand(leasesCreateCmd)
 
 	leasesEndCmd.Flags().StringVarP(&principalID, "principal-id", "p", "", "Principle ID for the user of the leased account")
 	leasesEndCmd.Flags().StringVarP(&accountID, "account-id", "a", "", "Account ID associated with the lease you wish to end")
 	if err := leasesEndCmd.MarkFlagRequired("principal-id"); err != nil {
-		log.Fatalln("err: ", err)
+		log.Fatalln(err)
 	}
 	if err := leasesEndCmd.MarkFlagRequired("account-id"); err != nil {
-		log.Fatalln("err: ", err)
+		log.Fatalln(err)
 	}
 	leasesCmd.AddCommand(leasesEndCmd)
 
