@@ -5,8 +5,9 @@ all: mocks test build
 # Generate client code from swagger in a local dce repo (make openapi DCE_REPO=/path/to/dce)
 openapi:
 	echo "\nMANUAL STEP: Install goswagger cli tool if needed: https://goswagger.io/install.html\n"
-	swagger flatten --with-expand $(DCE_REPO)/modules/swagger.yaml >> $(PWD)/out.yaml
+	swagger flatten --with-expand $(DCE_REPO)/modules/swagger.yaml > $(PWD)/out.yaml
 	swagger generate client -f $(PWD)/out.yaml --skip-validation -t $(PWD)
+	rm ./out.yaml
 
 
 # Generate interfaces for OpenApi clients so they can be mocked.
