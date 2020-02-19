@@ -4,6 +4,8 @@ set -euo pipefail
 echo -n "Formatting golang code... "
 gofmtout=$(go fmt ./...)
 if [ "$gofmtout" ]; then
+  diff <(gofmt cmd/leases.go) cmd/leases.go
+  diff <(gofmt pkg/service/leases.go) pkg/service/leases.go
   printf "\n\n"
   echo "Files with formatting errors:"
   echo "${gofmtout}"
@@ -20,7 +22,6 @@ if [ ! "$(command -v ${GOLANG_LINT_CMD})" ]; then
   go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 fi
 
-golangci-lint version
 golangci-lint run
 echo "done."
 
