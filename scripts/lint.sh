@@ -20,6 +20,7 @@ if [ ! "$(command -v ${GOLANG_LINT_CMD})" ]; then
   go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 fi
 
+golangci-lint version
 golangci-lint run
 echo "done."
 
