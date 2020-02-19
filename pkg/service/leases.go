@@ -105,11 +105,11 @@ func (s *LeasesService) ListLeases(acctID, principalID, nextAcctID, nextPrincipa
 }
 
 type leaseCreds struct {
-	AccessKeyID string `json:"accessKeyId,omitempty"`
-	ConsoleURL string `json:"consoleUrl,omitempty"`
-	ExpiresOn float64 `json:"expiresOn,omitempty"`
-	SecretAccessKey string `json:"secretAccessKey,omitempty"`
-	SessionToken string `json:"sessionToken,omitempty"`
+	AccessKeyID     string  `json:"accessKeyId,omitempty"`
+	ConsoleURL      string  `json:"consoleUrl,omitempty"`
+	ExpiresOn       float64 `json:"expiresOn,omitempty"`
+	SecretAccessKey string  `json:"secretAccessKey,omitempty"`
+	SessionToken    string  `json:"sessionToken,omitempty"`
 }
 
 func (s *LeasesService) Login(opts *LeaseLoginOptions) {
@@ -132,7 +132,7 @@ func (s *LeasesService) Login(opts *LeaseLoginOptions) {
 func (s *LeasesService) LoginByID(leaseID string, opts *LeaseLoginOptions) {
 	log.Debugln("Requesting leased account credentials")
 	params := &operations.PostLeasesIDAuthParams{
-		ID:         leaseID,
+		ID: leaseID,
 	}
 	params.SetTimeout(20 * time.Second)
 	res, err := apiClient.PostLeasesIDAuth(params, nil)
