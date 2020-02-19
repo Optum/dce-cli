@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/Optum/dce-cli/pkg/service"
 	"github.com/spf13/cobra"
 )
 
@@ -115,9 +116,22 @@ var leasesEndCmd = &cobra.Command{
 
 var leasesLoginCmd = &cobra.Command{
 	Use:   "login [Lease ID]",
-	Short: "Login to a leased DCE account. (Sets AWS CLI credentials if used with no flags)",
-	Args:  cobra.ExactArgs(1),
+	Short: "Login to a leased DCE account. \n" +
+		"If no Lease ID is provided, uses the active lease for the requesting user. \n" +
+		"Sets AWS CLI credentials if used with no flags",
+	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		Service.LoginToLease(args[0], loginProfile, loginOpenBrowser, loginPrintCreds)
+		opts := &service.LeaseLoginOptions{
+			CliProfile:  loginProfile,
+			OpenBrowser: loginOpenBrowser,
+			PrintCreds:  loginPrintCreds,
+		}
+
+		if len(args) == 0 {
+			Service.Login(opts)
+		} else {
+			Service.LoginByID(args[0], opts)
+		}
+
 	},
 }

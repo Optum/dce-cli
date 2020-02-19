@@ -2,6 +2,7 @@ package unit
 
 import (
 	"fmt"
+	service2 "github.com/Optum/dce-cli/pkg/service"
 	"testing"
 	"time"
 
@@ -24,15 +25,36 @@ var credsOutput = fmt.Sprintf(constants.CredentialsExport,
 var testCases = []struct {
 	name          string
 	leaseID       string
-	openBrowser   bool
-	printCreds    bool
-	profile       string
+	opts          *service2.LeaseLoginOptions
 	expectedOut   string
 	isWeberCalled bool
 }{
-	{"GIVEN no flags THEN do not print anything", "doesntMatter", false, false, "default", "", false},
-	{"GIVEN openBrowser THEN Weber should open browser", "doesntMatter", true, false, "default", "Opening AWS Console in Web Browser", true},
-	{"GIVEN printCreds THEN Weber should open browser", "doesntMatter", false, true, "default", credsOutput, false},
+	{
+		name:    "GIVEN no flags THEN do not print anything",
+		leaseID: "doesntMatter",
+		opts: &service2.LeaseLoginOptions{
+			CliProfile: "default",
+		},
+	},
+	{
+		name:    "GIVEN openBrowser THEN Weber should open browser",
+		leaseID: "doesntMatter",
+		opts: &service2.LeaseLoginOptions{
+			OpenBrowser: true,
+			CliProfile:  "default",
+		},
+		expectedOut:   "Opening AWS Console in Web Browser",
+		isWeberCalled: true,
+	},
+	{
+		name:    "GIVEN printCreds THEN Weber should open browser",
+		leaseID: "doesntMatter",
+		opts: &service2.LeaseLoginOptions{
+			PrintCreds: true,
+			CliProfile: "default",
+		},
+		expectedOut: credsOutput,
+	},
 }
 
 func TestLeaseLoginGivenFlags(t *testing.T) {
@@ -44,7 +66,7 @@ func TestLeaseLoginGivenFlags(t *testing.T) {
 			reqParams := &operations.PostLeasesIDAuthParams{
 				ID: tc.leaseID,
 			}
-			reqParams.SetTimeout(5 * time.Second)
+			reqParams.SetTimeout(20 * time.Second)
 			mockAPIer.On("PostLeasesIDAuth", reqParams, nil).Return(&operations.PostLeasesIDAuthCreated{
 				Payload: &operations.PostLeasesIDAuthCreatedBody{
 					AccessKeyID:     expectedAccessKeyID,
@@ -53,14 +75,14 @@ func TestLeaseLoginGivenFlags(t *testing.T) {
 					ConsoleURL:      expectedConsoleURL,
 				},
 			}, nil)
-			if !(tc.openBrowser || tc.printCreds) {
+			if !(tc.opts.OpenBrowser || tc.opts.PrintCreds) {
 				mockAwser.On("ConfigureAWSCLICredentials", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 			}
 			if tc.isWeberCalled {
 				mockWeber.On("OpenURL", expectedConsoleURL)
 			}
 			// Act
-			service.LoginToLease(tc.leaseID, tc.profile, tc.openBrowser, tc.printCreds)
+			service.LoginByID(tc.leaseID, tc.opts)
 
 			// Assert
 			mockWeber.AssertExpectations(t)
@@ -69,4 +91,33 @@ func TestLeaseLoginGivenFlags(t *testing.T) {
 			assert.Contains(t, spyLogger.Msg, tc.expectedOut)
 		})
 	}
+}
+
+func TestLeaseLoginNoID(t *testing.T) {
+	initMocks(configs.Root{})
+
+	// Mock the `POST /leases/auth` endpoint
+	reqParams := &operations.PostLeasesAuthParams{}
+	reqParams.SetTimeout(20 * time.Second)
+	mockAPIer.On("PostLeasesAuth", reqParams, nil).
+		Return(&operations.PostLeasesAuthCreated{
+			Payload: &operations.PostLeasesAuthCreatedBody{
+				AccessKeyID:     "access-key-id",
+				SecretAccessKey: "secret-access-key",
+				SessionToken:    "session-token",
+				ConsoleURL:      "console-url",
+			},
+		}, nil)
+
+	// Weber.OpenURL() should be called with the
+	// ConsoleURL returned by the API
+	mockWeber.On("OpenURL", "console-url")
+
+	// Run the login command
+	service.Login(&service2.LeaseLoginOptions{
+		OpenBrowser: true,
+	})
+
+	// Check that we called Weber.OpenURL()
+	mockWeber.AssertExpectations(t)
 }

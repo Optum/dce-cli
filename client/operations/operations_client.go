@@ -51,6 +51,8 @@ type ClientService interface {
 
 	PostLeases(params *PostLeasesParams, authInfo runtime.ClientAuthInfoWriter) (*PostLeasesCreated, error)
 
+	PostLeasesAuth(params *PostLeasesAuthParams, authInfo runtime.ClientAuthInfoWriter) (*PostLeasesAuthCreated, error)
+
 	PostLeasesIDAuth(params *PostLeasesIDAuthParams, authInfo runtime.ClientAuthInfoWriter) (*PostLeasesIDAuthCreated, error)
 
 	PutAccountsID(params *PutAccountsIDParams, authInfo runtime.ClientAuthInfoWriter) (*PutAccountsIDOK, error)
@@ -473,6 +475,41 @@ func (a *Client) PostLeases(params *PostLeasesParams, authInfo runtime.ClientAut
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for PostLeases: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  PostLeasesAuth creates lease authentication by for the requesting user s active lease
+*/
+func (a *Client) PostLeasesAuth(params *PostLeasesAuthParams, authInfo runtime.ClientAuthInfoWriter) (*PostLeasesAuthCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPostLeasesAuthParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "PostLeasesAuth",
+		Method:             "POST",
+		PathPattern:        "/leases/auth",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &PostLeasesAuthReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*PostLeasesAuthCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for PostLeasesAuth: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
