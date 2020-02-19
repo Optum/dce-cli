@@ -13,13 +13,14 @@ echo "done."
 
 echo -n "Linting golang code... "
 # TODO: Make sure golangci-lint is installed and ready to be run
-GOLANG_LINT_CMD=golangci-lint
+#GOLANG_LINT_CMD=golangci-lint
+#
+#if [ ! "$(command -v ${GOLANG_LINT_CMD})" ]; then
+#  echo -n "installing ${GOLANG_LINT_CMD}... "
+#  go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+#fi
 
-if [ ! "$(command -v ${GOLANG_LINT_CMD})" ]; then
-  echo -n "installing ${GOLANG_LINT_CMD}... "
-  go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
-fi
-
+go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 golangci-lint run
 echo "done."
 
