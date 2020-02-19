@@ -290,15 +290,6 @@ func addOverridesToTemplate(t util.TFTemplater, overrides *DeployOverrides) erro
 		_ = t.AddVariable("aws_region", "string", overrides.AWSRegion)
 	}
 
-	globalTags := "global_tags={" + constants.GlobalTFTagDefaults
-	if len(overrides.GlobalTags) != 0 {
-		for _, tag := range overrides.GlobalTags {
-			globalTags += ",\"" + strings.ReplaceAll(tag, ":", "\":\"") + "\""
-		}
-	}
-	globalTags += "}"
-	// _ = t.AddVariable("global_tags", "map(string)", globalTags)
-
 	if overrides.Namespace != "" {
 		_ = t.AddVariable("namespace", "string", overrides.Namespace)
 	}

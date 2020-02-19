@@ -81,13 +81,11 @@ func (srt Sig4RoundTripper) RoundTrip(req *http.Request) (res *http.Response, e 
 			log.Fatalln("Error reading payload for v4 signing. ", err)
 		}
 
-		if err != nil {
-			log.Fatalln("Error marshaling payload. ", err)
-		}
 		req.Header.Set("Content-Type", "application/json")
-		_, err = signer.Sign(req, bytes.NewReader(body),
-			executeAPI, srt.Region, now)
-
+		_, err = signer.Sign(req, bytes.NewReader(body), executeAPI, srt.Region, now)
+		if err != nil {
+			log.Fatalln("Error v4 signing payload. ", err)
+		}
 	} else {
 		_, err := signer.Sign(req, nil,
 			executeAPI, srt.Region, now)
