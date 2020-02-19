@@ -29,7 +29,7 @@ GOSEC_CMD=gosec
 
 if [ ! "$(command -v ${GOSEC_CMD})" ]; then
   echo -n "installing ${GOSEC_CMD}... "
-  go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+  go get -u github.com/securego/gosec/cmd/gosec
 fi
 
 gosec ./...

@@ -33,11 +33,6 @@ steps:
     version: "1.13.4"
   displayName: "Set up the Go workspace"
 
-  # Install tools needed for CI environment
-- script: |
-    ./scripts/install_ci.sh
-  displayName: "Set up Golang CI Tools"
-
 - script: |
     set -x
     go version
