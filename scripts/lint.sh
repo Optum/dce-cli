@@ -23,7 +23,19 @@ fi
 golangci-lint run
 echo "done."
 
-GOSEC_VERSION=v2.2.0
-curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b . $GOSEC_VERSION
-./gosec ./...
-rm gosec
+
+echo -n "Scanning for securirty issues... "
+GOSEC_CMD=gosec
+
+if [ ! "$(command -v ${GOSEC_CMD})" ]; then
+  echo -n "installing ${GOSEC_CMD}... "
+  go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+fi
+
+gosec ./...
+echo "done."
+
+#GOSEC_VERSION=v2.2.0
+#curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b . $GOSEC_VERSION
+#./gosec ./...
+#rm gosec

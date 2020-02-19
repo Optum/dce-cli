@@ -27,9 +27,16 @@ steps:
     GIT_VERSION="$(git describe --always --long --dirty)"
     echo "##vso[task.setvariable variable=VERSION]${GIT_VERSION}"
 
+  # Install GO
 - task: GoTool@0
   inputs:
-    version: '1.13'
+    version: "1.13.4"
+  displayName: "Set up the Go workspace"
+
+  # Install tools needed for CI environment
+- script: |
+    ./scripts/install_ci.sh
+  displayName: "Set up Golang CI Tools"
 
 - script: |
     set -x
