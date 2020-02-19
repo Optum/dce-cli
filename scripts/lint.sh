@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-
-export GOBIN=$(dirname `which go`)
-
-export GO111MODULE=off
-
 echo -n "Formatting golang code... "
 gofmtout=$(go fmt ./...)
 if [ "$gofmtout" ]; then
@@ -25,18 +20,17 @@ echo -n "Linting golang code... "
 #  go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 #fi
 
-go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 golangci-lint run
 echo "done."
 
 
 echo -n "Scanning for securirty issues... "
-GOSEC_CMD=gosec
-
-if [ ! "$(command -v ${GOSEC_CMD})" ]; then
-  echo -n "installing ${GOSEC_CMD}... "
-  go get -u github.com/securego/gosec/cmd/gosec
-fi
+#GOSEC_CMD=gosec
+#
+#if [ ! "$(command -v ${GOSEC_CMD})" ]; then
+#  echo -n "installing ${GOSEC_CMD}... "
+#  go get -u github.com/securego/gosec/cmd/gosec
+#fi
 
 gosec ./...
 echo "done."
