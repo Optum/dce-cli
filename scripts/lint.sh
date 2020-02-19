@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+
+export GOBIN=$(dirname `which go`)
+
+export GO111MODULE=off
+
 echo -n "Formatting golang code... "
 gofmtout=$(go fmt ./...)
 if [ "$gofmtout" ]; then
