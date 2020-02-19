@@ -4,8 +4,8 @@ set -euo pipefail
 echo -n "Formatting golang code... "
 gofmtout=$(go fmt ./...)
 if [ "$gofmtout" ]; then
-  diff <(gofmt cmd/leases.go) cmd/leases.go
-  diff <(gofmt pkg/service/leases.go) pkg/service/leases.go
+  echo $(diff <(gofmt cmd/leases.go) cmd/leases.go)
+  echo $(diff <(gofmt pkg/service/leases.go) pkg/service/leases.go)
   printf "\n\n"
   echo "Files with formatting errors:"
   echo "${gofmtout}"
