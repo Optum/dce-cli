@@ -195,7 +195,7 @@ func (s *DeployService) deployCodeAssets(artifactsBucket string, overrides *Depl
 	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
-	if _,err := s.retrieveCodeAssets(); err != nil {
+	if _, err := s.retrieveCodeAssets(); err != nil {
 		log.Fatalln(err)
 	}
 

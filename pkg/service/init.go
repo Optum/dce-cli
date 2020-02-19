@@ -41,4 +41,3 @@ func (s *InitService) promptUserForConfig(config *configs.Root) {
 		config.API.BasePath = s.Util.PromptBasic("Base path of the DCE API (example: /api)", nil)
 	}
 }
-

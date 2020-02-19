@@ -44,8 +44,8 @@ func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix st
 			log.Fatalln("Unable to get relative path:", path, err)
 		}
 		/*
-		#nosec CWE-22: added disclaimer to function docs
-		 */
+			#nosec CWE-22: added disclaimer to function docs
+		*/
 		file, err := os.Open(path)
 		if err != nil {
 			log.Println("Failed opening file", path, err)

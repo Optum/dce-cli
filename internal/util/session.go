@@ -92,5 +92,5 @@ type APITokenValue struct {
 	AccessKeyID     string `json:"accessKeyId"`
 	SecretAccessKey string `json:"secretAccessKey"`
 	SessionToken    string `json:"sessionToken"`
-	Expiration      int64 `json:"expireTime"`
+	Expiration      int64  `json:"expireTime"`
 }

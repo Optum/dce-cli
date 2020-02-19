@@ -96,7 +96,7 @@ func (u *FileSystemUtil) IsExistingFile(path string) bool {
 func (u *FileSystemUtil) ReadFromFile(path string) string {
 	/*
 		#nosec CWE-22: added disclaimer to function docs
-	 */
+	*/
 	contents, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -189,7 +189,7 @@ func (u *FileSystemUtil) ReadDir(path string) []os.FileInfo {
 func (u *FileSystemUtil) OpenFileWriter(path string) (*os.File, error) {
 	/*
 		#nosec CWE-276: called out the file permissions in function docs
-	 */
+	*/
 	return os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 }
 
