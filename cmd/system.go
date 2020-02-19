@@ -10,7 +10,6 @@ import (
 )
 
 var (
-	dceRepoPath     string
 	deployOverrides svc.DeployOverrides
 	deployConfig    cfg.DeployConfig
 )

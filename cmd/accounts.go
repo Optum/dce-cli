@@ -4,8 +4,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const accountsPath = "/accounts"
-
 var accountID string
 var adminRoleARN string
 
