@@ -37,6 +37,8 @@ type ClientService interface {
 
 	OptionsLeases(params *OptionsLeasesParams) (*OptionsLeasesOK, error)
 
+	OptionsLeasesAuth(params *OptionsLeasesAuthParams) (*OptionsLeasesAuthOK, error)
+
 	OptionsLeasesID(params *OptionsLeasesIDParams) (*OptionsLeasesIDOK, error)
 
 	OptionsLeasesIDAuth(params *OptionsLeasesIDAuthParams) (*OptionsLeasesIDAuthOK, error)
@@ -228,6 +230,43 @@ func (a *Client) OptionsLeases(params *OptionsLeasesParams) (*OptionsLeasesOK, e
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for OptionsLeases: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  OptionsLeasesAuth cs o r s support
+
+  Enable CORS by returning correct headers
+
+*/
+func (a *Client) OptionsLeasesAuth(params *OptionsLeasesAuthParams) (*OptionsLeasesAuthOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewOptionsLeasesAuthParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "OptionsLeasesAuth",
+		Method:             "OPTIONS",
+		PathPattern:        "/leases/auth",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &OptionsLeasesAuthReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*OptionsLeasesAuthOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for OptionsLeasesAuth: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

@@ -175,6 +175,9 @@ type PostLeasesIDAuthCreatedBody struct {
 	// URL to access the AWS Console
 	ConsoleURL string `json:"consoleUrl,omitempty"`
 
+	// expires on
+	ExpiresOn float64 `json:"expiresOn,omitempty"`
+
 	// Secret Access Key for access to the AWS API
 	SecretAccessKey string `json:"secretAccessKey,omitempty"`
 
