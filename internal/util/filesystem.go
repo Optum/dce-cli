@@ -34,12 +34,8 @@ func (u *FileSystemUtil) writeToYAMLFile(path string, _struct interface{}) error
 		if err != nil {
 			return err
 		}
-		defer func() {
-			err := file.Close()
-			if err != nil {
-				deferredErr = err
-			}
-		}()
+		// #nosec
+		defer file.Close()
 	}
 
 	err = ioutil.WriteFile(path, _yaml, 0644)
