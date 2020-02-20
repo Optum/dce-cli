@@ -62,7 +62,7 @@ for the get accounts ID operation typically these are written to a http.Request
 type GetAccountsIDParams struct {
 
 	/*ID
-	  accountId for lease
+	  AWS Account ID
 
 	*/
 	ID string

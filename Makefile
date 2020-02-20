@@ -1,10 +1,13 @@
+VERSION := $(shell git describe --always --long --dirty)
+
 all: mocks test build
 
 # Generate client code from swagger in a local dce repo (make openapi DCE_REPO=/path/to/dce)
 openapi:
 	echo "\nMANUAL STEP: Install goswagger cli tool if needed: https://goswagger.io/install.html\n"
-	swagger flatten --with-expand $(DCE_REPO)/modules/swagger.yaml >> $(PWD)/out.yaml
+	swagger flatten --with-expand $(DCE_REPO)/modules/swagger.yaml > $(PWD)/out.yaml
 	swagger generate client -f $(PWD)/out.yaml --skip-validation -t $(PWD)
+	rm ./out.yaml
 
 
 # Generate interfaces for OpenApi clients so they can be mocked.
@@ -18,7 +21,10 @@ mocks:
 	rm -rf mocks/*
 	mockery -all
 
-test:
+lint:
+	./scripts/lint.sh
+
+test: lint
 	go test -count=1 -v ./...
 
 cover:
@@ -31,7 +37,7 @@ test_unit:
 	go test -count=1 -v ./tests/unit/
 
 build:
-	go build .
+	go build -ldflags "-X github.com/Optum/dce-cli/cmd.version=${VERSION}" .
 
 .PHONY: docs
 docs:

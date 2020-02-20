@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/Optum/dce-cli/pkg/service"
 	"github.com/spf13/cobra"
 )
 
@@ -40,16 +41,28 @@ func init() {
 	leasesCreateCmd.Flags().StringVarP(&budgetCurrency, "budget-currency", "c", "USD", "The leased accounts budget currency")
 	leasesCreateCmd.Flags().StringVarP(&expiresOn, "expires-on", "E", "7d", "The leased accounts expiry date as a long (UNIX epoch) or string (eg., '7d', '8h'")
 	leasesCreateCmd.Flags().StringArrayVarP(&email, "email", "e", nil, "The email address that budget notifications will be sent to")
-	leasesCreateCmd.MarkFlagRequired("principal-id")
-	leasesCreateCmd.MarkFlagRequired("budget-amount")
-	leasesCreateCmd.MarkFlagRequired("budget-currency")
-	leasesCreateCmd.MarkFlagRequired("email")
+	if err := leasesCreateCmd.MarkFlagRequired("principal-id"); err != nil {
+		log.Fatalln(err)
+	}
+	if err := leasesCreateCmd.MarkFlagRequired("budget-amount"); err != nil {
+		log.Fatalln(err)
+	}
+	if err := leasesCreateCmd.MarkFlagRequired("budget-currency"); err != nil {
+		log.Fatalln(err)
+	}
+	if err := leasesCreateCmd.MarkFlagRequired("email"); err != nil {
+		log.Fatalln(err)
+	}
 	leasesCmd.AddCommand(leasesCreateCmd)
 
 	leasesEndCmd.Flags().StringVarP(&principalID, "principal-id", "p", "", "Principle ID for the user of the leased account")
 	leasesEndCmd.Flags().StringVarP(&accountID, "account-id", "a", "", "Account ID associated with the lease you wish to end")
-	leasesEndCmd.MarkFlagRequired("principal-id")
-	leasesEndCmd.MarkFlagRequired("account-id")
+	if err := leasesEndCmd.MarkFlagRequired("principal-id"); err != nil {
+		log.Fatalln(err)
+	}
+	if err := leasesEndCmd.MarkFlagRequired("account-id"); err != nil {
+		log.Fatalln(err)
+	}
 	leasesCmd.AddCommand(leasesEndCmd)
 
 	leasesLoginCmd.Flags().BoolVarP(&loginOpenBrowser, "open-browser", "b", false, "Opens web broswer to AWS console instead of printing credentials")
@@ -103,9 +116,22 @@ var leasesEndCmd = &cobra.Command{
 
 var leasesLoginCmd = &cobra.Command{
 	Use:   "login [Lease ID]",
-	Short: "Login to a leased DCE account. (Sets AWS CLI credentials if used with no flags)",
-	Args:  cobra.ExactArgs(1),
+	Short: "Login to a leased DCE account. \n" +
+		"If no Lease ID is provided, uses the active lease for the requesting user. \n" +
+		"Sets AWS CLI credentials if used with no flags",
+	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		Service.LoginToLease(args[0], loginProfile, loginOpenBrowser, loginPrintCreds)
+		opts := &service.LeaseLoginOptions{
+			CliProfile:  loginProfile,
+			OpenBrowser: loginOpenBrowser,
+			PrintCreds:  loginPrintCreds,
+		}
+
+		if len(args) == 0 {
+			Service.Login(opts)
+		} else {
+			Service.LoginByID(args[0], opts)
+		}
+
 	},
 }

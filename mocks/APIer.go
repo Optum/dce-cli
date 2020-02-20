@@ -60,6 +60,29 @@ func (_m *APIer) DeleteLeases(_a0 *operations.DeleteLeasesParams, _a1 runtime.Cl
 	return r0, r1
 }
 
+// DeleteLeasesID provides a mock function with given fields: _a0, _a1
+func (_m *APIer) DeleteLeasesID(_a0 *operations.DeleteLeasesIDParams, _a1 runtime.ClientAuthInfoWriter) (*operations.DeleteLeasesIDOK, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 *operations.DeleteLeasesIDOK
+	if rf, ok := ret.Get(0).(func(*operations.DeleteLeasesIDParams, runtime.ClientAuthInfoWriter) *operations.DeleteLeasesIDOK); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*operations.DeleteLeasesIDOK)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*operations.DeleteLeasesIDParams, runtime.ClientAuthInfoWriter) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetAccounts provides a mock function with given fields: _a0, _a1
 func (_m *APIer) GetAccounts(_a0 *operations.GetAccountsParams, _a1 runtime.ClientAuthInfoWriter) (*operations.GetAccountsOK, error) {
 	ret := _m.Called(_a0, _a1)
@@ -99,6 +122,52 @@ func (_m *APIer) GetAccountsID(_a0 *operations.GetAccountsIDParams, _a1 runtime.
 	var r1 error
 	if rf, ok := ret.Get(1).(func(*operations.GetAccountsIDParams, runtime.ClientAuthInfoWriter) error); ok {
 		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetAuth provides a mock function with given fields: _a0
+func (_m *APIer) GetAuth(_a0 *operations.GetAuthParams) (*operations.GetAuthOK, error) {
+	ret := _m.Called(_a0)
+
+	var r0 *operations.GetAuthOK
+	if rf, ok := ret.Get(0).(func(*operations.GetAuthParams) *operations.GetAuthOK); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*operations.GetAuthOK)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*operations.GetAuthParams) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetAuthFile provides a mock function with given fields: _a0
+func (_m *APIer) GetAuthFile(_a0 *operations.GetAuthFileParams) (*operations.GetAuthFileOK, error) {
+	ret := _m.Called(_a0)
+
+	var r0 *operations.GetAuthFileOK
+	if rf, ok := ret.Get(0).(func(*operations.GetAuthFileParams) *operations.GetAuthFileOK); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*operations.GetAuthFileOK)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*operations.GetAuthFileParams) error); ok {
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -221,6 +290,29 @@ func (_m *APIer) PostLeases(_a0 *operations.PostLeasesParams, _a1 runtime.Client
 	return r0, r1
 }
 
+// PostLeasesAuth provides a mock function with given fields: _a0, _a1
+func (_m *APIer) PostLeasesAuth(_a0 *operations.PostLeasesAuthParams, _a1 runtime.ClientAuthInfoWriter) (*operations.PostLeasesAuthCreated, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 *operations.PostLeasesAuthCreated
+	if rf, ok := ret.Get(0).(func(*operations.PostLeasesAuthParams, runtime.ClientAuthInfoWriter) *operations.PostLeasesAuthCreated); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*operations.PostLeasesAuthCreated)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*operations.PostLeasesAuthParams, runtime.ClientAuthInfoWriter) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // PostLeasesIDAuth provides a mock function with given fields: _a0, _a1
 func (_m *APIer) PostLeasesIDAuth(_a0 *operations.PostLeasesIDAuthParams, _a1 runtime.ClientAuthInfoWriter) (*operations.PostLeasesIDAuthCreated, error) {
 	ret := _m.Called(_a0, _a1)
@@ -236,6 +328,29 @@ func (_m *APIer) PostLeasesIDAuth(_a0 *operations.PostLeasesIDAuthParams, _a1 ru
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(*operations.PostLeasesIDAuthParams, runtime.ClientAuthInfoWriter) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// PutAccountsID provides a mock function with given fields: _a0, _a1
+func (_m *APIer) PutAccountsID(_a0 *operations.PutAccountsIDParams, _a1 runtime.ClientAuthInfoWriter) (*operations.PutAccountsIDOK, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 *operations.PutAccountsIDOK
+	if rf, ok := ret.Get(0).(func(*operations.PutAccountsIDParams, runtime.ClientAuthInfoWriter) *operations.PutAccountsIDOK); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*operations.PutAccountsIDOK)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*operations.PutAccountsIDParams, runtime.ClientAuthInfoWriter) error); ok {
 		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)

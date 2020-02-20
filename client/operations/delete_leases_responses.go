@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
@@ -70,6 +69,9 @@ type DeleteLeasesOK struct {
 }
 
 func (o *DeleteLeasesOK) Error() string {
+	/*
+	#nosec CWE-89: false positive. No sql here.
+	*/
 	return fmt.Sprintf("[DELETE /leases][%d] deleteLeasesOK  %+v", 200, o.Payload)
 }
 

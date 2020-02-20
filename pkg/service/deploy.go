@@ -97,10 +97,10 @@ func (s *DeployService) PostDeploy(ctx context.Context) error {
 	apiURL, err := s.Util.GetOutput(ctx, "api_url")
 
 	if err == nil {
-		url, err := url.Parse(apiURL)
+		_url, err := url.Parse(apiURL)
 		if err == nil {
-			hostName := url.Hostname()
-			basePath := url.EscapedPath()
+			hostName := _url.Hostname()
+			basePath := _url.EscapedPath()
 			s.Config.API.Host = &hostName
 			s.Config.API.BasePath = &basePath
 		}
@@ -115,7 +115,10 @@ func (s *DeployService) PostDeploy(ctx context.Context) error {
 		s.Config.Terraform.TFApplyOptions = &cfg.TFApplyOptions
 	}
 
-	s.Util.WriteConfig()
+	err = s.Util.WriteConfig()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -147,7 +150,10 @@ func (s *DeployService) createDceInfra(ctx context.Context, overrides *DeployOve
 	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
-	s.retrieveTFModules()
+	_, err := s.retrieveTFModules()
+	if err != nil {
+		return "", err
+	}
 
 	deployLogFileName := s.Util.GetLogFile()
 	ctx = context.WithValue(ctx, constants.DeployLogFile, deployLogFileName)
@@ -189,7 +195,9 @@ func (s *DeployService) deployCodeAssets(artifactsBucket string, overrides *Depl
 	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
-	s.retrieveCodeAssets()
+	if _,err := s.retrieveCodeAssets(); err != nil {
+		log.Fatalln(err)
+	}
 
 	log.Debugln("Using \"%s\" for the artifact location.", artifactsBucket)
 
@@ -221,9 +229,12 @@ func (s *DeployService) getLocalTFMainContents(overrides *DeployOverrides) (stri
 	} else {
 		// Generate the main.tf template...
 		var buffer bytes.Buffer
-		addOverridesToTemplate(s.Util.TFTemplater, overrides)
+		err := addOverridesToTemplate(s.Util.TFTemplater, overrides)
+		if err != nil {
+			return "", err
+		}
 
-		err := s.Util.TFTemplater.Write(&buffer)
+		err = s.Util.TFTemplater.Write(&buffer)
 		if err != nil {
 			return "", err
 		}
@@ -250,9 +261,12 @@ func (s *DeployService) retrieveTFModules() (string, error) {
 }
 
 func (s *DeployService) retrieveCodeAssets() (string, error) {
-	tmpDir, oldDir := s.Util.ChToTmpDir()
+	var deferredErr error = nil
 
+	tmpDir, oldDir := s.Util.ChToTmpDir()
+	// #nosec
 	defer os.Chdir(oldDir)
+
 
 	if s.LocalRepo != "" {
 		zippedAssetsPath := filepath.Join(s.LocalRepo, "bin", AssetsFileName)
@@ -264,7 +278,7 @@ func (s *DeployService) retrieveCodeAssets() (string, error) {
 		s.Util.RemoveAll(AssetsFileName)
 	}
 
-	return tmpDir, nil
+	return tmpDir, deferredErr
 }
 
 func addOverridesToTemplate(t util.TFTemplater, overrides *DeployOverrides) error {

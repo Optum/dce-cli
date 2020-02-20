@@ -74,10 +74,17 @@ type Accounter interface {
 	ListAccounts()
 }
 
+type LeaseLoginOptions struct {
+	CliProfile  string
+	OpenBrowser bool
+	PrintCreds  bool
+}
+
 type Leaser interface {
 	CreateLease(principalID string, budgetAmount float64, budgetCurrency string, email []string, expiresOn string)
 	EndLease(accountID, principalID string)
-	LoginToLease(leaseID, profile string, loginOpenBrowser, loginPrintCreds bool)
+	LoginByID(leaseID string, opts *LeaseLoginOptions)
+	Login(opts *LeaseLoginOptions)
 	ListLeases(acctID, principalID, nextAcctID, nextPrincipalID, leaseStatus string, pagLimit int64)
 	GetLease(leaseID string)
 }
@@ -99,5 +106,7 @@ func printResponsePayload(res ResponseWithPayload) {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	out.Write(jsonPayload)
+	if _, err := out.Write(jsonPayload); err != nil {
+		log.Fatalln("err: ", err)
+	}
 }

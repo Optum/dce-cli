@@ -8,9 +8,8 @@ package models
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
@@ -32,6 +31,9 @@ const (
 
 	// AccountStatusLeased captures enum value "Leased"
 	AccountStatusLeased AccountStatus = "Leased"
+
+	// AccountStatusOrphaned captures enum value "Orphaned"
+	AccountStatusOrphaned AccountStatus = "Orphaned"
 )
 
 // for schema
@@ -39,7 +41,7 @@ var accountStatusEnum []interface{}
 
 func init() {
 	var res []AccountStatus
-	if err := json.Unmarshal([]byte(`["Ready","NotReady","Leased"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["Ready","NotReady","Leased","Orphaned"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

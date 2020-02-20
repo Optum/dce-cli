@@ -21,8 +21,13 @@ func (w *WebUtil) OpenURL(url string) {
 
 // Download will download the file at the given `url` and save it to the
 // `localpath`
+// Care should be taken to mitigate CWE-88 (https://cwe.mitre.org/data/definitions/88.html)
+// by ensuring inputs comes from a trusted source.
 func (w *WebUtil) Download(url string, localpath string) error {
 
+	/*
+		#nosec CWE-88: added disclaimer to function docs
+	*/
 	resp, err := http.Get(url)
 	if err != nil {
 		return err

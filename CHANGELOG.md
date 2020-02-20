@@ -1,7 +1,13 @@
 ## vNext
+<<<<<<< HEAD
 =======
 - **Potential breaking change**: Updated commands to output logging messages to STDERR, while JSON
   and other output goes to STDOUT
+=======
+
+- Added `version` command to support viewing the current release version of the running binary
+- Add `dce leases login` command (without Lease ID)
+>>>>>>> upstream/master
 
 ## v0.4.0
 - Added `--tf-init-options` and `--tf-apply-options` for greater control over underlying provisioner

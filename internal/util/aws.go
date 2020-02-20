@@ -21,6 +21,9 @@ type AWSUtil struct {
 	Session     *awsSession.Session
 }
 
+// UploadDirectoryToS3 uploads the contents of a directory to S3
+// Care should be taken when using this function to mitigate CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+// i.e. ensure `localPath` comes from a trusted source.
 func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix string) ([]string, []string) {
 	walker := make(fileWalk)
 	go func() {
@@ -40,6 +43,9 @@ func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix st
 		if err != nil {
 			log.Fatalln("Unable to get relative path:", path, err)
 		}
+		/*
+		#nosec CWE-22: added disclaimer to function docs
+		 */
 		file, err := os.Open(path)
 		if err != nil {
 			log.Println("Failed opening file", path, err)
@@ -113,15 +119,27 @@ func (u *AWSUtil) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string,
 	log.Infoln("Finished updating AWS Lambda functions.")
 }
 
+// ConfigureAWSCLICredentials sets credential values in the credentials config file used by the aws cli
+// Care should be taken to mitigate CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+// by ensuring inputs come from a trusted source.
 func (u *AWSUtil) ConfigureAWSCLICredentials(accessKeyID, secretAccessKey, sessionToken, profile string) {
+	/*
+		#nosec CWE-78: this value is populated by response data sent from the DCE backend, which is a trusted source.
+	*/
 	_, err := exec.Command("aws", "configure", "--profile", profile, "set", "aws_access_key_id", accessKeyID).CombinedOutput()
 	if err != nil {
 		log.Fatalln(err)
 	}
+	/*
+		#nosec CWE-78: this value is populated by response data sent from the DCE backend, which is a trusted source.
+	*/
 	_, err = exec.Command("aws", "configure", "--profile", profile, "set", "aws_secret_access_key", secretAccessKey).CombinedOutput()
 	if err != nil {
 		log.Fatalln(err)
 	}
+	/*
+		#nosec CWE-78: this value is populated by response data sent from the DCE backend, which is a trusted source.
+	*/
 	_, err = exec.Command("aws", "configure", "--profile", profile, "set", "aws_session_token", sessionToken).CombinedOutput()
 	if err != nil {
 		log.Fatalln(err)

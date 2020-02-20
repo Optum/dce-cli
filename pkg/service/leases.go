@@ -33,7 +33,7 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 
 	if err != nil && expiry > 0 {
 		expiryf := float64(expiry)
-		postBody.ExpiresOn = &expiryf
+		postBody.ExpiresOn = expiryf
 	}
 
 	params := &operations.PostLeasesParams{
@@ -49,8 +49,11 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 		log.Fatalln("err: ", err)
 	}
 	log.Infoln("Lease created.")
-	out.Write(jsonPayload)
 
+	if _, err := out.Write(jsonPayload); err != nil {
+		log.Fatalln("err: ", err)
+
+	}
 }
 
 func (s *LeasesService) EndLease(accountID, principalID string) {
@@ -81,8 +84,9 @@ func (s *LeasesService) GetLease(leaseID string) {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	out.Write(jsonPayload)
-
+	if _, err := out.Write(jsonPayload); err != nil {
+		log.Fatalln("err: ", err)
+	}
 }
 
 func (s *LeasesService) ListLeases(acctID, principalID, nextAcctID, nextPrincipalID, leaseStatus string, pagLimit int64) {
@@ -103,51 +107,78 @@ func (s *LeasesService) ListLeases(acctID, principalID, nextAcctID, nextPrincipa
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	out.Write(jsonPayload)
+	if _, err := out.Write(jsonPayload); err != nil {
+		log.Fatalln("err: ", err)
+	}
 }
 
-func (s *LeasesService) LoginToLease(leaseID, loginProfile string, loginOpenBrowser, loginPrintCreds bool) {
+type leaseCreds struct {
+	AccessKeyID     string  `json:"accessKeyId,omitempty"`
+	ConsoleURL      string  `json:"consoleUrl,omitempty"`
+	ExpiresOn       float64 `json:"expiresOn,omitempty"`
+	SecretAccessKey string  `json:"secretAccessKey,omitempty"`
+	SessionToken    string  `json:"sessionToken,omitempty"`
+}
+
+func (s *LeasesService) Login(opts *LeaseLoginOptions) {
 	log.Debugln("Requesting leased account credentials")
-	params := &operations.PostLeasesIDAuthParams{
-		ID: leaseID,
-	}
-	params.SetTimeout(5 * time.Second)
-	res, err := apiClient.PostLeasesIDAuth(params, nil)
+
+	params := &operations.PostLeasesAuthParams{}
+	params.SetTimeout(20 * time.Second)
+	res, err := apiClient.PostLeasesAuth(params, nil)
+
 	if err != nil {
-		log.Fatalln("err: ", err)
-	} else {
-		jsonPayload, err := json.MarshalIndent(res.GetPayload(), "", "\t")
-		if err != nil {
-			log.Fatalln("err: ", err)
-		}
-		// This should stay in the logs?
-		log.Infoln(string(jsonPayload))
+		log.Fatal(err)
 	}
 
 	responsePayload := res.GetPayload()
 
-	if !(loginOpenBrowser || loginPrintCreds) {
+	creds := leaseCreds(*responsePayload)
+	s.loginWithCreds(&creds, opts)
+}
+
+func (s *LeasesService) LoginByID(leaseID string, opts *LeaseLoginOptions) {
+	log.Debugln("Requesting leased account credentials")
+	params := &operations.PostLeasesIDAuthParams{
+		ID: leaseID,
+	}
+	params.SetTimeout(20 * time.Second)
+	res, err := apiClient.PostLeasesIDAuth(params, nil)
+	if err != nil {
+		log.Fatalln("err: ", err)
+	}
+
+	responsePayload := res.GetPayload()
+
+	creds := leaseCreds(*responsePayload)
+	s.loginWithCreds(&creds, opts)
+}
+
+func (s *LeasesService) loginWithCreds(leaseCreds *leaseCreds, opts *LeaseLoginOptions) {
+	if !(opts.OpenBrowser || opts.PrintCreds) {
 		credsPath := filepath.Join(".aws", "credentials")
 		log.Infoln("Adding credentials to " + credsPath + " using AWS CLI")
-		s.Util.ConfigureAWSCLICredentials(responsePayload.AccessKeyID,
-			responsePayload.SecretAccessKey,
-			responsePayload.SessionToken,
-			loginProfile)
+		s.Util.ConfigureAWSCLICredentials(leaseCreds.AccessKeyID,
+			leaseCreds.SecretAccessKey,
+			leaseCreds.SessionToken,
+			opts.CliProfile)
 
-	} else if loginProfile != "default" {
+	} else if opts.CliProfile != "default" {
 		log.Infoln("Setting --profile has no effect when used with other flags.\n")
 	}
 
-	if loginOpenBrowser {
+	if opts.OpenBrowser {
 		log.Infoln("Opening AWS Console in Web Browser")
-		s.Util.OpenURL(responsePayload.ConsoleURL)
+		s.Util.OpenURL(leaseCreds.ConsoleURL)
 	}
 
-	if loginPrintCreds {
+	if opts.PrintCreds {
 		creds := fmt.Sprintf(constants.CredentialsExport,
-			responsePayload.AccessKeyID,
-			responsePayload.SecretAccessKey,
-			responsePayload.SessionToken)
-		out.Write([]byte(creds))
+			leaseCreds.AccessKeyID,
+			leaseCreds.SecretAccessKey,
+			leaseCreds.SessionToken)
+		if _, err := out.Write([]byte(creds)); err != nil {
+			log.Fatalln("err: ", err)
+		}
 	}
 }

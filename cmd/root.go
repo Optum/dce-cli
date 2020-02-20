@@ -71,6 +71,13 @@ func preRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Check if the requested command is for a version check
+	// If it is, return here, as no creds are needed
+
+	if cmd.Name() == versionCmd.Name() {
+		return nil
+	}
+
 	// Check if the user has valid creds,
 	// otherwise require authentication
 	creds := Util.AWSSession.Config.Credentials
@@ -129,7 +136,9 @@ func onInit(cmd *cobra.Command, args []string) error {
 	// If config file does not exist,
 	// run the `dce init` command
 	if !fsUtil.IsExistingFile(cfgFile) {
-		if cmd.Name() != initCmd.Name() {
+		if cmd.Name() == versionCmd.Name() {
+			return nil
+		} else if cmd.Name() != initCmd.Name() {
 			return errors.New("Config file not found. Please type 'dce init' to generate one.")
 		}
 	} else {

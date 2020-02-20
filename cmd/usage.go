@@ -10,8 +10,12 @@ var endDate float64
 func init() {
 	usageCmd.Flags().Float64VarP(&startDate, "start-date", "s", 0, "The start date of the window over which usage information will be queried. (epoch timestamp)")
 	usageCmd.Flags().Float64VarP(&endDate, "end-date", "e", 0, "The end date of the window over which usage information will be queried. (epoch timestamp)")
-	usageCmd.MarkFlagRequired("start-date")
-	usageCmd.MarkFlagRequired("end-date")
+	if err := usageCmd.MarkFlagRequired("start-date"); err != nil {
+		log.Fatalln(err)
+	}
+	if err := usageCmd.MarkFlagRequired("end-date"); err != nil {
+		log.Fatalln(err)
+	}
 	RootCmd.AddCommand(usageCmd)
 }
 
