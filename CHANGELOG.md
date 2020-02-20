@@ -1,5 +1,7 @@
 ## vNext
 
+- **Potential breaking change**: Updated commands to output logging messages to STDERR, while JSON
+  and other output goes to STDOUT
 - Added `version` command to support viewing the current release version of the running binary
 - Add `dce leases login` command (without Lease ID)
 

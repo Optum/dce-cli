@@ -4,9 +4,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
@@ -14,7 +15,7 @@ import (
 func NewAWSSession(token *string) (*session.Session, error) {
 	// Setup the AWS credentials provider chain.
 	// First, we'll check for credentials in the
-	// dce.yaml's `api.token` config.
+	// configuration file's `api.token` config.
 	// then we'll use AWS's standard chain (env vars, ~/aws/credentials file)
 	creds := credentials.NewChainCredentials([]credentials.Provider{
 		NewAPITokenProvider(token),
@@ -92,5 +93,5 @@ type APITokenValue struct {
 	AccessKeyID     string `json:"accessKeyId"`
 	SecretAccessKey string `json:"secretAccessKey"`
 	SessionToken    string `json:"sessionToken"`
-	Expiration      int64 `json:"expireTime"`
+	Expiration      int64  `json:"expireTime"`
 }

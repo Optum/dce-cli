@@ -48,7 +48,12 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln("Lease created:", string(jsonPayload))
+	log.Infoln("Lease created.")
+
+	if _, err := out.Write(jsonPayload); err != nil {
+		log.Fatalln("err: ", err)
+
+	}
 }
 
 func (s *LeasesService) EndLease(accountID, principalID string) {
@@ -79,8 +84,9 @@ func (s *LeasesService) GetLease(leaseID string) {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln(string(jsonPayload))
-
+	if _, err := out.Write(jsonPayload); err != nil {
+		log.Fatalln("err: ", err)
+	}
 }
 
 func (s *LeasesService) ListLeases(acctID, principalID, nextAcctID, nextPrincipalID, leaseStatus string, pagLimit int64) {
@@ -101,15 +107,17 @@ func (s *LeasesService) ListLeases(acctID, principalID, nextAcctID, nextPrincipa
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln(string(jsonPayload))
+	if _, err := out.Write(jsonPayload); err != nil {
+		log.Fatalln("err: ", err)
+	}
 }
 
 type leaseCreds struct {
-	AccessKeyID string `json:"accessKeyId,omitempty"`
-	ConsoleURL string `json:"consoleUrl,omitempty"`
-	ExpiresOn float64 `json:"expiresOn,omitempty"`
-	SecretAccessKey string `json:"secretAccessKey,omitempty"`
-	SessionToken string `json:"sessionToken,omitempty"`
+	AccessKeyID     string  `json:"accessKeyId,omitempty"`
+	ConsoleURL      string  `json:"consoleUrl,omitempty"`
+	ExpiresOn       float64 `json:"expiresOn,omitempty"`
+	SecretAccessKey string  `json:"secretAccessKey,omitempty"`
+	SessionToken    string  `json:"sessionToken,omitempty"`
 }
 
 func (s *LeasesService) Login(opts *LeaseLoginOptions) {
@@ -132,7 +140,7 @@ func (s *LeasesService) Login(opts *LeaseLoginOptions) {
 func (s *LeasesService) LoginByID(leaseID string, opts *LeaseLoginOptions) {
 	log.Debugln("Requesting leased account credentials")
 	params := &operations.PostLeasesIDAuthParams{
-		ID:         leaseID,
+		ID: leaseID,
 	}
 	params.SetTimeout(20 * time.Second)
 	res, err := apiClient.PostLeasesIDAuth(params, nil)
@@ -169,6 +177,8 @@ func (s *LeasesService) loginWithCreds(leaseCreds *leaseCreds, opts *LeaseLoginO
 			leaseCreds.AccessKeyID,
 			leaseCreds.SecretAccessKey,
 			leaseCreds.SessionToken)
-		log.Infoln(creds)
+		if _, err := out.Write([]byte(creds)); err != nil {
+			log.Fatalln("err: ", err)
+		}
 	}
 }

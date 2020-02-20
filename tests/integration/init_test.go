@@ -31,7 +31,7 @@ func TestInitCommand(t *testing.T) {
 					"/api",
 				)
 
-				// Create a tmp dir for our dce.yml config to live in
+				// Create a tmp dir for our config to live in
 				tmpdir, err := ioutil.TempDir("", "dce-cli-test")
 				require.Nil(t, err)
 				defer os.RemoveAll(tmpdir)
@@ -162,7 +162,7 @@ func TestInitCommand(t *testing.T) {
 				cli := NewCLITest(t)
 				err = cli.Execute([]string{"init", "--config", tmpfile.Name()})
 				require.NotNil(t, err)
-				require.Contains(t, err.Error(), "Failed to parse dce.yml:")
+				require.Contains(t, err.Error(), "Failed to parse configuration file")
 			})
 
 		})

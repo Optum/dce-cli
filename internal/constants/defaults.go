@@ -1,6 +1,7 @@
 package constants
 
 const CommandShortName = "dce"
+const ConfigFileDefaultLocationUnexpanded = "$HOME/.dce/config.yaml"
 
 const DefaultConfigFileName string = "config.yaml"
 const GlobalTFTagDefaults string = `"Terraform":"True","AppName":"DCE","Source":"github.com/Optum/dce//modules"`

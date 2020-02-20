@@ -41,6 +41,7 @@ var mockTerraformer mocks.Terraformer
 var mockTFTemplater mocks.TFTemplater
 var mockAPIer mocks.APIer
 var spyLogger TestLogObservation
+var mockOutputWriter mocks.OutputWriter
 var service *svc.ServiceContainer
 
 func initMocks(config configs.Root) {
@@ -52,13 +53,15 @@ func initMocks(config configs.Root) {
 	mockTerraformer = mocks.Terraformer{}
 	mockAPIer = mocks.APIer{}
 	mockTFTemplater = mocks.TFTemplater{}
+	mockOutputWriter = mocks.OutputWriter{}
 	spyLogger = TestLogObservation{
 		logrus.New(),
 		false,
 		"",
 	}
 	spyObservation := observ.ObservationContainer{
-		Logger: &spyLogger,
+		Logger:       &spyLogger,
+		OutputWriter: &mockOutputWriter,
 	}
 	mockUtil := utl.UtilContainer{
 		Config:       &config,
