@@ -264,12 +264,9 @@ func (s *DeployService) retrieveCodeAssets() (string, error) {
 	var deferredErr error = nil
 
 	tmpDir, oldDir := s.Util.ChToTmpDir()
-	defer func() {
-		err := os.Chdir(oldDir)
-		if err != nil {
-			deferredErr = err
-		}
-	}()
+	// #nosec
+	defer os.Chdir(oldDir)
+
 
 	if s.LocalRepo != "" {
 		zippedAssetsPath := filepath.Join(s.LocalRepo, "bin", AssetsFileName)
