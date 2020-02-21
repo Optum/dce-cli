@@ -15,6 +15,7 @@ import (
 type FileSystemUtil struct {
 	Config     *configs.Root
 	ConfigFile string
+	ConfigDir string
 }
 
 func (u *FileSystemUtil) writeToYAMLFile(path string, _struct interface{}) error {
@@ -71,6 +72,9 @@ func (u *FileSystemUtil) GetHomeDir() string {
 }
 
 func (u *FileSystemUtil) GetConfigDir() string {
+	if u.ConfigDir != "" {
+		return u.ConfigDir
+	}
 	return filepath.Join(u.GetHomeDir(), ".dce")
 }
 
@@ -90,11 +94,8 @@ func (u *FileSystemUtil) ReadFromFile(path string) string {
 	return string(contents)
 }
 
-func (u *FileSystemUtil) Unarchive(source string, destination string) {
-	err := archiver.Unarchive(source, destination)
-	if err != nil {
-		log.Fatalln(err)
-	}
+func (u *FileSystemUtil) Unarchive(source string, destination string) error {
+	return archiver.Unarchive(source, destination)
 }
 
 func (u *FileSystemUtil) ChToConfigDir() (string, string) {
@@ -176,8 +177,8 @@ func (u *FileSystemUtil) GetCacheDir() string {
 
 // GetArtifactsDir returns the cached artifacts dir, which by default is
 // `~/.dce/.cache/dce/${DCE_VERSION}/`
-func (u *FileSystemUtil) GetArtifactsDir() string {
-	return filepath.Join(u.GetCacheDir(), constants.CommandShortName, constants.DCEBackendVersion)
+func (u *FileSystemUtil) GetArtifactsDir(dceVersion string) string {
+	return filepath.Join(u.GetCacheDir(), constants.CommandShortName, dceVersion)
 }
 
 // GetTerraformBinDir returns the dir in which the `terraform` bin is installed,
@@ -194,9 +195,9 @@ func (u *FileSystemUtil) GetLocalTFModuleDir() string {
 
 // CreateConfigDirTree creates all the dirs in the dir specified by GetConfigDir(),
 // including the dir itself.
-func (u *FileSystemUtil) CreateConfigDirTree() error {
+func (u *FileSystemUtil) CreateConfigDirTree(dceVersion string) error {
 	dirs := []string{
-		u.GetArtifactsDir(),
+		u.GetArtifactsDir(dceVersion),
 		u.GetTerraformBinDir(),
 		u.GetLocalTFModuleDir(),
 	}

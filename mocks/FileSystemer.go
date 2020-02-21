@@ -57,13 +57,13 @@ func (_m *FileSystemer) Chdir(path string) {
 	_m.Called(path)
 }
 
-// CreateConfigDirTree provides a mock function with given fields:
-func (_m *FileSystemer) CreateConfigDirTree() error {
-	ret := _m.Called()
+// CreateConfigDirTree provides a mock function with given fields: dceVersion
+func (_m *FileSystemer) CreateConfigDirTree(dceVersion string) error {
+	ret := _m.Called(dceVersion)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(dceVersion)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -71,13 +71,13 @@ func (_m *FileSystemer) CreateConfigDirTree() error {
 	return r0
 }
 
-// GetArtifactsDir provides a mock function with given fields:
-func (_m *FileSystemer) GetArtifactsDir() string {
-	ret := _m.Called()
+// GetArtifactsDir provides a mock function with given fields: dceVersion
+func (_m *FileSystemer) GetArtifactsDir(dceVersion string) string {
+	ret := _m.Called(dceVersion)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func() string); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(dceVersion)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -312,8 +312,17 @@ func (_m *FileSystemer) RemoveAll(path string) {
 }
 
 // Unarchive provides a mock function with given fields: source, destination
-func (_m *FileSystemer) Unarchive(source string, destination string) {
-	_m.Called(source, destination)
+func (_m *FileSystemer) Unarchive(source string, destination string) error {
+	ret := _m.Called(source, destination)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(source, destination)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // WriteConfig provides a mock function with given fields:

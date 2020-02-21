@@ -21,6 +21,8 @@ type AWSUtil struct {
 	Session     *awsSession.Session
 }
 
+// UploadDirectoryToS3 walks through the the files in the `localPath` directory
+// and uploads the files to S#
 func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix string) ([]string, []string) {
 	walker := make(fileWalk)
 	go func() {

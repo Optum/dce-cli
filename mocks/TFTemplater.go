@@ -24,6 +24,11 @@ func (_m *TFTemplater) AddVariable(name string, vartype string, vardefault strin
 	return r0
 }
 
+// SetModuleSource provides a mock function with given fields: source
+func (_m *TFTemplater) SetModuleSource(source string) {
+	_m.Called(source)
+}
+
 // Write provides a mock function with given fields: w
 func (_m *TFTemplater) Write(w io.Writer) error {
 	ret := _m.Called(w)

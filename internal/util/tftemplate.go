@@ -6,8 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"text/template"
-
-	"github.com/Optum/dce-cli/internal/constants"
 )
 
 // tfMainTemplate is the template for the main.tf file that is generated
@@ -33,7 +31,7 @@ variable "{{.Name}}" {
 }
 {{end}}
 module "dce" {
-	source="github.com/Optum/dce//modules?ref={{.Version}}"
+	source="{{.ModuleSource}}"
 {{range .TFVars}}
 	{{.Name}} = var.{{.Name}}
 {{- end}}
@@ -63,7 +61,8 @@ type MainTFTemplate struct {
 	LocalBackend         bool
 	LocalTFStateFilePath string
 	TFWorkspaceDir       string
-	Version              string
+	// DCE terraform module source location
+	ModuleSource string
 }
 
 // AddVariable adds a variable with the given `name`, variable type (`vartype`),
@@ -90,12 +89,12 @@ func (t *MainTFTemplate) AddVariable(name string, vartype string, val string) er
 	return nil
 }
 
+func (t *MainTFTemplate) SetModuleSource(source string) {
+	t.ModuleSource = source
+}
+
 // Write writes the template to the given writer
 func (t *MainTFTemplate) Write(w io.Writer) error {
-
-	if len(t.Version) == 0 {
-		return fmt.Errorf("non-zero length value required for version")
-	}
 
 	if t.LocalBackend {
 		if len(t.TFWorkspaceDir) == 0 {
@@ -116,15 +115,13 @@ func NewMainTFTemplate(fs FileSystemer) *MainTFTemplate {
 
 	tfWorkDir := filepath.Join(fs.GetCacheDir(), "tf-workspace")
 	if _, err := os.Stat(tfWorkDir); os.IsNotExist(err) {
-		os.Mkdir(tfWorkDir, os.ModeDir|os.FileMode(int(0700)))
+		_ = os.Mkdir(tfWorkDir, os.ModeDir|os.FileMode(int(0700)))
 	}
 
 	tfStateFilePath := fs.GetTerraformStateFile()
 
 	tf := &MainTFTemplate{
-		TFVars:               []TFVar{},
 		LocalBackend:         true,
-		Version:              fmt.Sprintf("v%s", constants.DCEBackendVersion),
 		LocalTFStateFilePath: tfStateFilePath,
 		TFWorkspaceDir:       tfWorkDir,
 	}

@@ -3,6 +3,6 @@ package constants
 type ContextKey string
 
 const (
-	DeployConfig  ContextKey = ContextKey("deployConfig")
-	DeployLogFile ContextKey = ContextKey("deployLogFile")
+	DeployConfig     ContextKey = ContextKey("deployConfig")
+	DeployLogFileKey ContextKey = ContextKey("deployLogFile")
 )

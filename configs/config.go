@@ -6,6 +6,7 @@ import "os"
 type Root struct {
 	API       API
 	Region    *string
+	Deploy    Deploy `yaml:"deploy,omitempty"`
 	Terraform Terraform
 }
 
@@ -17,33 +18,29 @@ type API struct {
 	Token *string `yaml:"token,omitempty"`
 }
 
+type Deploy struct {
+	// Path to the DCE repo to deploy
+	// May be a local file path (eg. /path/to/dce)
+	// or a github repo (eg. github.com/Optum/dce)
+	Location *string `yaml:"location,omitempty"`
+	// Version of DCE to deploy, eg 0.12.3
+	Version *string `yaml:"version,omitempty"`
+	// Deployment logs will be written to this location
+	LogFile *string `yaml:"logFile,omitempty"`
+	// AWS Region in which to deploy DCE
+	AWSRegion *string `yaml:"region,omitempty"`
+	// Namespace used as naming suffix for AWS resources
+	Namespace *string `yaml:"namespace,omitempty"`
+	BudgetNotificationFromEmail *string `yaml:"budgetNotificationFromEmail,omitempty"`
+}
+
 // Terraform contains configuration for the underlying terraform
 // command used to provision the DCE infrastructure.
 type Terraform struct {
 	Bin            *string
-	Source         *string
+	Source         *string // URL from which the Terraform release was downloaded
 	TFInitOptions  *string `yaml:"initOptions,omitempty"`
 	TFApplyOptions *string `yaml:"applyOptions,omitempty"`
-}
-
-// DeployConfig holds configuration values for the `system deploy`
-// command
-type DeployConfig struct {
-	// UseCached, if true, tells DCE to use files already in the
-	// `~/.dce/.cache` folder
-	UseCached bool
-	// DeployLocalPath, if set, specifies a path from which to pull
-	// local resources
-	DeployLocalPath string
-	// BatchMode, if enabled, forces DCE to run non-interactively
-	// and supplies Terraform with -auto-approve and input=false
-	BatchMode bool
-	// TFInitOptions are options passed along to `terraform init`
-	TFInitOptions string
-	// TFApplyOptions are options passed along to `terraform apply`
-	TFApplyOptions string
-	// SaveTFOptions, if yes, will save the provided terraform options to the config file.
-	SaveTFOptions bool
 }
 
 var Regions = []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2"}

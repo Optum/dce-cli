@@ -2,7 +2,6 @@
 
 package mocks
 
-import context "context"
 import mock "github.com/stretchr/testify/mock"
 import service "github.com/Optum/dce-cli/pkg/service"
 
@@ -11,13 +10,13 @@ type Deployer struct {
 	mock.Mock
 }
 
-// Deploy provides a mock function with given fields: ctx, overrides
-func (_m *Deployer) Deploy(ctx context.Context, overrides *service.DeployOverrides) error {
-	ret := _m.Called(ctx, overrides)
+// Deploy provides a mock function with given fields: input
+func (_m *Deployer) Deploy(input *service.DeployConfig) error {
+	ret := _m.Called(input)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *service.DeployOverrides) error); ok {
-		r0 = rf(ctx, overrides)
+	if rf, ok := ret.Get(0).(func(*service.DeployConfig) error); ok {
+		r0 = rf(input)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -25,13 +24,13 @@ func (_m *Deployer) Deploy(ctx context.Context, overrides *service.DeployOverrid
 	return r0
 }
 
-// PostDeploy provides a mock function with given fields: ctx
-func (_m *Deployer) PostDeploy(ctx context.Context) error {
-	ret := _m.Called(ctx)
+// PostDeploy provides a mock function with given fields: input
+func (_m *Deployer) PostDeploy(input *service.DeployConfig) error {
+	ret := _m.Called(input)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(*service.DeployConfig) error); ok {
+		r0 = rf(input)
 	} else {
 		r0 = ret.Error(0)
 	}

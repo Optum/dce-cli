@@ -16,25 +16,27 @@ type GithubUtil struct {
 	Observation *observ.ObservationContainer
 }
 
-func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string) {
+func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string, releaseName string) error {
 	// There is an open issue on being able to get different versions. That
 	// would go here...
-	assetDownloadURL := fmt.Sprintf(constants.GithubAssetDownloadURLFormat, constants.DCEBackendVersion, assetName)
+	assetDownloadURL := fmt.Sprintf(constants.GithubAssetDownloadURLFormat, releaseName, assetName)
 	req, err := http.NewRequest("GET", assetDownloadURL, nil)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		return err
 	}
 	defer resp.Body.Close()
 
 	out, err := os.Create(assetName)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		return err
 	}
 	defer out.Close()
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		return err
 	}
+
+	return nil
 }
