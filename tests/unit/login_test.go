@@ -2,9 +2,10 @@ package unit
 
 import (
 	"fmt"
-	service2 "github.com/Optum/dce-cli/pkg/service"
 	"testing"
 	"time"
+
+	service2 "github.com/Optum/dce-cli/pkg/service"
 
 	"github.com/Optum/dce-cli/client/operations"
 	"github.com/Optum/dce-cli/configs"
@@ -81,14 +82,21 @@ func TestLeaseLoginGivenFlags(t *testing.T) {
 			if tc.isWeberCalled {
 				mockWeber.On("OpenURL", expectedConsoleURL)
 			}
+
+			if tc.opts.PrintCreds {
+				mockOutputWriter.On("Write", []byte(tc.expectedOut)).Return(0, nil)
+			}
+
 			// Act
 			service.LoginByID(tc.leaseID, tc.opts)
 
 			// Assert
 			mockWeber.AssertExpectations(t)
 			mockAPIer.AssertExpectations(t)
-
-			assert.Contains(t, spyLogger.Msg, tc.expectedOut)
+			mockOutputWriter.AssertExpectations(t)
+			if !(tc.opts.OpenBrowser || tc.opts.PrintCreds) {
+				assert.Contains(t, spyLogger.Msg, tc.expectedOut)
+			}
 		})
 	}
 }

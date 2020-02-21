@@ -30,6 +30,8 @@ func (s *UsageService) GetUsage(startDate, endDate float64) {
 		if err != nil {
 			log.Fatalln("err: ", err)
 		}
-		log.Infoln(string(jsonPayload))
+		if _, err := out.Write(jsonPayload); err != nil {
+			log.Fatalln("err: ", err)
+		}
 	}
 }

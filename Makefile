@@ -21,7 +21,10 @@ mocks:
 	rm -rf mocks/*
 	mockery -all
 
-test:
+lint:
+	./scripts/lint.sh
+
+test: lint
 	go test -count=1 -v ./...
 
 cover:
