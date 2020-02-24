@@ -2,8 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/json"
-
 	"github.com/Optum/dce-cli/configs"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	utl "github.com/Optum/dce-cli/internal/util"
@@ -99,14 +97,4 @@ type Authenticater interface {
 
 type ResponseWithPayload interface {
 	GetPayload() interface{}
-}
-
-func printResponsePayload(res ResponseWithPayload) {
-	jsonPayload, err := json.MarshalIndent(res.GetPayload(), "", "\t")
-	if err != nil {
-		log.Fatalln("err: ", err)
-	}
-	if _, err := out.Write(jsonPayload); err != nil {
-		log.Fatalln("err: ", err)
-	}
 }

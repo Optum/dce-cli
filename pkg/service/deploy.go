@@ -195,7 +195,7 @@ func (s *DeployService) deployCodeAssets(artifactsBucket string, overrides *Depl
 	_, originDir := s.Util.ChToConfigDir()
 	defer s.Util.Chdir(originDir)
 
-	if _,err := s.retrieveCodeAssets(); err != nil {
+	if _, err := s.retrieveCodeAssets(); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -265,8 +265,8 @@ func (s *DeployService) retrieveCodeAssets() (string, error) {
 
 	tmpDir, oldDir := s.Util.ChToTmpDir()
 	// #nosec
+	// nolint
 	defer os.Chdir(oldDir)
-
 
 	if s.LocalRepo != "" {
 		zippedAssetsPath := filepath.Join(s.LocalRepo, "bin", AssetsFileName)
@@ -286,15 +286,6 @@ func addOverridesToTemplate(t util.TFTemplater, overrides *DeployOverrides) erro
 	if overrides.AWSRegion != "" {
 		_ = t.AddVariable("aws_region", "string", overrides.AWSRegion)
 	}
-
-	globalTags := "global_tags={" + constants.GlobalTFTagDefaults
-	if len(overrides.GlobalTags) != 0 {
-		for _, tag := range overrides.GlobalTags {
-			globalTags += ",\"" + strings.ReplaceAll(tag, ":", "\":\"") + "\""
-		}
-	}
-	globalTags += "}"
-	// _ = t.AddVariable("global_tags", "map(string)", globalTags)
 
 	if overrides.Namespace != "" {
 		_ = t.AddVariable("namespace", "string", overrides.Namespace)

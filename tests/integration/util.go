@@ -20,7 +20,7 @@ import (
 // tests against the CLI
 type cliTest struct {
 	*MockPrompter
-	stdout *bytes.Buffer
+	stdout   *bytes.Buffer
 	injector injector
 }
 
@@ -40,7 +40,6 @@ func NewCLITest(t *testing.T) *cliTest {
 	prompter := &MockPrompter{T: t}
 
 	var stdout bytes.Buffer
-
 
 	cli := &cliTest{
 		MockPrompter: prompter,
@@ -81,9 +80,9 @@ func (test *cliTest) Output() string {
 }
 
 type injectorInput struct {
-	config *configs.Root
-	service *service.ServiceContainer
-	util *utl.UtilContainer
+	config      *configs.Root
+	service     *service.ServiceContainer
+	util        *utl.UtilContainer
 	observation *observation.ObservationContainer
 }
 type injector func(input *injectorInput)

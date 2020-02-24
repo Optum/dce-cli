@@ -118,8 +118,8 @@ func NewMainTFTemplate(fs FileSystemer) *MainTFTemplate {
 	if _, err := os.Stat(tfWorkDir); os.IsNotExist(err) {
 		/*
 			#nosec CWE-703: failures accounted for in error returned by Write function. TODO: refactor this
-		 */
-		os.Mkdir(tfWorkDir, os.ModeDir|os.FileMode(int(0700)))
+		*/
+		_ = os.Mkdir(tfWorkDir, os.ModeDir|os.FileMode(int(0700)))
 	}
 
 	tfStateFilePath := fs.GetTerraformStateFile()

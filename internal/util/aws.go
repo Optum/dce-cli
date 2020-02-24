@@ -44,14 +44,13 @@ func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix st
 			log.Fatalln("Unable to get relative path:", path, err)
 		}
 		/*
-		#nosec CWE-22: added disclaimer to function docs
-		 */
+			#nosec CWE-22: added disclaimer to function docs
+		*/
 		file, err := os.Open(path)
 		if err != nil {
 			log.Println("Failed opening file", path, err)
 			continue
 		}
-		defer file.Close()
 		result, err := uploader.Upload(&s3manager.UploadInput{
 			Bucket: &bucket,
 			Key:    aws.String(filepath.Join(prefix, rel)),
@@ -59,6 +58,10 @@ func (u *AWSUtil) UploadDirectoryToS3(localPath string, bucket string, prefix st
 		})
 		if err != nil {
 			log.Fatalln("Failed to upload", path, err)
+		}
+		err = file.Close()
+		if err != nil {
+			log.Fatalln("Unable to close file:", err)
 		}
 		log.Debugln("Uploaded", path, result.Location)
 		log.Infoln(".")
@@ -102,14 +105,9 @@ func (u *AWSUtil) UpdateLambdasFromS3Assets(lambdaNames []string, bucket string,
 			S3Key:        aws.String("lambda/" + name + ".zip"),
 		}
 
-		out, err := json.Marshal(input)
-		if err != nil {
-			panic(err)
-		}
-
 		updateLambdaConfig, _ := client.UpdateFunctionCode(input)
 
-		out, err = json.Marshal(updateLambdaConfig)
+		out, err := json.Marshal(updateLambdaConfig)
 		if err != nil {
 			panic(err)
 		}

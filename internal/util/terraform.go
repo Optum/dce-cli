@@ -22,7 +22,7 @@ import (
 var paramSplitRegex *regexp.Regexp
 
 func init() {
-	paramSplitRegex = regexp.MustCompile("\\s+")
+	paramSplitRegex = regexp.MustCompile(`\s+`)
 }
 
 type execInput struct {
