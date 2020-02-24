@@ -58,9 +58,12 @@ func (s *AccountsService) GetAccount(accountID string) {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln(string(jsonPayload))
+	if _, err := out.Write(jsonPayload); err != nil {
+		log.Fatalln("err: ", err)
+	}
 }
 
+// ListAccounts lists the accounts
 func (s *AccountsService) ListAccounts() {
 	params := &operations.GetAccountsParams{}
 	params.SetTimeout(5 * time.Second)
@@ -72,5 +75,7 @@ func (s *AccountsService) ListAccounts() {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln(string(jsonPayload))
+	if _, err := out.Write(jsonPayload); err != nil {
+		log.Fatalln("err: ", err)
+	}
 }

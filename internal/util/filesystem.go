@@ -46,12 +46,12 @@ func (u *FileSystemUtil) writeToYAMLFile(path string, _struct interface{}) error
 }
 
 // WriteConfig writes the Config objects as YAML
-// to the config file location (dce.yml)
+// to the config file location
 func (u *FileSystemUtil) WriteConfig() error {
 	return u.writeToYAMLFile(u.ConfigFile, u.Config)
 }
 
-// ReadInConfig loads the configuration from `dce.yml`
+// ReadInConfig loads the configuration from the configuration file
 // and unmarshals it into the config object
 func (u *FileSystemUtil) ReadInConfig() error {
 	yamlStr, err := ioutil.ReadFile(u.ConfigFile)

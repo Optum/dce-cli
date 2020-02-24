@@ -22,7 +22,7 @@ func (s *InitService) InitializeDCE() {
 	// Prompt user for required configs
 	s.promptUserForConfig(s.Config)
 
-	// Write the config to dce.yml
+	// Write the config to the config file
 	err := s.Util.WriteConfig()
 	if err != nil {
 		log.Fatalf("Failed to write YAML config to %s: %s",

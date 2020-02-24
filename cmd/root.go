@@ -144,7 +144,7 @@ func onInit(cmd *cobra.Command, args []string) error {
 		// Load config from the configuration file
 		err := fsUtil.ReadInConfig()
 		if err != nil {
-			return fmt.Errorf("Failed to parse dce.yml: %s", err)
+			return fmt.Errorf("Failed to parse configuration file: %s", err)
 		}
 	}
 

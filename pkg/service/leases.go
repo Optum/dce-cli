@@ -48,7 +48,12 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln("Lease created:", string(jsonPayload))
+	log.Infoln("Lease created.")
+
+	if _, err := out.Write(jsonPayload); err != nil {
+		log.Fatalln("err: ", err)
+
+	}
 }
 
 func (s *LeasesService) EndLease(accountID, principalID string) {
@@ -79,8 +84,9 @@ func (s *LeasesService) GetLease(leaseID string) {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln(string(jsonPayload))
-
+	if _, err := out.Write(jsonPayload); err != nil {
+		log.Fatalln("err: ", err)
+	}
 }
 
 func (s *LeasesService) ListLeases(acctID, principalID, nextAcctID, nextPrincipalID, leaseStatus string, pagLimit int64) {
@@ -101,7 +107,9 @@ func (s *LeasesService) ListLeases(acctID, principalID, nextAcctID, nextPrincipa
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln(string(jsonPayload))
+	if _, err := out.Write(jsonPayload); err != nil {
+		log.Fatalln("err: ", err)
+	}
 }
 
 type leaseCreds struct {
@@ -169,6 +177,8 @@ func (s *LeasesService) loginWithCreds(leaseCreds *leaseCreds, opts *LeaseLoginO
 			leaseCreds.AccessKeyID,
 			leaseCreds.SecretAccessKey,
 			leaseCreds.SessionToken)
-		log.Infoln(creds)
+		if _, err := out.Write([]byte(creds)); err != nil {
+			log.Fatalln("err: ", err)
+		}
 	}
 }

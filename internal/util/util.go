@@ -14,7 +14,7 @@ import (
 
 type UtilContainer struct {
 	Config *configs.Root
-	// File path location of the dce.yaml file, from which this config was parsed
+	// File path location of the configuration file, from which this config was parsed
 	// Useful if we want to reload or modify the file later
 	ConfigFile  string
 	Observation *observ.ObservationContainer
