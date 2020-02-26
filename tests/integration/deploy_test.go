@@ -7,7 +7,7 @@ import (
 	"github.com/Optum/dce-cli/internal/util"
 	"github.com/Optum/dce-cli/mocks"
 	"github.com/Optum/dce-cli/pkg/service"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
@@ -278,6 +278,10 @@ func newDeployTest(t *testing.T, config *configs.Root) *deployTest {
 	// Mock the AWS util
 	aws := &mocks.AWSer{}
 
+	// Mock the Authentication service (would pop open browser to auth user)
+	authSvc := &mocks.Authenticater{}
+	authSvc.On("Authenticate").Return(nil)
+
 	// Inject mocks as globals used by the CLI
 	cli.Inject(func(input *injectorInput) {
 		input.service.Util.Terraformer = terraform
@@ -285,6 +289,7 @@ func newDeployTest(t *testing.T, config *configs.Root) *deployTest {
 		fsUtil.ConfigDir = configDir
 		input.service.Util.Githuber = github
 		input.service.Util.AWSer = aws
+		input.service.Authenticater = authSvc
 	})
 
 	return &deployTest{

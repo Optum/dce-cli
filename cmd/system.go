@@ -30,10 +30,10 @@ const (
 
 func init() {
 	DeployConfig = &service.DeployConfig{}
-	systemDeployCmd.Flags().StringVar(&DeployConfig.Location, "local", "", "[DEPRECATED use --location instead] Path to a local DCE repo to deploy.")
-	systemDeployCmd.Flags().StringVarP(&DeployConfig.Location, "location", "l", "", "Path to the DCE repo. May be a local path (eg. /path/to/dce) or a github location (eg. github.com/Optum/dce)")
+	systemDeployCmd.Flags().StringVar(&DeployConfig.Location, "local", "", "Path to a local DCE repo to deploy.")
 	systemDeployCmd.Flags().StringVarP(&DeployConfig.Version, "dce-version", "d", "", fmt.Sprintf("Version of DCE to deploy. Defaults to v%s", constants.DefaultDCEVersion))
-	systemDeployCmd.Flags().BoolVarP(aws.Bool(true), "use-cached", "c", true, "[DEPRECATED] Uses locally-cached files, if available.")
+	// NOTE: this is not currently used anywhere in the code
+	systemDeployCmd.Flags().BoolVarP(aws.Bool(true), "use-cached", "c", true, "Uses locally-cached files, if available.")
 	systemDeployCmd.Flags().BoolVarP(&DeployConfig.BatchMode, "batch-mode", "b", false, "Skip prompting for resource creation.")
 	systemDeployCmd.Flags().StringVar(&DeployConfig.TFInitOptions, "tf-init-options", "", "Options to pass to the underlying \"tf init\" command.")
 	systemDeployCmd.Flags().StringVar(&DeployConfig.TFApplyOptions, "tf-apply-options", "", "Options to pass to the underlying \"tf apply\" command.")

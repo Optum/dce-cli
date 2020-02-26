@@ -37,13 +37,39 @@ steps:
     go get -v -t -d ./...
   displayName: 'Get dependencies'
 
+# Install tools needed for CI environment
 - script: |
-    set -x
+    ./scripts/install_ci.sh
+  displayName: "Set up Golang CI Tools"
+
+- script: |
+    set -ex
     # etcd depdendency bug workaround. See commends in go.mod for more details.
     go build -ldflags "-X github.com/Optum/dce-cli/cmd.version=$(VERSION)" -v .
-    sudo rm /home/vsts/go/pkg/mod/github.com/coreos/etcd@v3.3.10+incompatible/client/keys.generated.go
+    sudo rm /home/vsts/go/pkg/mod/github.com/coreos/etcd@v3.3.10+incompatible/client/keys.generated.go || true
+
+    which go-junit-report
+
     make test
   displayName: 'Run tests'
+
+
+
+# Publish junit test results (for unit and functional tests)
+- task: PublishTestResults@2
+  inputs:
+    testRunner: JUnit
+    testResultsFiles: $(System.DefaultWorkingDirectory)/junit-report/*.xml
+    testRunTitle: Unit Tests
+  condition: always()
+
+
+# Publish code coverage results
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: Cobertura
+    summaryFileLocation: $(System.DefaultWorkingDirectory)/coverage.xml
+  condition: always()
 
 - script: |
     set -x

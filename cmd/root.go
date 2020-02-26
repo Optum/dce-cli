@@ -18,6 +18,10 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sts"
 	"os"
 	"path/filepath"
 
@@ -40,6 +44,10 @@ var Observation *observ.ObservationContainer
 var log observ.Logger
 var Log observ.Logger
 
+// Allow injecting a PostInit phase.
+// Useful for mocking global services in tests
+var PostInit func(cmd *cobra.Command, args []string) error
+
 func init() {
 	// Global Flags
 	// ---------------
@@ -53,7 +61,7 @@ func init() {
 }
 
 // RootCmd represents the base command when called without any subcommands
-var RootCmd = &cobra.Command{
+var RootCmd = &cobra.Command {
 	Use:   "dce",
 	Short: "Disposable Cloud Environment (DCE)",
 	Long: `Disposable Cloud Environment (DCE) 
@@ -71,18 +79,22 @@ func preRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	if PostInit != nil {
+		err = PostInit(cmd, args)
+		if err != nil {
+			return err
+		}
+	}
+
 	// Check if the requested command is for a version check
 	// If it is, return here, as no creds are needed
-
 	if cmd.Name() == versionCmd.Name() {
 		return nil
 	}
 
 	// Check if the user has valid creds,
 	// otherwise require authentication
-	creds := Util.AWSSession.Config.Credentials
-	_, _ = creds.Get()
-	hasValidCreds := !creds.IsExpired()
+	hasValidCreds := areCredsValid(Util.AWSSession.Config.Credentials)
 	isAuthCommand := cmd.Name() == authCmd.Name()
 	isInitCommand := cmd.Name() == initCmd.Name()
 	if !hasValidCreds && !isAuthCommand && !isInitCommand {
@@ -94,6 +106,30 @@ func preRun(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func areCredsValid(creds *credentials.Credentials) bool {
+	// Check if the user has valid creds,
+	// otherwise require authentication
+	_, err := creds.Get()
+	if err != nil {
+		return false
+	}
+	areExpired := creds.IsExpired()
+	if areExpired {
+		return false
+	}
+
+	// There's a bug in the AWS SDK, that show expired creds
+	// as non-expired: https://github.com/aws/aws-sdk-go/issues/3163
+	// To verify valid creds, make a `sts.GetCallerIdentity` call
+	sess, err := session.NewSession(&aws.Config{Credentials: creds})
+	if err != nil {
+		return false
+	}
+	stsSvc := sts.New(sess)
+	_, err = stsSvc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+	return err == nil
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

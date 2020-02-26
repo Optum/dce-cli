@@ -57,3 +57,6 @@ junit-report/
 dce-cli
 
 .vscode/
+
+coverage.*
+test.output.txt

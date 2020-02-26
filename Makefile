@@ -25,7 +25,7 @@ lint:
 	./scripts/lint.sh
 
 test: lint
-	go test -count=1 -v ./...
+	./scripts/test.sh
 
 cover:
 	go test -coverprofile=coverage.out -coverpkg="./pkg/...,./internal/...,./cmd/...,./configs/..."  ./tests/...

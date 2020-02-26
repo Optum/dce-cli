@@ -4,6 +4,10 @@
   and other output goes to STDOUT
 - Added `version` command to support viewing the current release version of the running binary
 - Add `dce leases login` command (without Lease ID)
+- Allow DCE version used by `dce system deploy` to be configured as CLI flag, in YAML config, or as env var
+- Accept YAML configuration and env vars for `dce system deploy` params for namespace and budget notification emails.
+- Fix bug where modified configuration values used by `dce system deploy` would not be reflected in the terraform deployment
+- Fix pre-run credentials check: was accepting expired credentials.
 
 ## v0.4.0
 - Added `--tf-init-options` and `--tf-apply-options` for greater control over underlying provisioner

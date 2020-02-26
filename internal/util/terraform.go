@@ -185,7 +185,10 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
 		if err != nil {
 			return err
 		}
-		t.FileSystem.Unarchive(archive, t.FileSystem.GetTerraformBinDir())
+		err = t.FileSystem.Unarchive(archive, t.FileSystem.GetTerraformBinDir())
+		if err != nil {
+			return err
+		}
 		// make sure the file is there and executable.
 		if !t.FileSystem.IsExistingFile(t.bin()) {
 			return fmt.Errorf("%s does not exist", t.bin())

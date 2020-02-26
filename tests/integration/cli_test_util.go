@@ -20,8 +20,8 @@ import (
 // tests against the CLI
 type cliTest struct {
 	*MockPrompter
-	stdout *bytes.Buffer
-	injector injector
+	stdout     *bytes.Buffer
+	injector   injector
 	configFile string
 }
 
@@ -51,7 +51,6 @@ func NewCLITest(t *testing.T) *cliTest {
 
 	var stdout bytes.Buffer
 
-
 	cli := &cliTest{
 		MockPrompter: prompter,
 		stdout:       &stdout,
@@ -60,14 +59,7 @@ func NewCLITest(t *testing.T) *cliTest {
 	// Wrap the `PreRun` method, to inject the mock prompter,
 	// and out logger stdout buffer
 	// (global services aren't initialized until `PreRun`
-	preRun := cmd.RootCmd.PersistentPreRunE
-	cmd.RootCmd.PersistentPreRunE = func(c *cobra.Command, a []string) error {
-		// Run the wrapped method
-		err := preRun(c, a)
-		if err != nil {
-			return err
-		}
-
+	cmd.PostInit = func(c *cobra.Command, a []string) error {
 		// Inject the prompter
 		cmd.Util.Prompter = prompter
 
@@ -91,9 +83,9 @@ func (test *cliTest) Output() string {
 }
 
 type injectorInput struct {
-	config *configs.Root
-	service *service.ServiceContainer
-	util *utl.UtilContainer
+	config      *configs.Root
+	service     *service.ServiceContainer
+	util        *utl.UtilContainer
 	observation *observation.ObservationContainer
 }
 type injector func(input *injectorInput)
