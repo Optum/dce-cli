@@ -31,7 +31,7 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 
 	expiry, err := s.Util.ExpandEpochTime(expiresOn)
 
-	if err != nil && expiry > 0 {
+	if err == nil && expiry > 0 {
 		expiryf := float64(expiry)
 		postBody.ExpiresOn = expiryf
 	}
@@ -40,7 +40,7 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 		Lease: postBody,
 	}
 	params.SetTimeout(5 * time.Second)
-	res, err := apiClient.PostLeases(params, nil)
+	res, err := ApiClient.PostLeases(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
@@ -50,7 +50,7 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 	}
 	log.Infoln("Lease created.")
 
-	if _, err := out.Write(jsonPayload); err != nil {
+	if _, err := Out.Write(jsonPayload); err != nil {
 		log.Fatalln("err: ", err)
 
 	}
@@ -64,7 +64,7 @@ func (s *LeasesService) EndLease(accountID, principalID string) {
 		},
 	}
 	params.SetTimeout(5 * time.Second)
-	_, err := apiClient.DeleteLeases(params, nil)
+	_, err := ApiClient.DeleteLeases(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
@@ -76,7 +76,7 @@ func (s *LeasesService) GetLease(leaseID string) {
 		ID: leaseID,
 	}
 	params.SetTimeout(5 * time.Second)
-	res, err := apiClient.GetLeasesID(params, nil)
+	res, err := ApiClient.GetLeasesID(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
@@ -84,7 +84,7 @@ func (s *LeasesService) GetLease(leaseID string) {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	if _, err := out.Write(jsonPayload); err != nil {
+	if _, err := Out.Write(jsonPayload); err != nil {
 		log.Fatalln("err: ", err)
 	}
 }
@@ -99,7 +99,7 @@ func (s *LeasesService) ListLeases(acctID, principalID, nextAcctID, nextPrincipa
 		Status:          &leaseStatus,
 	}
 	params.SetTimeout(5 * time.Second)
-	res, err := apiClient.GetLeases(params, nil)
+	res, err := ApiClient.GetLeases(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
@@ -107,7 +107,7 @@ func (s *LeasesService) ListLeases(acctID, principalID, nextAcctID, nextPrincipa
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	if _, err := out.Write(jsonPayload); err != nil {
+	if _, err := Out.Write(jsonPayload); err != nil {
 		log.Fatalln("err: ", err)
 	}
 }
@@ -125,7 +125,7 @@ func (s *LeasesService) Login(opts *LeaseLoginOptions) {
 
 	params := &operations.PostLeasesAuthParams{}
 	params.SetTimeout(20 * time.Second)
-	res, err := apiClient.PostLeasesAuth(params, nil)
+	res, err := ApiClient.PostLeasesAuth(params, nil)
 
 	if err != nil {
 		log.Fatal(err)
@@ -143,7 +143,7 @@ func (s *LeasesService) LoginByID(leaseID string, opts *LeaseLoginOptions) {
 		ID: leaseID,
 	}
 	params.SetTimeout(20 * time.Second)
-	res, err := apiClient.PostLeasesIDAuth(params, nil)
+	res, err := ApiClient.PostLeasesIDAuth(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
@@ -177,7 +177,7 @@ func (s *LeasesService) loginWithCreds(leaseCreds *leaseCreds, opts *LeaseLoginO
 			leaseCreds.AccessKeyID,
 			leaseCreds.SecretAccessKey,
 			leaseCreds.SessionToken)
-		if _, err := out.Write([]byte(creds)); err != nil {
+		if _, err := Out.Write([]byte(creds)); err != nil {
 			log.Fatalln("err: ", err)
 		}
 	}

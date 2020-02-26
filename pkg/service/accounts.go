@@ -24,7 +24,7 @@ func (s *AccountsService) AddAccount(accountID, adminRoleARN string) {
 		},
 	}
 	params.SetTimeout(5 * time.Second)
-	_, err := apiClient.PostAccounts(params, nil)
+	_, err := ApiClient.PostAccounts(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
 	} else {
@@ -37,7 +37,7 @@ func (s *AccountsService) RemoveAccount(accountID string) {
 		ID: accountID,
 	}
 	params.SetTimeout(5 * time.Second)
-	_, err := apiClient.DeleteAccountsID(params, nil)
+	_, err := ApiClient.DeleteAccountsID(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
 	} else {
@@ -50,7 +50,7 @@ func (s *AccountsService) GetAccount(accountID string) {
 		ID: accountID,
 	}
 	params.SetTimeout(5 * time.Second)
-	res, err := apiClient.GetAccountsID(params, nil)
+	res, err := ApiClient.GetAccountsID(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
@@ -58,7 +58,7 @@ func (s *AccountsService) GetAccount(accountID string) {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	if _, err := out.Write(jsonPayload); err != nil {
+	if _, err := Out.Write(jsonPayload); err != nil {
 		log.Fatalln("err: ", err)
 	}
 }
@@ -67,7 +67,7 @@ func (s *AccountsService) GetAccount(accountID string) {
 func (s *AccountsService) ListAccounts() {
 	params := &operations.GetAccountsParams{}
 	params.SetTimeout(5 * time.Second)
-	res, err := apiClient.GetAccounts(params, nil)
+	res, err := ApiClient.GetAccounts(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
@@ -75,7 +75,7 @@ func (s *AccountsService) ListAccounts() {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	if _, err := out.Write(jsonPayload); err != nil {
+	if _, err := Out.Write(jsonPayload); err != nil {
 		log.Fatalln("err: ", err)
 	}
 }
