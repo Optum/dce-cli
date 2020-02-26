@@ -14,6 +14,38 @@ import (
 	"time"
 )
 
+func TestLeasesCreate(t *testing.T) {
+
+	t.Run("with --expires-on flag", func(t *testing.T) {
+		leasesCreateTest(t, &leaseCreateTestCase{
+			commandArgs: []string{
+				"leases", "create",
+				"-p", "test-user",
+				"-b", "100", "-c", "USD",
+				"-e", "test@example.com",
+				"--expires-on", "1h",
+			},
+			expectedCreateLeaseRequest: operations.PostLeasesBody{
+				BudgetAmount:             aws.Float64(100),
+				BudgetCurrency:           aws.String("USD"),
+				BudgetNotificationEmails: []string{"test@example.com"},
+				ExpiresOn:                float64(time.Now().Add(time.Hour).Unix()),
+				PrincipalID:              aws.String("test-user"),
+			},
+			mockAccountID: "123456789012",
+			expectedJSONOutput: map[string]interface{}{
+				"accountId":                "123456789012",
+				"budgetAmount":             float64(100),
+				"budgetCurrency":           "USD",
+				"budgetNotificationEmails": []interface{}{"test@example.com"},
+				"principalId":              "test-user",
+				"expiresOn":                time.Now().Add(time.Hour).Unix(),
+			},
+		})
+	})
+
+}
+
 type leaseCreateTestCase struct {
 	// Args to pass to the dce-cli
 	commandArgs []string
@@ -112,65 +144,4 @@ func leasesCreateTest(t *testing.T, testCase *leaseCreateTestCase) {
 
 	api.AssertExpectations(t)
 	out.AssertNumberOfCalls(t, "Write", 1)
-}
-
-func TestLeasesCreate(t *testing.T) {
-
-	t.Run("with all required flags, only", func(t *testing.T) {
-		leasesCreateTest(t, &leaseCreateTestCase{
-			commandArgs: []string{
-				"leases", "create",
-				"-p", "test-user",
-				"-b", "100", "-c", "USD",
-				"-e", "a@example.com", "-e", "b@example.com",
-			},
-			expectedCreateLeaseRequest: operations.PostLeasesBody{
-				BudgetAmount:             aws.Float64(100),
-				BudgetCurrency:           aws.String("USD"),
-				BudgetNotificationEmails: []string{"a@example.com", "b@example.com"},
-				// Defaults to 7d
-				ExpiresOn:   float64(time.Now().Add(time.Hour * 24 * 7).Unix()),
-				PrincipalID: aws.String("test-user"),
-			},
-			mockAccountID: "123456789012",
-			expectedJSONOutput: map[string]interface{}{
-				"accountId":                "123456789012",
-				"budgetAmount":             float64(100),
-				"budgetCurrency":           "USD",
-				"budgetNotificationEmails": []interface{}{"a@example.com", "b@example.com"},
-				"principalId":              "test-user",
-				// Defaults to 7d
-				"expiresOn": time.Now().Add(time.Hour * 24 * 7).Unix(),
-			},
-		})
-	})
-
-	t.Run("with --expires-on flag", func(t *testing.T) {
-		leasesCreateTest(t, &leaseCreateTestCase{
-			commandArgs: []string{
-				"leases", "create",
-				"-p", "test-user",
-				"-b", "100", "-c", "USD",
-				"-e", "test@example.com",
-				"--expires-on", "1h",
-			},
-			expectedCreateLeaseRequest: operations.PostLeasesBody{
-				BudgetAmount:             aws.Float64(100),
-				BudgetCurrency:           aws.String("USD"),
-				BudgetNotificationEmails: []string{"test@example.com"},
-				ExpiresOn:                float64(time.Now().Add(time.Hour).Unix()),
-				PrincipalID:              aws.String("test-user"),
-			},
-			mockAccountID: "123456789012",
-			expectedJSONOutput: map[string]interface{}{
-				"accountId":                "123456789012",
-				"budgetAmount":             float64(100),
-				"budgetCurrency":           "USD",
-				"budgetNotificationEmails": []interface{}{"test@example.com"},
-				"principalId":              "test-user",
-				"expiresOn":                time.Now().Add(time.Hour).Unix(),
-			},
-		})
-	})
-
 }

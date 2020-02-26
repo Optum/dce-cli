@@ -23,6 +23,7 @@ type cliTest struct {
 	stdout     *bytes.Buffer
 	injector   injector
 	configFile string
+	t          *testing.T
 }
 
 func (test *cliTest) WriteConfig(t *testing.T, config *configs.Root) {
@@ -30,8 +31,23 @@ func (test *cliTest) WriteConfig(t *testing.T, config *configs.Root) {
 }
 
 func (test *cliTest) Execute(args []string) error {
-	// Pass in config file path, if we have one
-	if test.configFile != "" {
+	var hasConfigFlag bool
+	for _, arg := range args {
+		if arg == "--config" {
+			hasConfigFlag = true
+			break
+		}
+	}
+
+	// Use a temporary config file, if none is otherwise set
+	if !hasConfigFlag {
+		// Write an empty config file, if none has been set
+		// we want to avoid accidentally using the system's ~/.dce/config.yml`,
+		// by default
+		if test.configFile == "" {
+			test.WriteConfig(test.t, &configs.Root{})
+		}
+
 		args = append(args, "--config", test.configFile)
 	}
 
@@ -54,6 +70,7 @@ func NewCLITest(t *testing.T) *cliTest {
 	cli := &cliTest{
 		MockPrompter: prompter,
 		stdout:       &stdout,
+		t:            t,
 	}
 
 	// Wrap the `PreRun` method, to inject the mock prompter,
