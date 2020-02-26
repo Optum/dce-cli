@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 set -euxo pipefail
 
 export GOBIN=$(dirname `which go`)
