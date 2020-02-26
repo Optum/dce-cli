@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"github.com/Optum/dce-cli/configs"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	utl "github.com/Optum/dce-cli/internal/util"
@@ -55,10 +54,13 @@ type DeployOverrides struct {
 	BudgetNotificationTemplateHTML    string
 	BudgetNotificationTemplateText    string
 	BudgetNotificationTemplateSubject string
+	DCEVersion                        string
+	// Location of the DCE terraform module
+	DCEModulePath string
 }
 type Deployer interface {
-	Deploy(ctx context.Context, overrides *DeployOverrides) error
-	PostDeploy(ctx context.Context) error
+	Deploy(input *DeployConfig) error
+	PostDeploy(input *DeployConfig) error
 }
 
 type Usager interface {
@@ -93,8 +95,4 @@ type Initer interface {
 
 type Authenticater interface {
 	Authenticate() error
-}
-
-type ResponseWithPayload interface {
-	GetPayload() interface{}
 }

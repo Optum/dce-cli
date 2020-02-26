@@ -120,7 +120,7 @@ type TerraformBinFileSystemUtil interface {
 	GetConfigDir() string
 	IsExistingFile(path string) bool
 	OpenFileWriter(path string) (*os.File, error)
-	Unarchive(source string, destination string)
+	Unarchive(source string, destination string) error
 	GetTerraformBin() string
 	RemoveAll(path string)
 	GetTerraformBinDir() string
@@ -168,7 +168,7 @@ func (t *TerraformBinUtil) source() string {
 // Init will download the Terraform binary, put it into the .dce folder,
 // and then call init.
 func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
-	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value(constants.DeployLogFile).(string))
+	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value(constants.DeployLogFileKey).(string))
 
 	if err != nil {
 		logFile = nil
@@ -185,7 +185,10 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
 		if err != nil {
 			return err
 		}
-		t.FileSystem.Unarchive(archive, t.FileSystem.GetTerraformBinDir())
+		err = t.FileSystem.Unarchive(archive, t.FileSystem.GetTerraformBinDir())
+		if err != nil {
+			return err
+		}
 		// make sure the file is there and executable.
 		if !t.FileSystem.IsExistingFile(t.bin()) {
 			return fmt.Errorf("%s does not exist", t.bin())
@@ -205,7 +208,7 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
 
 // Apply will call `terraform apply` with the given vars.
 func (t *TerraformBinUtil) Apply(ctx context.Context, args []string) error {
-	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value(constants.DeployLogFile).(string))
+	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value(constants.DeployLogFileKey).(string))
 
 	if err != nil {
 		logFile = nil
@@ -241,7 +244,7 @@ func (t *TerraformBinUtil) GetOutput(ctx context.Context, key string) (string, e
 	// diagnose issues.
 	var stdout bytes.Buffer
 
-	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value(constants.DeployLogFile).(string))
+	logFile, err := t.FileSystem.OpenFileWriter(ctx.Value(constants.DeployLogFileKey).(string))
 
 	if err != nil {
 		logFile = nil

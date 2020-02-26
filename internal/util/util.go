@@ -84,12 +84,12 @@ type AWSer interface {
 
 type Terraformer interface {
 	Init(ctx context.Context, args []string) error
-	Apply(ctx context.Context, tfVars []string) error
+	Apply(ctx context.Context, args []string) error
 	GetOutput(ctx context.Context, key string) (string, error)
 }
 
 type Githuber interface {
-	DownloadGithubReleaseAsset(assetName string)
+	DownloadGithubReleaseAsset(assetName string, dceVersion string) error
 }
 
 type Prompter interface {
@@ -102,7 +102,7 @@ type FileSystemer interface {
 	IsExistingFile(path string) bool
 	ReadFromFile(path string) string
 	ReadInConfig() error
-	Unarchive(source string, destination string)
+	Unarchive(source string, destination string) error
 	ChToConfigDir() (string, string)
 	ChToTmpDir() (string, string)
 	RemoveAll(path string)
@@ -121,7 +121,7 @@ type FileSystemer interface {
 	GetCacheDir() string
 	// GetArtifactsDir returns the cached artifacts dir, which by default is
 	// `~/.dce/.cache/dce/${DCE_VERSION}/`
-	GetArtifactsDir() string
+	GetArtifactsDir(dceVersion string) string
 	// GetTerraformBinDir returns the dir in which the `terraform` bin is installed,
 	// which by default is `~/.dce/.cache/terraform/${TERRAFORM_VERSION}`
 	GetTerraformBinDir() string
@@ -130,7 +130,7 @@ type FileSystemer interface {
 	GetLocalTFModuleDir() string
 	// CreateConfigDirTree creates all the dirs in the dir specified by GetConfigDir(),
 	// including the dir itself.
-	CreateConfigDirTree() error
+	CreateConfigDirTree(dceVersion string) error
 
 	// GetConfigFile returns the full path of the configuration file, such as
 	// `~/.dce/config.yaml`
@@ -158,6 +158,9 @@ type Durationer interface {
 // TFTemplater is an interface for the templater that generates
 // the main.tf file.
 type TFTemplater interface {
+	// Add a terraform variable to the template
 	AddVariable(name string, vartype string, vardefault string) error
+	// Set the source path to the DCE terraform module
+	SetModuleSource(source string)
 	Write(w io.Writer) error
 }

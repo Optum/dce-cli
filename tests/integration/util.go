@@ -1,130 +1,76 @@
 package integration
 
 import (
+	"archive/zip"
 	"bytes"
-	"github.com/Optum/dce-cli/cmd"
-	"github.com/Optum/dce-cli/configs"
-	"github.com/Optum/dce-cli/internal/observation"
-	"github.com/Optum/dce-cli/internal/util"
-	utl "github.com/Optum/dce-cli/internal/util"
-	"github.com/Optum/dce-cli/pkg/service"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
+	"encoding/json"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/thriftrw/ptr"
 	"io/ioutil"
+	"os"
 	"testing"
 )
 
-// cliTest is a util for running integration
-// tests against the CLI
-type cliTest struct {
-	*MockPrompter
-	stdout   *bytes.Buffer
-	injector injector
-}
+type file struct{ Name, Body string }
 
-func (test *cliTest) Execute(args []string) error {
-	cmd.RootCmd.SetArgs(args)
-	return cmd.RootCmd.Execute()
-}
+// Adapted from https://golang.org/pkg/archive/zip/#example_Writer
+func zipFiles(t *testing.T, files []file) []byte {
+	// Create a buffer to write our archive to.
+	buf := new(bytes.Buffer)
 
-func NewCLITest(t *testing.T) *cliTest {
-	// Reset globals, so they don't leak between tests
-	cmd.Config = &configs.Root{}
-	cmd.Service = &service.ServiceContainer{}
-	cmd.Util = &utl.UtilContainer{}
-	cmd.Observation = &observation.ObservationContainer{}
+	// Create a new zip archive.
+	w := zip.NewWriter(buf)
 
-	// Mock the Prompter, to allow use interactive inputs
-	prompter := &MockPrompter{T: t}
-
-	var stdout bytes.Buffer
-
-	cli := &cliTest{
-		MockPrompter: prompter,
-		stdout:       &stdout,
+	// Add some files to the archive.
+	for _, file := range files {
+		f, err := w.Create(file.Name)
+		require.Nil(t, err)
+		_, err = f.Write([]byte(file.Body))
+		require.Nil(t, err)
 	}
 
-	// Wrap the `PreRun` method, to inject the mock prompter,
-	// and out logger stdout buffer
-	// (global services aren't initialized until `PreRun`
-	preRun := cmd.RootCmd.PersistentPreRunE
-	cmd.RootCmd.PersistentPreRunE = func(c *cobra.Command, a []string) error {
-		// Run the wrapped method
-		err := preRun(c, a)
-		if err != nil {
-			return err
-		}
-
-		// Inject the prompter
-		cmd.Util.Prompter = prompter
-
-		// Tell the logger to log to our stdout buffer
-		logger := cmd.Log.(*observation.LogObservation).LevelLogger.(*logrus.Logger)
-		logger.SetOutput(&stdout)
-
-		// Allow client to inject their own mocks
-		if cli.injector != nil {
-			cli.injector(&injectorInput{cmd.Config, cmd.Service, cmd.Util, cmd.Observation})
-		}
-
-		return nil
-	}
-
-	return cli
-}
-
-func (test *cliTest) Output() string {
-	return test.stdout.String()
-}
-
-type injectorInput struct {
-	config      *configs.Root
-	service     *service.ServiceContainer
-	util        *utl.UtilContainer
-	observation *observation.ObservationContainer
-}
-type injector func(input *injectorInput)
-
-// Inject allows for injecting dependencies before
-// commands are run. The `inject` function provides
-// pointers to global services used by CLI commands
-//
-// eg
-// cli.Inject(func(input *injectorInput) {
-//		input.util.Weber = &mocks.Weber{}
-// })
-func (test *cliTest) Inject(f injector) {
-	test.injector = f
-}
-
-func writeTempConfig(t *testing.T, conf *configs.Root) string {
-	// Create a tmp file
-	tmpfile, err := ioutil.TempFile("", "dce.*.yml")
+	// Make sure to check the error on Close.
+	err := w.Close()
 	require.Nil(t, err)
 
-	// Set default config
-	if conf == nil {
-		conf = &configs.Root{
-			API: configs.API{
-				Host:     ptr.String("dce.example.com"),
-				BasePath: ptr.String("/api"),
-			},
+	zipBytes, err := ioutil.ReadAll(buf)
+	require.Nil(t, err)
+
+	return zipBytes
+}
+
+// mockEnvVar Sets an env var
+// returns a function to revert the env var back to its previous value
+func mockEnvVar(key, val string) func() {
+	prevVal, ok := os.LookupEnv(key)
+	_ = os.Setenv(key, val)
+
+	return func() {
+		if ok {
+			_ = os.Setenv(key, prevVal)
+		} else {
+			_ = os.Unsetenv(key)
 		}
 	}
+}
 
-	// Write config as YAML to tmp file
-	fsUtil := util.FileSystemUtil{
-		Config:     conf,
-		ConfigFile: tmpfile.Name(),
-	}
-	err = fsUtil.WriteConfig()
+func stringp(str string) *string {
+	return &str
+}
+
+func boolp(b bool) *bool {
+	return &b
+}
+
+// copyStructVals copies all values from the source stuct
+// into the target struct
+// Structs must be JSON encode-able
+func copyStructVals(t *testing.T, source interface{}, target interface{}) {
+	// We're using JSON as a means to copy values,
+	// which has some limitations.
+	// This could probably be done more reliably, but
+	// with a lot more complex code, using reflection.
+	sourceJSON, err := json.Marshal(&source)
 	require.Nil(t, err)
-
-	// Close the file handle
-	err = tmpfile.Close()
+	err = json.Unmarshal(sourceJSON, target)
 	require.Nil(t, err)
-
-	return tmpfile.Name()
 }

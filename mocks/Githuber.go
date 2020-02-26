@@ -9,7 +9,16 @@ type Githuber struct {
 	mock.Mock
 }
 
-// DownloadGithubReleaseAsset provides a mock function with given fields: assetName
-func (_m *Githuber) DownloadGithubReleaseAsset(assetName string) {
-	_m.Called(assetName)
+// DownloadGithubReleaseAsset provides a mock function with given fields: assetName, dceVersion
+func (_m *Githuber) DownloadGithubReleaseAsset(assetName string, dceVersion string) error {
+	ret := _m.Called(assetName, dceVersion)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(assetName, dceVersion)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }

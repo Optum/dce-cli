@@ -19,7 +19,6 @@ func TestMainTFTemplate_MissingRequiredValues(t *testing.T) {
 	mockFS.On("GetCacheDir").Return("/Users/jexmple/.dce")
 	mockFS.On("GetTerraformStateFile").Return("/Users/jexmple/.dce/terraform.tfstate")
 	tf := util.NewMainTFTemplate(mockFS)
-	tf.Version = "v0.23.0"
 	tf.TFWorkspaceDir = ""
 
 	err = tf.AddVariable("namespace", "string", "dcecliut")
@@ -51,7 +50,6 @@ func TestMainTFTemplate_Write(t *testing.T) {
 	mockFS.On("GetCacheDir").Return("/Users/jexmple/.dce")
 	mockFS.On("GetTerraformStateFile").Return("/Users/jexmple/.dce/terraform.tfstate")
 	tf := util.NewMainTFTemplate(mockFS)
-	tf.Version = "v0.23.0"
 	tf.LocalTFStateFilePath = "/Users/jexmple/.dce/terraform.tfstate"
 	tf.TFWorkspaceDir = "/Users/jexmple/.dce/tf-workspace"
 
@@ -61,8 +59,10 @@ func TestMainTFTemplate_Write(t *testing.T) {
 	err = tf.AddVariable("budget_notification_from_email", "string", "noreply@example.com")
 	assert.Nil(t, err, "should have been able to add valid budget_notification_from_email")
 
+	tf.SetModuleSource("github.com/Optum/dce//modules?ref=v0.23.0")
+
 	err = tf.Write(&actual)
 	assert.Nil(t, err)
-	assert.Equal(t, expected, actual.Bytes(), fmt.Sprintf("templates should have same content: \"%s\" vs. \"%s\"", string(expected), actual.String()))
+	assert.Equal(t, string(expected), actual.String(), fmt.Sprintf("templates should have same content: \"%s\" vs. \"%s\"", string(expected), actual.String()))
 
 }
