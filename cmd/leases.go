@@ -115,11 +115,11 @@ var leasesEndCmd = &cobra.Command{
 }
 
 var leasesLoginCmd = &cobra.Command{
-	Use:   "login [Lease ID]",
+	Use: "login [Lease ID]",
 	Short: "Login to a leased DCE account. \n" +
 		"If no Lease ID is provided, uses the active lease for the requesting user. \n" +
 		"Sets AWS CLI credentials if used with no flags",
-	Args:  cobra.MaximumNArgs(1),
+	Args: cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		opts := &service.LeaseLoginOptions{
 			CliProfile:  loginProfile,

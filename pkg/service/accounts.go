@@ -10,8 +10,6 @@ import (
 	utl "github.com/Optum/dce-cli/internal/util"
 )
 
-const accountsPath = "/accounts"
-
 type AccountsService struct {
 	Config      *configs.Root
 	Observation *observ.ObservationContainer

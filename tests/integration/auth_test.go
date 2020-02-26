@@ -18,7 +18,7 @@ func TestAuthCommand(t *testing.T) {
 
 			// Setup a basic config file
 			confFile := writeTempConfig(t, &configs.Root{
-				API:         configs.API{
+				API: configs.API{
 					Host:     ptr.String("dce.example.com"),
 					BasePath: ptr.String("/api"),
 				},
@@ -26,7 +26,7 @@ func TestAuthCommand(t *testing.T) {
 
 			// Mock Weber.OpenURL()
 			mockWeber := &mocks.Weber{}
-			cli.Inject(func (input *injectorInput) {
+			cli.Inject(func(input *injectorInput) {
 				input.service.Util.Weber = mockWeber
 			})
 			mockWeber.On("OpenURL", "https://dce.example.com/api/auth")
@@ -53,7 +53,7 @@ func TestAuthCommand(t *testing.T) {
 
 				// Setup a config file, missing API info
 				confFile := writeTempConfig(t, &configs.Root{
-					API:         configs.API{},
+					API: configs.API{},
 				})
 
 				// Run DCE auth
@@ -69,4 +69,3 @@ func TestAuthCommand(t *testing.T) {
 		})
 	})
 }
-

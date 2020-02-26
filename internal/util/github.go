@@ -21,6 +21,9 @@ func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string, releaseName st
 	// would go here...
 	assetDownloadURL := fmt.Sprintf(constants.GithubAssetDownloadURLFormat, releaseName, assetName)
 	req, err := http.NewRequest("GET", assetDownloadURL, nil)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

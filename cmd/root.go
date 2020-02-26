@@ -146,8 +146,7 @@ type FmtOutputFormatter struct {
 }
 
 func (f *FmtOutputFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	var serialized []byte
-	serialized = []byte(fmt.Sprintf("%s\n", entry.Message))
+	serialized := []byte(fmt.Sprintf("%s\n", entry.Message))
 	return serialized, nil
 }
 
