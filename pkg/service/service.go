@@ -20,15 +20,15 @@ type ServiceContainer struct {
 }
 
 var log observ.Logger
-var apiClient utl.APIer
-var out observ.OutputWriter
+var ApiClient utl.APIer
+var Out observ.OutputWriter
 
 // New returns a new ServiceContainer given config
 func New(config *configs.Root, observation *observ.ObservationContainer, util *utl.UtilContainer) *ServiceContainer {
 
 	log = observation.Logger
-	apiClient = util.APIer
-	out = observation.OutputWriter
+	ApiClient = util.APIer
+	Out = observation.OutputWriter
 
 	serviceContainer := ServiceContainer{
 		Config:        config,

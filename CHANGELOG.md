@@ -8,6 +8,7 @@
 - Accept YAML configuration and env vars for `dce system deploy` params for namespace and budget notification emails.
 - Fix bug where modified configuration values used by `dce system deploy` would not be reflected in the terraform deployment
 - Fix pre-run credentials check: was accepting expired credentials.
+- Fix parsing of `--expires-on` flag for `dce leases create` command
 
 ## v0.4.0
 - Added `--tf-init-options` and `--tf-apply-options` for greater control over underlying provisioner

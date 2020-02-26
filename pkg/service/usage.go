@@ -22,7 +22,7 @@ func (s *UsageService) GetUsage(startDate, endDate float64) {
 		EndDate:   endDate,
 	}
 	params.SetTimeout(5 * time.Second)
-	res, err := apiClient.GetUsage(params, nil)
+	res, err := ApiClient.GetUsage(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
 	} else {
@@ -30,7 +30,7 @@ func (s *UsageService) GetUsage(startDate, endDate float64) {
 		if err != nil {
 			log.Fatalln("err: ", err)
 		}
-		if _, err := out.Write(jsonPayload); err != nil {
+		if _, err := Out.Write(jsonPayload); err != nil {
 			log.Fatalln("err: ", err)
 		}
 	}
