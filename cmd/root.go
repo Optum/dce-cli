@@ -61,7 +61,7 @@ func init() {
 }
 
 // RootCmd represents the base command when called without any subcommands
-var RootCmd = &cobra.Command {
+var RootCmd = &cobra.Command{
 	Use:   "dce",
 	Short: "Disposable Cloud Environment (DCE)",
 	Long: `Disposable Cloud Environment (DCE) 

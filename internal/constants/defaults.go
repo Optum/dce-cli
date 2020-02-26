@@ -11,5 +11,6 @@ const TerraformBinDownloadURLFormat = "https://releases.hashicorp.com/terraform/
 
 // Default version of DCE to deploy, using `dce system deploy`
 const DefaultDCEVersion = "0.23.0"
+
 // Default DCE Location
 const DefaultDCELocation = "github.com/Optum/dce"

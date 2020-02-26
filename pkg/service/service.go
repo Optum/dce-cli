@@ -56,7 +56,7 @@ type DeployOverrides struct {
 	BudgetNotificationTemplateSubject string
 	DCEVersion                        string
 	// Location of the DCE terraform module
-	DCEModulePath											string
+	DCEModulePath string
 }
 type Deployer interface {
 	Deploy(input *DeployConfig) error

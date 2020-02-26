@@ -319,10 +319,9 @@ func TestDeployService_DoesNotFileExist(t *testing.T) {
 	mockAwser.On("UploadDirectoryToS3", doesntMatter, s3bucket, "").Return(lambdas, codebuilds)
 	mockAwser.On("UpdateLambdasFromS3Assets", lambdas, s3bucket, "somethingpredictable")
 
-
 	err := service.Deploy(&svc.DeployConfig{
 		Namespace: "somethingpredictable",
-		Location: "github.com/Optum/dce",
+		Location:  "github.com/Optum/dce",
 	})
 
 	mockFileSystemer.AssertExpectations(t)

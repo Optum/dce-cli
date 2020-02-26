@@ -63,6 +63,6 @@ func TestMainTFTemplate_Write(t *testing.T) {
 
 	err = tf.Write(&actual)
 	assert.Nil(t, err)
-	assert.Equal(t, string(expected), string(actual.Bytes()), fmt.Sprintf("templates should have same content: \"%s\" vs. \"%s\"", string(expected), actual.String()))
+	assert.Equal(t, string(expected), actual.String(), fmt.Sprintf("templates should have same content: \"%s\" vs. \"%s\"", string(expected), actual.String()))
 
 }

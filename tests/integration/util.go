@@ -38,7 +38,6 @@ func zipFiles(t *testing.T, files []file) []byte {
 	return zipBytes
 }
 
-
 // mockEnvVar Sets an env var
 // returns a function to revert the env var back to its previous value
 func mockEnvVar(key, val string) func() {
@@ -53,7 +52,6 @@ func mockEnvVar(key, val string) func() {
 		}
 	}
 }
-
 
 func stringp(str string) *string {
 	return &str

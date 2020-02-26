@@ -30,7 +30,7 @@ type Deploy struct {
 	// AWS Region in which to deploy DCE
 	AWSRegion *string `yaml:"region,omitempty"`
 	// Namespace used as naming suffix for AWS resources
-	Namespace *string `yaml:"namespace,omitempty"`
+	Namespace                   *string `yaml:"namespace,omitempty"`
 	BudgetNotificationFromEmail *string `yaml:"budgetNotificationFromEmail,omitempty"`
 }
 

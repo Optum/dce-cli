@@ -4,20 +4,17 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"math/rand"
-	"net/url"
-	"os"
-	"path/filepath"
-	"regexp"
-	"strings"
-	"time"
-
 	"github.com/Optum/dce-cli/configs"
 	"github.com/Optum/dce-cli/internal/constants"
 	observ "github.com/Optum/dce-cli/internal/observation"
 	"github.com/Optum/dce-cli/internal/util"
 	utl "github.com/Optum/dce-cli/internal/util"
 	"github.com/pkg/errors"
+	"net/url"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
 )
 
 var affirmAnswerRegex *regexp.Regexp
@@ -135,7 +132,6 @@ func (s *DeployService) createTFMainFile(deployConfig *DeployConfig) (string, er
 
 	fileName := s.Util.GetLocalMainTFFile()
 
-
 	tfMainContents, err := s.getLocalTFMainContents(deployConfig)
 	if err != nil {
 		return "", err
@@ -158,7 +154,6 @@ func (s *DeployService) createDceInfra(deployConfig *DeployConfig) (string, erro
 	if err := s.Util.Terraformer.Init(ctx, initopts); err != nil {
 		return "", err
 	}
-
 
 	// First, prompt the user to give them a chance to opt out in case
 	// of accidental invocation. Skip running the apply altogether if they
@@ -209,17 +204,6 @@ func (s *DeployService) deployCodeAssets(artifactsBucket string, namespace strin
 	return nil
 }
 
-// https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go
-func (s *DeployService) getRandString(n int) string {
-	rand.Seed(time.Now().UnixNano())
-	const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letterBytes[rand.Int63()%int64(len(letterBytes))]
-	}
-	return string(b)
-}
-
 func (s *DeployService) getLocalTFMainContents(deployConfig *DeployConfig) (string, error) {
 	var tfMainContents string
 	// Generate the main.tf template...
@@ -245,7 +229,7 @@ func (s *DeployService) getLocalTFMainContents(deployConfig *DeployConfig) (stri
 func (s *DeployService) retrieveCodeAssets(dceLocation string, dceVersion string) (string, error) {
 	tmpDir, oldDir := s.Util.ChToTmpDir()
 
-	defer os.Chdir(oldDir)
+	defer os.Chdir(oldDir) //nolint,errcheck
 
 	if strings.HasPrefix(dceLocation, "github.com") {
 		// Download release assets from github

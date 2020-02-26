@@ -15,7 +15,7 @@ import (
 type FileSystemUtil struct {
 	Config     *configs.Root
 	ConfigFile string
-	ConfigDir string
+	ConfigDir  string
 }
 
 func (u *FileSystemUtil) writeToYAMLFile(path string, _struct interface{}) error {

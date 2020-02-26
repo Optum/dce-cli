@@ -104,9 +104,7 @@ func coalesceDeployConfig(deployConfig *service.DeployConfig) *service.DeployCon
 	)
 	// Normalize version ("v1.2.3" --> "1.2.3")
 	// to make our CLI more forgiving
-	if strings.HasPrefix(deployConfig.Version, "v") {
-		deployConfig.Version = deployConfig.Version[1:]
-	}
+	deployConfig.Version = strings.TrimPrefix(deployConfig.Version, "v")
 
 	deployConfig.TFInitOptions = *cfg.Coalesce(
 		&deployConfig.TFInitOptions,

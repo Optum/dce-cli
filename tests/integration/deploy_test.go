@@ -146,7 +146,7 @@ module "dce" {
 
 	t.Run("should accept tfvars as YAML config", func(t *testing.T) {
 		deployCommandTestCase(t, &deployTestCase{
-			cliCommand: []string{"system", "deploy",},
+			cliCommand: []string{"system", "deploy"},
 			yamlConfig: &configs.Root{
 				Deploy: configs.Deploy{
 					Version:                     stringp("v0.12.3"),
@@ -186,7 +186,7 @@ module "dce" {
 
 	t.Run("should accept env var configuration", func(t *testing.T) {
 		deployCommandTestCase(t, &deployTestCase{
-			cliCommand: []string{"system", "deploy",},
+			cliCommand: []string{"system", "deploy"},
 			envVars: map[string]string{
 				"DCE_VERSION":                        "v9999.12.3",
 				"AWS_REGION":                         "moon-darkside-1",
@@ -234,12 +234,11 @@ module "dce" {
 // used by `dce system deploy` integration tests
 type deployTest struct {
 	*cliTest
-	terraform  *mocks.Terraformer
-	github     *stubGithub
-	aws        *mocks.AWSer
-	configFile string
-	configDir  string
-	cleanup    func()
+	terraform *mocks.Terraformer
+	github    *stubGithub
+	aws       *mocks.AWSer
+	configDir string
+	cleanup   func()
 }
 
 func (test *deployTest) readConfigFile(t *testing.T, paths ...string) string {
@@ -258,11 +257,9 @@ func newDeployTest(t *testing.T, config *configs.Root) *deployTest {
 	copyStructVals(t, service.DeployConfig{}, cmd.DeployConfig)
 	defer copyStructVals(t, service.DeployConfig{}, cmd.DeployConfig)
 
-
 	cli := NewCLITest(t)
 
 	cli.WriteConfig(t, config)
-
 
 	// Mock the FileSystemer, to use a tmp dir for
 	// generated terraform files
