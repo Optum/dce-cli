@@ -34,6 +34,7 @@ func (gh *stubGithub) DownloadGithubReleaseAsset(assetName string, dceVersion st
 	}
 
 	// Write the file
+	// #nosec
 	err := ioutil.WriteFile(assetName, content, 0666)
 	return err
 }
