@@ -39,6 +39,7 @@ func (w *WebUtil) Download(url string, localpath string) error {
 	if err != nil {
 		return err
 	}
+	// #nosec
 	defer out.Close()
 
 	// Write the body to file

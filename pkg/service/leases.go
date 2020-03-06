@@ -48,7 +48,6 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln("Lease created.")
 
 	if _, err := Out.Write(jsonPayload); err != nil {
 		log.Fatalln("err: ", err)

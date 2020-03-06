@@ -39,6 +39,7 @@ func (u *FileSystemUtil) writeToYAMLFile(path string, _struct interface{}) error
 		defer file.Close()
 	}
 
+	// #nosec
 	err = ioutil.WriteFile(path, _yaml, 0644)
 	if err != nil {
 		return err
@@ -166,6 +167,7 @@ func (u *FileSystemUtil) Chdir(path string) {
 }
 
 func (u *FileSystemUtil) WriteFile(fileName string, data string) {
+	// #nosec
 	err := ioutil.WriteFile(fileName, []byte(data), 0644)
 	if err != nil {
 		log.Fatalln(err)

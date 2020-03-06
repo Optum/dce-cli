@@ -173,6 +173,7 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
 	if err != nil {
 		logFile = nil
 	} else {
+		// #nosec
 		defer logFile.Close()
 	}
 
@@ -213,6 +214,7 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, args []string) error {
 	if err != nil {
 		logFile = nil
 	} else {
+		// #nosec
 		defer logFile.Close()
 	}
 
@@ -249,6 +251,7 @@ func (t *TerraformBinUtil) GetOutput(ctx context.Context, key string) (string, e
 	if err != nil {
 		logFile = nil
 	} else {
+		// #nosec
 		defer logFile.Close()
 	}
 
