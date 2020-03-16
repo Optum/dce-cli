@@ -18,12 +18,20 @@
 - **Potential breaking change**: explicitly configured logging output to go to STDOUT; command output should go to STDOUT
 
 ## v0.3.1
-- Moved quick start to readthedocs
-- Download deployment assets from the public url rather than using Github's GraphQL API
+
+- **BREAKING CHANGE:** Move `~/.dce.yaml` file location to `~/.dce/config.yaml`
 - Use local terraform backend by default; located in `~/.dce/.cache/module/main.tf`
 - Use terraform binary directly, downloaded to `~/.dce/.cache/terraform/${terraform_version}/` folder.
 - Output from terraform now redirected to `~/.dce/deploy.log`
+- Moved quick start to readthedocs
+- Download deployment assets from the public url rather than using Github's GraphQL API
 - Added `--noprompt` flag for easier scripting
+
+**Migration Notes**
+
+dce-cli v0.3.1 introduces a breaking change, in that it expects your yaml configuration to be located at `~/.dce/config.yaml`, instead of `~/.dce.yaml`. If you are migrating from v0.3.0 or lower, you will need to manually move your existing config file to the new location before running any dce-cli commands.
+
+If you do not have an existing config file at `~/.dce.yaml`, you should be able to upgrade to v0.3.1 without problem.
 
 ## v0.3.0
 - Modified dce auth command to prompt for input and accept base64 encoded credentials string
