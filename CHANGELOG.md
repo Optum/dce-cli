@@ -9,6 +9,7 @@
 - Fix bug where modified configuration values used by `dce system deploy` would not be reflected in the terraform deployment
 - Fix pre-run credentials check: was accepting expired credentials.
 - Fix parsing of `--expires-on` flag for `dce leases create` command
+- Upgraded the default backend DCE version from 0.23.0 to 0.29.0
 
 ## v0.4.0
 - Added `--tf-init-options` and `--tf-apply-options` for greater control over underlying provisioner

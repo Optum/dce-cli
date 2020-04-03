@@ -115,24 +115,24 @@ AWS Lambda functions in your account that weren't there before:
 
         $ aws lambda list-functions --query "Functions[*].FunctionName"
         [
-            "account_pool_metrics-dce-o05cdj7l",
-            "leases-dce-o05cdj7l",
-            "process_reset_queue-dce-o05cdj7l",
-            "populate_reset_queue-dce-o05cdj7l",
-            "accounts-dce-o05cdj7l",
-            "fan_out_update_lease_status-dce-o05cdj7l",
-            "update_lease_status-dce-o05cdj7l",
-            "usage-dce-o05cdj7l",
-            "lease_auth-dce-o05cdj7l",
-            "update_principal_policy-dce-o05cdj7l",
-            "credentials_web_page-dce-o05cdj7l"
+            "account_pool_metrics-dce-ffa500",
+            "leases-dce-ffa500",
+            "process_reset_queue-dce-ffa500",
+            "populate_reset_queue-dce-ffa500",
+            "accounts-dce-ffa500",
+            "fan_out_update_lease_status-dce-ffa500",
+            "update_lease_status-dce-ffa500",
+            "usage-dce-ffa500",
+            "lease_auth-dce-ffa500",
+            "update_principal_policy-dce-ffa500",
+            "credentials_web_page-dce-ffa500"
         ]
 
 1. You should see an REST API using the following command:
 
         $ aws apigateway get-rest-apis --query "items[*].name"
         [
-            "dce-dce-o05cdj7l"
+            "dce-dce-ffa500"
         ]
 
 1. With the HTTPS URL for the API, you should be able to call the API
@@ -168,7 +168,7 @@ point, so all of them will return empty results but they should return with 200s
 AWS Lambda functions to make sure that they ran as expected. For example, to view
 the logs by using the command here:
 
-        $ aws logs get-log-events --log-group-name /aws/lambda/accounts-dce-o05cdj7l --log-stream-name '<stream name>' --query "events[*].message" --output text
+        $ aws logs get-log-events --log-group-name /aws/lambda/accounts-dce-ffa500 --log-stream-name '<stream name>' --query "events[*].message" --output text
 
 1. If you want to view the number of invocations, both errors and invocations, you
 can use the [AWS CLI](https://aws.amazon.com/premiumsupport/knowledge-center/cloudwatch-getmetricdata-api/) to also do that. As example is shown here:
@@ -219,7 +219,7 @@ To verify that the add command worked, type the following command:
                 "id": "123456789012",
                 "lastModifiedOn": 1585773960,
                 "principalPolicyHash": "\"2c3aa67c20ef6a935c490da82c7cc862\"",
-                "principalRoleArn": "arn:aws:iam::123456789012:role/DCEPrincipal-dce-o05cdj7l"
+                "principalRoleArn": "arn:aws:iam::123456789012:role/DCEPrincipal-dce-ffa500"
         }
     ]
 
@@ -251,7 +251,7 @@ The output should look like this:
                 "id": "123456789012",
                 "lastModifiedOn": 1585774024,
                 "principalPolicyHash": "\"2c3aa67c20ef6a935c490da82c7cc862\"",
-                "principalRoleArn": "arn:aws:iam::123456789012:role/DCEPrincipal-dce-o05cdj7l"
+                "principalRoleArn": "arn:aws:iam::123456789012:role/DCEPrincipal-dce-ffa500"
         }
     ]
 
@@ -259,7 +259,7 @@ A reset job (using [AWS CodeBuild](https://aws.amazon.com/codebuild/)) performs 
 account reset. You can log into the [build console](https://console.aws.amazon.com/codesuite/codebuild/projects?region=us-east-1) and check out the status of the build. Alternatively,
 you can use the AWS CLI and use the following commands:
 
-    $ aws codebuild list-builds # get the account-reset-dce-o05cdj7l build
+    $ aws codebuild list-builds # get the account-reset-dce-ffa500 build
     $ aws codebuild batch-get-builds  --ids "<id from last command>" --query "builds[*].logs.[groupName, streamName]"
     $ aws logs get-log-events --log-group-name <groupName> --log-stream-name <streamName> --query "events[*].message" --output text
 
@@ -315,12 +315,12 @@ been changed to _Leased_:
         [
                 {
                         "accountStatus": "Leased",
-                        "adminRoleArn": "arn:aws:iam::519777115644:role/DCEAdmin",
+                        "adminRoleArn": "arn:aws:iam::123456789012:role/DCEAdmin",
                         "createdOn": 1585773960,
                         "id": "123456789012",
                         "lastModifiedOn": 1585851936,
                         "principalPolicyHash": "\"2c3aa67c20ef6a935c490da82c7cc862\"",
-                        "principalRoleArn": "arn:aws:iam::519777115644:role/DCEPrincipal-dce-o05cdj7l"
+                        "principalRoleArn": "arn:aws:iam::123456789012:role/DCEPrincipal-dce-ffa500"
                 }
         ]
 
@@ -345,12 +345,12 @@ This test case is for ending a lease that has been created.
         [
                 {
                         "accountStatus": "NotReady",
-                        "adminRoleArn": "arn:aws:iam::519777115644:role/DCEAdmin",
+                        "adminRoleArn": "arn:aws:iam::123456789012:role/DCEAdmin",
                         "createdOn": 1585773960,
-                        "id": "519777115644",
+                        "id": "123456789012",
                         "lastModifiedOn": 1585854866,
                         "principalPolicyHash": "\"2c3aa67c20ef6a935c490da82c7cc862\"",
-                        "principalRoleArn": "arn:aws:iam::519777115644:role/DCEPrincipal-dce-o05cdj7l"
+                        "principalRoleArn": "arn:aws:iam::123456789012:role/DCEPrincipal-dce-ffa500"
                 }
         ]
 
@@ -364,12 +364,12 @@ switched to Ready by running the following command:
         [
             {
                     "accountStatus": "Ready",
-                    "adminRoleArn": "arn:aws:iam::519777115644:role/DCEAdmin",
+                    "adminRoleArn": "arn:aws:iam::123456789012:role/DCEAdmin",
                     "createdOn": 1585773960,
-                    "id": "519777115644",
+                    "id": "123456789012",
                     "lastModifiedOn": 1585855004,
                     "principalPolicyHash": "\"2c3aa67c20ef6a935c490da82c7cc862\"",
-                    "principalRoleArn": "arn:aws:iam::519777115644:role/DCEPrincipal-dce-o05cdj7l"
+                    "principalRoleArn": "arn:aws:iam::123456789012:role/DCEPrincipal-dce-ffa500"
             }
         ]
 
@@ -378,11 +378,11 @@ switched to Ready by running the following command:
         $ ./dce leases list
         [
             {
-                    "accountId": "519777115644",
+                    "accountId": "123456789012",
                     "budgetAmount": 25,
                     "budgetCurrency": "USD",
                     "budgetNotificationEmails": [
-                            "nathan@galenhousesoftware.com"
+                            "user@example.com"
                     ],
                     "createdOn": 1585851935,
                     "expiresOn": 1586024735,
@@ -391,14 +391,14 @@ switched to Ready by running the following command:
                     "leaseStatus": "Inactive",
                     "leaseStatusModifiedOn": 1585851935,
                     "leaseStatusReason": "Destroyed",
-                    "principalId": "nathan@galenhousesoftware.com"
+                    "principalId": "user@example.com"
             }
         ]
 
 * The CodeBuild job to reset the account will have run successfully. View the results by using the
 following command:
 
-        $ aws logs get-log-events --log-group-name  /aws/codebuild/account-reset-dce-o05cdj7l --log-stream-name '<log stream for build>' --query "events[*].message" --output text
+        $ aws logs get-log-events --log-group-name  /aws/codebuild/account-reset-dce-ffa500 --log-stream-name '<log stream for build>' --query "events[*].message" --output text
 
 # TC6: Recreate a lease
 
@@ -415,13 +415,13 @@ the pool, the account will be re-used and the system will update the lease.
 1. Re-create the lease by using the following command. Note that the date is a bit
 different, just to be able to verify that the lease record is properly updated.
 
-        $ ./dce leases create --budget-amount 25.00 --budget-currency USD --email 'nathan@galenhousesoftware.com' --expires-on 1d --principal-id 'nathan@galenhousesoftware.com'
+        $ ./dce leases create --budget-amount 25.00 --budget-currency USD --email 'user@example.com' --expires-on 1d --principal-id 'user@example.com'
         {
-            "accountId": "519777115644",
+            "accountId": "123456789012",
             "budgetAmount": 25,
             "budgetCurrency": "USD",
             "budgetNotificationEmails": [
-                    "nathan@galenhousesoftware.com"
+                    "user@example.com"
             ],
             "createdOn": 1585851935,
             "expiresOn": 1585943840,
@@ -429,7 +429,7 @@ different, just to be able to verify that the lease record is properly updated.
             "lastModifiedOn": 1585857442,
             "leaseStatus": "Active",
             "leaseStatusReason": "Active",
-            "principalId": "nathan@galenhousesoftware.com"
+            "principalId": "user@example.com"
         }
 
 ## Postconditions
@@ -506,11 +506,11 @@ scripting.
         ./dce leases list 2>/dev/null
         [
             {
-                "accountId": "519777115644",
+                "accountId": "123456789012",
                 "budgetAmount": 25,
                 "budgetCurrency": "USD",
                 "budgetNotificationEmails": [
-                        "nathan@galenhousesoftware.com"
+                        "user@example.com"
                 ],
                 "createdOn": 1585851935,
                 "expiresOn": 1585943840,
@@ -518,7 +518,7 @@ scripting.
                 "lastModifiedOn": 1585857442,
                 "leaseStatus": "Active",
                 "leaseStatusReason": "Active",
-                "principalId": "nathan@galenhousesoftware.com"
+                "principalId": "user@example.com"
             }
         ]
 
