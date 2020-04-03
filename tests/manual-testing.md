@@ -1,6 +1,6 @@
 # Manual Testing
 
-This documents some use cases and stesps for manually testing the CLI when major
+This documents some test cases and stesps for manually testing the CLI when major
 things change, such as upgrading the backend, to make sure that things
 are fully-operational. The hope here is to automate these steps into integration
 tests when time allows.
@@ -42,7 +42,7 @@ To run these tests, you will need the following tools:
 1. [httpie-aws-authv4](https://github.com/aidan-/httpie-aws-authv4) - for calling
 the API with the AWS credentials
 
-# UC1: Deployment and basic smoke testing
+# TC1: Deployment and basic smoke testing
 
 1. Make sure the `~/.dce` directory does **not** already exist, as this
 will skew your results. If you have the directory and would like to keep
@@ -194,7 +194,7 @@ errors in the Lambda metrics because a 404 is not a Lambda error
         err:  unknown error (status 404): {resp:0xc000664000} 
         exit status 1
 
-# UC2: Adding an account
+# TC2: Adding an account
 
 ## Preconditions
 
@@ -223,14 +223,14 @@ To verify that the add command worked, type the following command:
         }
     ]
 
-# UC3: Account becoming ready
+# TC3: Account becoming ready
 
 After some amount of time, the account added should transition from "NotReady" to "Ready"
 without any additional information
 
 ## Preconditions
 
-* Steps in UC2 have been preformed
+* Steps in TC2 have been preformed
 
 ## Basic Steps
 
@@ -254,3 +254,347 @@ The output should look like this:
                 "principalRoleArn": "arn:aws:iam::123456789012:role/DCEPrincipal-dce-o05cdj7l"
         }
     ]
+
+A reset job (using [AWS CodeBuild](https://aws.amazon.com/codebuild/)) performs the
+account reset. You can log into the [build console](https://console.aws.amazon.com/codesuite/codebuild/projects?region=us-east-1) and check out the status of the build. Alternatively,
+you can use the AWS CLI and use the following commands:
+
+    $ aws codebuild list-builds # get the account-reset-dce-o05cdj7l build
+    $ aws codebuild batch-get-builds  --ids "<id from last command>" --query "builds[*].logs.[groupName, streamName]"
+    $ aws logs get-log-events --log-group-name <groupName> --log-stream-name <streamName> --query "events[*].message" --output text
+
+# TC4: Add/create a lease
+
+This test case demonstrates how to add a lease and verify that the lease has been 
+added correctly.
+
+## Preconditions
+
+* Steps in TC3 have been performed and the postconditions are met.
+
+## Basic Steps
+
+1. Run the following command:
+
+        # You should see no leases in a new system
+        $ ./dce leases list
+        []
+        $ ./dce leases create --budget-amount 25.00 \ 
+        --budget-currency USD --email 'juser@example.com' \
+        --expires-on 2d --principal-id 'juser@example.com'
+        {
+                "accountId": "123456789012",
+                "budgetAmount": 25,
+                "budgetCurrency": "USD",
+                "budgetNotificationEmails": [
+                        "juser@example.com"
+                ],
+                "createdOn": 1585851935,
+                "expiresOn": 1586024735,
+                "id": "28af8b90-13ad-484a-9a80-7db35138b040",
+                "lastModifiedOn": 1585851935,
+                "leaseStatus": "Active",
+                "leaseStatusModifiedOn": 1585851935,
+                "leaseStatusReason": "Active",
+                "principalId": "juser@example.com"
+        }
+
+## Postconditions
+
+After running the steps above, verify all of the following conditions are
+true:
+
+1. Check the expiresOn value to make sure that the value, as epoch
+time, is the same as the `--expires-on` date specified. In this case,
+it should be two days away.
+
+1. Run the following command to view the account and note the status (`accountStatus`) has
+been changed to _Leased_:
+
+        $ ./dce accounts list
+        [
+                {
+                        "accountStatus": "Leased",
+                        "adminRoleArn": "arn:aws:iam::519777115644:role/DCEAdmin",
+                        "createdOn": 1585773960,
+                        "id": "123456789012",
+                        "lastModifiedOn": 1585851936,
+                        "principalPolicyHash": "\"2c3aa67c20ef6a935c490da82c7cc862\"",
+                        "principalRoleArn": "arn:aws:iam::519777115644:role/DCEPrincipal-dce-o05cdj7l"
+                }
+        ]
+
+# TC5: End a lease
+
+This test case is for ending a lease that has been created.
+
+## Preconditions
+
+* Steps in TC4 have been performed and the postconditions are met.
+
+## Basic Steps
+
+1. Run the following command:
+
+        $ ./dce leases end --principal-id 'juser@example.com' --account-id 123456789012
+        Lease ended
+
+1. Run the following command immediately to view the account status, which should be "NotReady":
+
+        $ ./dce accounts list
+        [
+                {
+                        "accountStatus": "NotReady",
+                        "adminRoleArn": "arn:aws:iam::519777115644:role/DCEAdmin",
+                        "createdOn": 1585773960,
+                        "id": "519777115644",
+                        "lastModifiedOn": 1585854866,
+                        "principalPolicyHash": "\"2c3aa67c20ef6a935c490da82c7cc862\"",
+                        "principalRoleArn": "arn:aws:iam::519777115644:role/DCEPrincipal-dce-o05cdj7l"
+                }
+        ]
+
+## Postconditions
+
+* In the step above, the account will be reset. The reset is a AWS CodeBuild job and
+does take some time. But, after some time you should see that the account has
+switched to Ready by running the following command:
+
+        $ ./dce accounts list
+        [
+            {
+                    "accountStatus": "Ready",
+                    "adminRoleArn": "arn:aws:iam::519777115644:role/DCEAdmin",
+                    "createdOn": 1585773960,
+                    "id": "519777115644",
+                    "lastModifiedOn": 1585855004,
+                    "principalPolicyHash": "\"2c3aa67c20ef6a935c490da82c7cc862\"",
+                    "principalRoleArn": "arn:aws:iam::519777115644:role/DCEPrincipal-dce-o05cdj7l"
+            }
+        ]
+
+* The lease will changed to "Inactive". Verify this by executing the following command:
+
+        $ ./dce leases list
+        [
+            {
+                    "accountId": "519777115644",
+                    "budgetAmount": 25,
+                    "budgetCurrency": "USD",
+                    "budgetNotificationEmails": [
+                            "nathan@galenhousesoftware.com"
+                    ],
+                    "createdOn": 1585851935,
+                    "expiresOn": 1586024735,
+                    "id": "28af8b90-13ad-484a-9a80-7db35138b040",
+                    "lastModifiedOn": 1585851935,
+                    "leaseStatus": "Inactive",
+                    "leaseStatusModifiedOn": 1585851935,
+                    "leaseStatusReason": "Destroyed",
+                    "principalId": "nathan@galenhousesoftware.com"
+            }
+        ]
+
+* The CodeBuild job to reset the account will have run successfully. View the results by using the
+following command:
+
+        $ aws logs get-log-events --log-group-name  /aws/codebuild/account-reset-dce-o05cdj7l --log-stream-name '<log stream for build>' --query "events[*].message" --output text
+
+# TC6: Recreate a lease
+
+The system should be able to handle the lease being re-created. With only one account in 
+the pool, the account will be re-used and the system will update the lease.
+
+## Preconditions
+
+* Steps in TC5 have been performed and the postconditions are met.
+* The account is back in "Ready" status.
+
+## Basic Steps
+
+1. Re-create the lease by using the following command. Note that the date is a bit
+different, just to be able to verify that the lease record is properly updated.
+
+        $ ./dce leases create --budget-amount 25.00 --budget-currency USD --email 'nathan@galenhousesoftware.com' --expires-on 1d --principal-id 'nathan@galenhousesoftware.com'
+        {
+            "accountId": "519777115644",
+            "budgetAmount": 25,
+            "budgetCurrency": "USD",
+            "budgetNotificationEmails": [
+                    "nathan@galenhousesoftware.com"
+            ],
+            "createdOn": 1585851935,
+            "expiresOn": 1585943840,
+            "id": "1c57a716-325f-4c3b-be83-f28f8a3e77cb",
+            "lastModifiedOn": 1585857442,
+            "leaseStatus": "Active",
+            "leaseStatusReason": "Active",
+            "principalId": "nathan@galenhousesoftware.com"
+        }
+
+## Postconditions
+
+* See the "Postcondtions" under T4: Add/create a lease to verify the same things.
+
+# TC7: List leases
+
+You can use the CLI at any point after creating a lease to list the leases.
+
+## Preconditions
+
+* Steps in TC4 have been performed and the postconditions are met.
+
+## Basic Steps
+
+1. Run the following command:
+
+        $ ./dce leases list --status "Active"
+
+1. Run the following command:
+
+        $ ./dce leases list --status "Inactive"
+
+1. Run the following command:
+
+        $ ./dce leases list --account-id 123456789012
+
+1. Run the following command:
+
+        $ ./dce leases list --principal-id 'user@example.com'
+
+1. Run the following command:
+
+        $ ./dce leases list --principal-id 'user@example.com' --account-id 123456789012
+
+## Postconditions
+
+For each of these commands, you should see the lease where the values match. Where
+the values do not match, such as prinpipal IDs and accounts IDs that do not exist,
+you should see an empty response like this:
+
+    $ ./dce leases list --principal-id 'does-not-exist@example.com'
+    []
+
+You should not receive any errors, and you the exit code of the command should be 
+zero even for empty results. To verify this, use the following commands (assuming
+the bash shell)
+
+    $ ./dce leases list --principal-id 'does-not-exist@example.com'
+    []
+    $ echo $?
+    0
+
+# TC8: Verify STDOUT and STDERR output
+
+This test verifies the output of the CLI to make sure there has not been a regression,
+since this would be a breaking change for many users counting on this behavior for
+scripting.
+
+## Preconditions
+
+* Steps in TC4 have been performed and the postconditions are met.
+
+## Basic Steps
+
+1. Execute the following command:
+
+        $ ./dce leases list >/dev/null
+        <no output>
+
+1. Execute the following command:
+
+        ./dce leases list 2>/dev/null
+        [
+            {
+                "accountId": "519777115644",
+                "budgetAmount": 25,
+                "budgetCurrency": "USD",
+                "budgetNotificationEmails": [
+                        "nathan@galenhousesoftware.com"
+                ],
+                "createdOn": 1585851935,
+                "expiresOn": 1585943840,
+                "id": "1c57a716-325f-4c3b-be83-f28f8a3e77cb",
+                "lastModifiedOn": 1585857442,
+                "leaseStatus": "Active",
+                "leaseStatusReason": "Active",
+                "principalId": "nathan@galenhousesoftware.com"
+            }
+        ]
+
+## Postconditions
+
+After running the commands, the following conditions should be met:
+
+* After running the commands redirecting output the /dev/null, you should see no
+output in the terminal window.
+
+* After running commands that redirect STDERR to /dev/null (`2>/dev/null`), you
+should still see the normal command output.
+
+# TC9: Removing an account
+
+After ending the lease and verifying that no more leases are active, you can 
+remove the account from the account pool using the CLI
+
+## Preconditions
+
+* Steps in TC5 have been performed and the postconditions are met.
+
+## Basic Steps
+
+1. Type the following command:
+
+        $ ./dce accounts remove 123456789012
+        Account removed from DCE accounts pool
+
+## Postconditions
+
+In addition to the above message, you should see there are no accounts listed in 
+the pool by running the following commmand:
+
+    $ ./dce accounts list
+    []
+
+# TC10: Destroying the resources
+
+Now that the leases are ended and accounts are cleaned up, you can delete the 
+resources in the account. This is currently done by using `terraform` directly,
+as `dce system destroy/delete` is still an open feature request.
+
+## Preconditions
+
+* All of the steps in TC5 and TC9 have been performed, in that order, and the
+preconditions are all met.
+
+## Basic Steps
+
+1. Run the following commands to use the version of `terraform` used by the 
+DCE CLI to destroy your resources:
+
+        $ cd ~/.dce/.cache/module
+        $ ../terraform/0.12.18/terraform destroy
+        # terraform output, snipped...
+        Plan: 0 to add, 0 to change, 241 to destroy.
+        
+        Do you really want to destroy all resources?
+        Terraform will destroy all your managed infrastructure, as shown above.
+        There is no undo. Only 'yes' will be accepted to confirm.
+        
+        Enter a value:
+
+1. At the prompt, type _yes_.
+
+## Postconditions
+
+* You should see this final message from the terraform command:
+
+    Destroy complete! Resources: 241 destroyed.
+
+* Run a few commands to view the resources in AWS to make sure they have been
+destroyed, for example, the following commands:
+
+    $  aws lambda list-functions --query "Functions[*].FunctionName"
+    []
+    $ aws apigateway get-rest-apis --query "items[*].name"
+    []
