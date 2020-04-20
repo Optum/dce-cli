@@ -55,14 +55,6 @@ func init() {
 	}
 	leasesCmd.AddCommand(leasesCreateCmd)
 
-	leasesEndCmd.Flags().StringVarP(&principalID, "principal-id", "p", "", "Principle ID for the user of the leased account")
-	leasesEndCmd.Flags().StringVarP(&accountID, "account-id", "a", "", "Account ID associated with the lease you wish to end")
-	if err := leasesEndCmd.MarkFlagRequired("principal-id"); err != nil {
-		log.Fatalln(err)
-	}
-	if err := leasesEndCmd.MarkFlagRequired("account-id"); err != nil {
-		log.Fatalln(err)
-	}
 	leasesCmd.AddCommand(leasesEndCmd)
 
 	leasesLoginCmd.Flags().BoolVarP(&loginOpenBrowser, "open-browser", "b", false, "Opens web broswer to AWS console instead of printing credentials")
@@ -108,9 +100,9 @@ var leasesCreateCmd = &cobra.Command{
 var leasesEndCmd = &cobra.Command{
 	Use:   "end",
 	Short: "Cause a lease to immediately expire",
-	Args:  cobra.NoArgs,
+	Args:  cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		Service.EndLease(accountID, principalID)
+		Service.EndLease(args[0])
 	},
 }
 

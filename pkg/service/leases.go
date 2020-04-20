@@ -55,15 +55,13 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 	}
 }
 
-func (s *LeasesService) EndLease(accountID, principalID string) {
-	params := &operations.DeleteLeasesParams{
-		Lease: operations.DeleteLeasesBody{
-			AccountID:   &accountID,
-			PrincipalID: &principalID,
-		},
+func (s *LeasesService) EndLease(leaseID string) {
+	params := &operations.DeleteLeasesIDParams{
+		ID: leaseID,
 	}
+
 	params.SetTimeout(5 * time.Second)
-	_, err := ApiClient.DeleteLeases(params, nil)
+	_, err := ApiClient.DeleteLeasesID(params, nil)
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
