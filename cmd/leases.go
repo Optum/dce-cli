@@ -98,7 +98,7 @@ var leasesCreateCmd = &cobra.Command{
 }
 
 var leasesEndCmd = &cobra.Command{
-	Use:   "end",
+	Use:   "end [Lease ID]",
 	Short: "Cause a lease to immediately expire",
 	Args:  cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
