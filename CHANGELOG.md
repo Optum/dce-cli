@@ -1,5 +1,8 @@
 ## vNext
 
+**MAJOR BREAKING CHANGES**
+- dce leases end command now accepts leaseID instead of principalID & accountID
+
 ## v0.5.0
 
 - **Potential breaking change**: Updated commands to output logging messages to STDERR, while JSON
