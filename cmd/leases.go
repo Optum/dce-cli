@@ -100,15 +100,17 @@ var leasesCreateCmd = &cobra.Command{
 }
 
 var leasesEndCmd = &cobra.Command{
-	Use:   "end [Lease ID]",
-	Short: "Cause a lease to immediately expire",
+	Use:     "end [Lease ID]",
+	Short:   "Cause a lease to immediately expire",
 	Example: "dce leases end <leaseID>\ndce leases end --principal-id <principalID> --account-id <accountID>",
 	Run: func(cmd *cobra.Command, args []string) {
 
 		leaseID := ""
-		if len(args) == 1 {leaseID = args[0]}
+		if len(args) == 1 {
+			leaseID = args[0]
+		}
 
-		if !( (leaseID != "") || (accountID != "" && principalID != "") ) {
+		if !((leaseID != "") || (accountID != "" && principalID != "")) {
 			log.Println("Please provide either a lease ID argument or --principal-id and --account-id flags")
 		}
 
