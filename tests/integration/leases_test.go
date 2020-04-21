@@ -17,8 +17,8 @@ import (
 type cliInputs []string
 
 type cliOutputs struct {
-	httpRequest interface{}
-	printedJson map[string]interface{}
+	httpRequest   interface{}
+	printedJson   map[string]interface{}
 	printedString string
 }
 
@@ -35,21 +35,20 @@ func TestLeasesEnd(t *testing.T) {
 		accountID       string
 		expectedOutputs cliOutputs
 		expErr          error
-
 	}{
 		{
-			name: "only leaseID arg succeeds",
-			leaseID: testLeaseID,
+			name:      "only leaseID arg succeeds",
+			leaseID:   testLeaseID,
 			cliInputs: []string{"leases", "end", testLeaseID},
 			expectedOutputs: cliOutputs{
 				printedString: "Lease ended",
 			},
 		},
 		{
-			name: "both accountID and principalID flags succeeds",
-			accountID: accountID,
+			name:        "both accountID and principalID flags succeeds",
+			accountID:   accountID,
 			principalID: principalID,
-			cliInputs: []string{"leases", "end", "--account-id", accountID, "--principal-id", principalID},
+			cliInputs:   []string{"leases", "end", "--account-id", accountID, "--principal-id", principalID},
 			expectedOutputs: cliOutputs{
 				printedString: "Lease ended",
 			},
@@ -67,7 +66,7 @@ func TestLeasesEnd(t *testing.T) {
 				api.On("DeleteLeasesID",
 					mock.MatchedBy(func(params *operations.DeleteLeasesIDParams) bool {
 						return params.ID == tt.leaseID
-					}), nil).Return( &operations.DeleteLeasesIDOK{
+					}), nil).Return(&operations.DeleteLeasesIDOK{
 					Payload: &operations.DeleteLeasesIDOKBody{},
 				}, nil)
 			}
@@ -76,7 +75,7 @@ func TestLeasesEnd(t *testing.T) {
 				api.On("DeleteLeases",
 					mock.MatchedBy(func(params *operations.DeleteLeasesParams) bool {
 						return *params.Lease.AccountID == tt.accountID && *params.Lease.PrincipalID == tt.principalID
-					}), nil).Return( &operations.DeleteLeasesOK{
+					}), nil).Return(&operations.DeleteLeasesOK{
 					Payload: &operations.DeleteLeasesOKBody{},
 				}, nil)
 			}
@@ -106,7 +105,6 @@ func TestLeasesEnd(t *testing.T) {
 	}
 }
 
-
 func TestLeasesCreate(t *testing.T) {
 
 	tests := []struct {
@@ -133,7 +131,7 @@ func TestLeasesCreate(t *testing.T) {
 					ExpiresOn:                float64(time.Now().Add(time.Hour).Unix()),
 					PrincipalID:              aws.String("test-user"),
 				},
-				printedJson:   map[string]interface{}{
+				printedJson: map[string]interface{}{
 					"accountId":                "123456789012",
 					"budgetAmount":             float64(100),
 					"budgetCurrency":           "USD",
