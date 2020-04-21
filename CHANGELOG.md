@@ -1,7 +1,6 @@
 ## vNext
 
-**MAJOR BREAKING CHANGES**
-- dce leases end command now accepts leaseID instead of principalID & accountID
+- dce leases end command can now accept leaseID
 
 ## v0.5.0
 
