@@ -22,6 +22,90 @@ type cliOutputs struct {
 	printedString string
 }
 
+func TestLeasesEnd(t *testing.T) {
+	testLeaseID := "testLeaseId123"
+	accountID := "accountID"
+	principalID := "principalID"
+
+	tests := []struct {
+		name            string
+		cliInputs       cliInputs
+		leaseID         string
+		principalID     string
+		accountID       string
+		expectedOutputs cliOutputs
+		expErr          error
+
+	}{
+		{
+			name: "only leaseID arg succeeds",
+			leaseID: testLeaseID,
+			cliInputs: []string{"leases", "end", testLeaseID},
+			expectedOutputs: cliOutputs{
+				printedString: "Lease ended",
+			},
+		},
+		{
+			name: "both accountID and principalID flags succeeds",
+			accountID: accountID,
+			principalID: principalID,
+			cliInputs: []string{"leases", "end", "--account-id", accountID, "--principal-id", principalID},
+			expectedOutputs: cliOutputs{
+				printedString: "Lease ended",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			cli := NewCLITest(t)
+
+			api := &mocks.APIer{}
+
+			if tt.leaseID != "" && (tt.accountID == "" && tt.principalID == "") {
+				api.On("DeleteLeasesID",
+					mock.MatchedBy(func(params *operations.DeleteLeasesIDParams) bool {
+						return params.ID == tt.leaseID
+					}), nil).Return( &operations.DeleteLeasesIDOK{
+					Payload: &operations.DeleteLeasesIDOKBody{},
+				}, nil)
+			}
+
+			if tt.leaseID == "" && (tt.accountID != "" && tt.principalID != "") {
+				api.On("DeleteLeases",
+					mock.MatchedBy(func(params *operations.DeleteLeasesParams) bool {
+						return *params.Lease.AccountID == tt.accountID && *params.Lease.PrincipalID == tt.principalID
+					}), nil).Return( &operations.DeleteLeasesOK{
+					Payload: &operations.DeleteLeasesOKBody{},
+				}, nil)
+			}
+
+			out := &mocks.OutputWriter{}
+			out.On("Write", mock.MatchedBy(func(out []byte) bool {
+				return string(out) == tt.expectedOutputs.printedString
+			})).Return(0, nil)
+
+			// Mock the Authentication service (would pop open browser to auth user)
+			authSvc := &mocks.Authenticater{}
+			authSvc.On("Authenticate").Return(nil)
+
+			cli.Inject(func(input *injectorInput) {
+				service.ApiClient = api
+				service.Out = out
+				input.service.Authenticater = authSvc
+			})
+
+			// Run `dce leases create` command
+			err := cli.Execute(tt.cliInputs)
+			require.Nil(t, err)
+
+			api.AssertExpectations(t)
+			out.AssertNumberOfCalls(t, "Write", 1)
+		})
+	}
+}
+
 
 func TestLeasesCreate(t *testing.T) {
 

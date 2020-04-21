@@ -75,7 +75,11 @@ func (s *LeasesService) EndLease(leaseID, accountID, principalID string) {
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln("Lease ended")
+
+	if _, err := Out.Write([]byte("Lease ended")); err != nil {
+		log.Fatalln("err: ", err)
+
+	}
 }
 
 func (s *LeasesService) GetLease(leaseID string) {
