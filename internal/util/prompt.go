@@ -1,9 +1,11 @@
 package util
 
 import (
+	"fmt"
+	"github.com/chzyer/readline"
 	"github.com/Optum/dce-cli/configs"
 	observ "github.com/Optum/dce-cli/internal/observation"
-	"github.com/manifoldco/promptui"
+
 )
 
 type PromptUtil struct {
@@ -12,27 +14,26 @@ type PromptUtil struct {
 }
 
 func (u *PromptUtil) PromptBasic(label string, validator func(input string) error) *string {
-	prompt := promptui.Prompt{
-		Label:    label,
-		Validate: validator,
-	}
-	input, err := prompt.Run()
+	rl, err := readline.NewEx(&readline.Config{
+		Prompt:                 fmt.Sprint(label, " "),
+		DisableAutoSaveHistory: true,
+	})
+	defer rl.Close()
 	if err != nil {
-		log.Fatalf("Prompt failed %v\n", err)
+		log.Fatalln(err)
+	}
+
+	input, err := rl.Readline()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if validator != nil{
+		err = validator(input)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 
 	return &input
 }
 
-func (u *PromptUtil) PromptSelect(label string, items []string) *string {
-	prompt := promptui.Select{
-		Label: label,
-		Items: items,
-	}
-	_, input, err := prompt.Run()
-	if err != nil {
-		log.Fatalf("Prompt failed %v\n", err)
-	}
-
-	return &input
-}

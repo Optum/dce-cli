@@ -94,7 +94,6 @@ type Githuber interface {
 
 type Prompter interface {
 	PromptBasic(label string, validator func(input string) error) *string
-	PromptSelect(label string, items []string) *string
 }
 
 type FileSystemer interface {
