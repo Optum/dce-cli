@@ -1,5 +1,7 @@
 ## vNext
 
+- Fix bug causing prompts to repeatedly echo input of large strings
+
 ## v0.5.0
 
 - **Potential breaking change**: Updated commands to output logging messages to STDERR, while JSON
