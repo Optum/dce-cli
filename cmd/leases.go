@@ -112,9 +112,9 @@ var leasesEndCmd = &cobra.Command{
 
 		if !((leaseID != "") || (accountID != "" && principalID != "")) {
 			log.Println("Please provide either a lease ID argument or --principal-id and --account-id flags")
+		} else {
+			Service.EndLease(leaseID, accountID, principalID)
 		}
-
-		Service.EndLease(leaseID, accountID, principalID)
 	},
 }
 
