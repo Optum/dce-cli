@@ -3,7 +3,7 @@ set -euxo pipefail
 
 export GOBIN=$(dirname `which go`)
 
-export GO111MODULE=off
+#export GO111MODULE=off
 
 go get github.com/jstemmer/go-junit-report
 go get github.com/axw/gocov/gocov
