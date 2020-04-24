@@ -1,5 +1,7 @@
 ## vNext
 
+- dce leases end command can now accept leaseID
+
 ## v0.5.0
 
 - **Potential breaking change**: Updated commands to output logging messages to STDERR, while JSON
