@@ -13,8 +13,6 @@ import (
 	utl "github.com/Optum/dce-cli/internal/util"
 )
 
-const LeasesPath = "/leases"
-
 type LeasesService struct {
 	Config      *configs.Root
 	Observation *observ.ObservationContainer
@@ -55,19 +53,33 @@ func (s *LeasesService) CreateLease(principalID string, budgetAmount float64, bu
 	}
 }
 
-func (s *LeasesService) EndLease(accountID, principalID string) {
-	params := &operations.DeleteLeasesParams{
-		Lease: operations.DeleteLeasesBody{
-			AccountID:   &accountID,
-			PrincipalID: &principalID,
-		},
+func (s *LeasesService) EndLease(leaseID, accountID, principalID string) {
+	var err error = nil
+	if leaseID != "" {
+		params := &operations.DeleteLeasesIDParams{
+			ID: leaseID,
+		}
+		params.SetTimeout(5 * time.Second)
+		_, err = ApiClient.DeleteLeasesID(params, nil)
+	} else if accountID != "" && principalID != "" {
+		params := &operations.DeleteLeasesParams{
+			Lease: operations.DeleteLeasesBody{
+				AccountID:   &accountID,
+				PrincipalID: &principalID,
+			},
+		}
+		params.SetTimeout(5 * time.Second)
+		_, err = ApiClient.DeleteLeases(params, nil)
 	}
-	params.SetTimeout(5 * time.Second)
-	_, err := ApiClient.DeleteLeases(params, nil)
+
 	if err != nil {
 		log.Fatalln("err: ", err)
 	}
-	log.Infoln("Lease ended")
+
+	if _, err := Out.Write([]byte("Lease ended")); err != nil {
+		log.Fatalln("err: ", err)
+
+	}
 }
 
 func (s *LeasesService) GetLease(leaseID string) {

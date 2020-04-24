@@ -82,7 +82,7 @@ type LeaseLoginOptions struct {
 
 type Leaser interface {
 	CreateLease(principalID string, budgetAmount float64, budgetCurrency string, email []string, expiresOn string)
-	EndLease(accountID, principalID string)
+	EndLease(leaseID, accountID, principalID string)
 	LoginByID(leaseID string, opts *LeaseLoginOptions)
 	Login(opts *LeaseLoginOptions)
 	ListLeases(acctID, principalID, nextAcctID, nextPrincipalID, leaseStatus string, pagLimit int64)
