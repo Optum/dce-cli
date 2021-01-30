@@ -15,7 +15,8 @@ type WebUtil struct {
 
 func (w *WebUtil) OpenURL(url string) {
 	if err := browser.OpenURL(url); err != nil {
-		log.Fatalln("Error opening web browser", err)
+		log.Errorln("Error opening web browser", err)
+		log.Infoln("Please copy and visit the following URL in your browser:", url)
 	}
 }
 
