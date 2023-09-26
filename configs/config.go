@@ -45,7 +45,7 @@ type Terraform struct {
 
 var Regions = []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2"}
 
-// Coalesce returns the first non-empty vluae, but takes into account a loading order,
+// Coalesce returns the first non-empty value, but takes into account a loading order,
 // which is CLI args > environment variables > config file > some default
 func Coalesce(arg *string, config *string, envvar *string, def *string) *string {
 
