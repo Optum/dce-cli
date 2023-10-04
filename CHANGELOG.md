@@ -2,6 +2,7 @@
 
 - Fix bug causing prompts to repeatedly echo input of large strings
 - dce leases end command can now accept leaseID
+- Print out browser URL to be copied and opened in case opening the browser from the Terminal fails such as out of the box on WSL2.
 
 ## v0.5.0
 
