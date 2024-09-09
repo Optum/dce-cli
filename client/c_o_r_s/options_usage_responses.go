@@ -9,8 +9,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // OptionsUsageReader is a Reader for the OptionsUsage structure.
@@ -27,9 +26,8 @@ func (o *OptionsUsageReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return result, nil
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[OPTIONS /usage] OptionsUsage", response, response.Code())
 	}
 }
 
@@ -38,32 +36,77 @@ func NewOptionsUsageOK() *OptionsUsageOK {
 	return &OptionsUsageOK{}
 }
 
-/*OptionsUsageOK handles this case with default header values.
+/*
+OptionsUsageOK describes a response with status code 200, with default header values.
 
 Default response for CORS method
 */
 type OptionsUsageOK struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
+	AccessControlAllowOrigin  string
+}
 
-	AccessControlAllowOrigin string
+// IsSuccess returns true when this options usage o k response has a 2xx status code
+func (o *OptionsUsageOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this options usage o k response has a 3xx status code
+func (o *OptionsUsageOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this options usage o k response has a 4xx status code
+func (o *OptionsUsageOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this options usage o k response has a 5xx status code
+func (o *OptionsUsageOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this options usage o k response a status code equal to that given
+func (o *OptionsUsageOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the options usage o k response
+func (o *OptionsUsageOK) Code() int {
+	return 200
 }
 
 func (o *OptionsUsageOK) Error() string {
-	return fmt.Sprintf("[OPTIONS /usage][%d] optionsUsageOK ", 200)
+	return fmt.Sprintf("[OPTIONS /usage][%d] optionsUsageOK", 200)
+}
+
+func (o *OptionsUsageOK) String() string {
+	return fmt.Sprintf("[OPTIONS /usage][%d] optionsUsageOK", 200)
 }
 
 func (o *OptionsUsageOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
+
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	return nil
 }

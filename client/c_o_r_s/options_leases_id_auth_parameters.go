@@ -13,56 +13,71 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
-// NewOptionsLeasesIDAuthParams creates a new OptionsLeasesIDAuthParams object
-// with the default values initialized.
+// NewOptionsLeasesIDAuthParams creates a new OptionsLeasesIDAuthParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewOptionsLeasesIDAuthParams() *OptionsLeasesIDAuthParams {
-
 	return &OptionsLeasesIDAuthParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewOptionsLeasesIDAuthParamsWithTimeout creates a new OptionsLeasesIDAuthParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewOptionsLeasesIDAuthParamsWithTimeout(timeout time.Duration) *OptionsLeasesIDAuthParams {
-
 	return &OptionsLeasesIDAuthParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewOptionsLeasesIDAuthParamsWithContext creates a new OptionsLeasesIDAuthParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewOptionsLeasesIDAuthParamsWithContext(ctx context.Context) *OptionsLeasesIDAuthParams {
-
 	return &OptionsLeasesIDAuthParams{
-
 		Context: ctx,
 	}
 }
 
 // NewOptionsLeasesIDAuthParamsWithHTTPClient creates a new OptionsLeasesIDAuthParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewOptionsLeasesIDAuthParamsWithHTTPClient(client *http.Client) *OptionsLeasesIDAuthParams {
-
 	return &OptionsLeasesIDAuthParams{
 		HTTPClient: client,
 	}
 }
 
-/*OptionsLeasesIDAuthParams contains all the parameters to send to the API endpoint
-for the options leases ID auth operation typically these are written to a http.Request
+/*
+OptionsLeasesIDAuthParams contains all the parameters to send to the API endpoint
+
+	for the options leases ID auth operation.
+
+	Typically these are written to a http.Request.
 */
 type OptionsLeasesIDAuthParams struct {
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the options leases ID auth params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *OptionsLeasesIDAuthParams) WithDefaults() *OptionsLeasesIDAuthParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the options leases ID auth params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *OptionsLeasesIDAuthParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the options leases ID auth params

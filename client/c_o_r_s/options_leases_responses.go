@@ -9,8 +9,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // OptionsLeasesReader is a Reader for the OptionsLeases structure.
@@ -27,9 +26,8 @@ func (o *OptionsLeasesReader) ReadResponse(response runtime.ClientResponse, cons
 			return nil, err
 		}
 		return result, nil
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[OPTIONS /leases] OptionsLeases", response, response.Code())
 	}
 }
 
@@ -38,32 +36,77 @@ func NewOptionsLeasesOK() *OptionsLeasesOK {
 	return &OptionsLeasesOK{}
 }
 
-/*OptionsLeasesOK handles this case with default header values.
+/*
+OptionsLeasesOK describes a response with status code 200, with default header values.
 
 Default response for CORS method
 */
 type OptionsLeasesOK struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
+	AccessControlAllowOrigin  string
+}
 
-	AccessControlAllowOrigin string
+// IsSuccess returns true when this options leases o k response has a 2xx status code
+func (o *OptionsLeasesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this options leases o k response has a 3xx status code
+func (o *OptionsLeasesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this options leases o k response has a 4xx status code
+func (o *OptionsLeasesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this options leases o k response has a 5xx status code
+func (o *OptionsLeasesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this options leases o k response a status code equal to that given
+func (o *OptionsLeasesOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the options leases o k response
+func (o *OptionsLeasesOK) Code() int {
+	return 200
 }
 
 func (o *OptionsLeasesOK) Error() string {
-	return fmt.Sprintf("[OPTIONS /leases][%d] optionsLeasesOK ", 200)
+	return fmt.Sprintf("[OPTIONS /leases][%d] optionsLeasesOK", 200)
+}
+
+func (o *OptionsLeasesOK) String() string {
+	return fmt.Sprintf("[OPTIONS /leases][%d] optionsLeasesOK", 200)
 }
 
 func (o *OptionsLeasesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
+
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	return nil
 }

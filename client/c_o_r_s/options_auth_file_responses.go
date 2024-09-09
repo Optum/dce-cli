@@ -9,8 +9,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // OptionsAuthFileReader is a Reader for the OptionsAuthFile structure.
@@ -27,9 +26,8 @@ func (o *OptionsAuthFileReader) ReadResponse(response runtime.ClientResponse, co
 			return nil, err
 		}
 		return result, nil
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[OPTIONS /auth/{file+}] OptionsAuthFile", response, response.Code())
 	}
 }
 
@@ -38,32 +36,77 @@ func NewOptionsAuthFileOK() *OptionsAuthFileOK {
 	return &OptionsAuthFileOK{}
 }
 
-/*OptionsAuthFileOK handles this case with default header values.
+/*
+OptionsAuthFileOK describes a response with status code 200, with default header values.
 
 Default response for CORS method
 */
 type OptionsAuthFileOK struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
+	AccessControlAllowOrigin  string
+}
 
-	AccessControlAllowOrigin string
+// IsSuccess returns true when this options auth file o k response has a 2xx status code
+func (o *OptionsAuthFileOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this options auth file o k response has a 3xx status code
+func (o *OptionsAuthFileOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this options auth file o k response has a 4xx status code
+func (o *OptionsAuthFileOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this options auth file o k response has a 5xx status code
+func (o *OptionsAuthFileOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this options auth file o k response a status code equal to that given
+func (o *OptionsAuthFileOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the options auth file o k response
+func (o *OptionsAuthFileOK) Code() int {
+	return 200
 }
 
 func (o *OptionsAuthFileOK) Error() string {
-	return fmt.Sprintf("[OPTIONS /auth/{file+}][%d] optionsAuthFileOK ", 200)
+	return fmt.Sprintf("[OPTIONS /auth/{file+}][%d] optionsAuthFileOK", 200)
+}
+
+func (o *OptionsAuthFileOK) String() string {
+	return fmt.Sprintf("[OPTIONS /auth/{file+}][%d] optionsAuthFileOK", 200)
 }
 
 func (o *OptionsAuthFileOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
+
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	return nil
 }

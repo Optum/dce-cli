@@ -6,11 +6,14 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
+	"context"
+
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // LeaseAuth Lease Authentication
+//
 // swagger:model leaseAuth
 type LeaseAuth struct {
 
@@ -19,9 +22,6 @@ type LeaseAuth struct {
 
 	// URL to access the AWS Console
 	ConsoleURL string `json:"consoleUrl,omitempty"`
-
-	// expires on
-	ExpiresOn float64 `json:"expiresOn,omitempty"`
 
 	// Secret Access Key for access to the AWS API
 	SecretAccessKey string `json:"secretAccessKey,omitempty"`
@@ -32,6 +32,11 @@ type LeaseAuth struct {
 
 // Validate validates this lease auth
 func (m *LeaseAuth) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this lease auth based on context it is used
+func (m *LeaseAuth) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

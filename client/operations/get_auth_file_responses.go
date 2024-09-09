@@ -6,12 +6,12 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // GetAuthFileReader is a Reader for the GetAuthFile structure.
@@ -28,9 +28,8 @@ func (o *GetAuthFileReader) ReadResponse(response runtime.ClientResponse, consum
 			return nil, err
 		}
 		return result, nil
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /auth/{file+}] GetAuthFile", response, response.Code())
 	}
 }
 
@@ -39,22 +38,57 @@ func NewGetAuthFileOK() *GetAuthFileOK {
 	return &GetAuthFileOK{}
 }
 
-/*GetAuthFileOK handles this case with default header values.
+/*
+GetAuthFileOK describes a response with status code 200, with default header values.
 
 GetAuthFileOK get auth file o k
 */
 type GetAuthFileOK struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
-
-	AccessControlAllowOrigin string
+	AccessControlAllowOrigin  string
 
 	Payload interface{}
 }
 
+// IsSuccess returns true when this get auth file o k response has a 2xx status code
+func (o *GetAuthFileOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get auth file o k response has a 3xx status code
+func (o *GetAuthFileOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get auth file o k response has a 4xx status code
+func (o *GetAuthFileOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get auth file o k response has a 5xx status code
+func (o *GetAuthFileOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get auth file o k response a status code equal to that given
+func (o *GetAuthFileOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get auth file o k response
+func (o *GetAuthFileOK) Code() int {
+	return 200
+}
+
 func (o *GetAuthFileOK) Error() string {
-	return fmt.Sprintf("[GET /auth/{file+}][%d] getAuthFileOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /auth/{file+}][%d] getAuthFileOK %s", 200, payload)
+}
+
+func (o *GetAuthFileOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /auth/{file+}][%d] getAuthFileOK %s", 200, payload)
 }
 
 func (o *GetAuthFileOK) GetPayload() interface{} {
@@ -63,14 +97,26 @@ func (o *GetAuthFileOK) GetPayload() interface{} {
 
 func (o *GetAuthFileOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
+
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {

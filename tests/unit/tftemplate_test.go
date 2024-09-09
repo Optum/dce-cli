@@ -3,7 +3,7 @@ package unit
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	util "github.com/Optum/dce-cli/internal/util"
@@ -42,7 +42,7 @@ func TestMainTFTemplate_Write(t *testing.T) {
 
 	var actual bytes.Buffer
 
-	expected, err := ioutil.ReadFile("examples/maintf-basic.example")
+	expected, err := os.ReadFile("examples/maintf-basic.example")
 
 	assert.Nil(t, err, "should have been able to read from file")
 

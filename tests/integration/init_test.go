@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
@@ -32,9 +31,9 @@ func TestInitCommand(t *testing.T) {
 				)
 
 				// Create a tmp dir for our config to live in
-				tmpdir, err := ioutil.TempDir("", "dce-cli-test")
+				tmpdir, err := os.MkdirTemp("", "dce-cli-test")
 				require.Nil(t, err)
-				defer os.RemoveAll(tmpdir)
+				defer os.RemoveAll(tmpdir) //nolint:errcheck
 				confFile := path.Join(tmpdir, "dce.yml")
 
 				// Run `dce init`
@@ -74,9 +73,9 @@ func TestInitCommand(t *testing.T) {
 				)
 
 				// Create a tmp dir for our dce.yml config to live in
-				tmpdir, err := ioutil.TempDir("", "dce-cli-test")
+				tmpdir, err := os.MkdirTemp("", "dce-cli-test")
 				require.Nil(t, err)
-				defer os.RemoveAll(tmpdir)
+				defer os.RemoveAll(tmpdir) //nolint:errcheck
 				confFile := path.Join(tmpdir, "dce.yml")
 
 				// Create empty dce.yml file
@@ -151,12 +150,12 @@ func TestInitCommand(t *testing.T) {
 			t.Run("THEN command fails", func(t *testing.T) {
 				// Write some garbage to a file
 				// Create a tmp file
-				tmpfile, err := ioutil.TempFile("", "dce.*.yml")
+				tmpfile, err := os.CreateTemp("", "dce.*.yml")
 				require.Nil(t, err)
-				err = ioutil.WriteFile(tmpfile.Name(), []byte("not valid YAML"), 0644)
+				err = os.WriteFile(tmpfile.Name(), []byte("not valid YAML"), 0644) //nolint:gosec
 				require.Nil(t, err)
 				_ = tmpfile.Close()
-				defer os.Remove(tmpfile.Name())
+				defer os.Remove(tmpfile.Name()) //nolint:errcheck
 
 				// Run `dce init` (should fail)
 				cli := NewCLITest(t)
@@ -171,7 +170,7 @@ func TestInitCommand(t *testing.T) {
 }
 
 func assertYamlConfig(t *testing.T, expectedConf *configs.Root, yamlFile string) {
-	yamlStr, err := ioutil.ReadFile(yamlFile)
+	yamlStr, err := os.ReadFile(yamlFile)
 	require.Nilf(t, err, "Failed to read %s", yamlFile)
 
 	var actualConf configs.Root

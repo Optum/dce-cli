@@ -6,10 +6,11 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
@@ -20,6 +21,15 @@ import (
 //
 // swagger:model accountStatus
 type AccountStatus string
+
+func NewAccountStatus(value AccountStatus) *AccountStatus {
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated AccountStatus.
+func (m AccountStatus) Pointer() *AccountStatus {
+	return &m
+}
 
 const (
 
@@ -50,7 +60,7 @@ func init() {
 }
 
 func (m AccountStatus) validateAccountStatusEnum(path, location string, value AccountStatus) error {
-	if err := validate.Enum(path, location, value, accountStatusEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, accountStatusEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -68,5 +78,10 @@ func (m AccountStatus) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this account status based on context it is used
+func (m AccountStatus) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

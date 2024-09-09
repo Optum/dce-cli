@@ -6,15 +6,17 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // Account Account Details
+//
 // swagger:model account
 type Account struct {
 
@@ -23,7 +25,7 @@ type Account struct {
 	// "NotReady": The account is in "dirty" state, and needs to be reset before it may be leased.
 	// "Leased": The account is leased to a principal
 	//
-	// Enum: [Ready NotReady Leased Orphaned]
+	// Enum: ["Ready","NotReady","Leased","Orphaned"]
 	AccountStatus string `json:"accountStatus,omitempty"`
 
 	// ARN for an IAM role within this AWS account. The DCE master account will assume this IAM role to execute operations within this AWS account. This IAM role is configured by the client, and must be configured with [a Trust Relationship with the DCE master account.](/https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html)
@@ -91,14 +93,13 @@ const (
 
 // prop value enum
 func (m *Account) validateAccountStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, accountTypeAccountStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, accountTypeAccountStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (m *Account) validateAccountStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AccountStatus) { // not required
 		return nil
 	}
@@ -108,6 +109,11 @@ func (m *Account) validateAccountStatus(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this account based on context it is used
+func (m *Account) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

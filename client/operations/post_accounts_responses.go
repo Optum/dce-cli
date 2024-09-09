@@ -6,14 +6,14 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // PostAccountsReader is a Reader for the PostAccounts structure.
@@ -36,9 +36,8 @@ func (o *PostAccountsReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[POST /accounts] PostAccounts", response, response.Code())
 	}
 }
 
@@ -47,32 +46,77 @@ func NewPostAccountsCreated() *PostAccountsCreated {
 	return &PostAccountsCreated{}
 }
 
-/*PostAccountsCreated handles this case with default header values.
+/*
+PostAccountsCreated describes a response with status code 201, with default header values.
 
 Account Details
 */
 type PostAccountsCreated struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
+	AccessControlAllowOrigin  string
+}
 
-	AccessControlAllowOrigin string
+// IsSuccess returns true when this post accounts created response has a 2xx status code
+func (o *PostAccountsCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this post accounts created response has a 3xx status code
+func (o *PostAccountsCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post accounts created response has a 4xx status code
+func (o *PostAccountsCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this post accounts created response has a 5xx status code
+func (o *PostAccountsCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post accounts created response a status code equal to that given
+func (o *PostAccountsCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the post accounts created response
+func (o *PostAccountsCreated) Code() int {
+	return 201
 }
 
 func (o *PostAccountsCreated) Error() string {
-	return fmt.Sprintf("[POST /accounts][%d] postAccountsCreated ", 201)
+	return fmt.Sprintf("[POST /accounts][%d] postAccountsCreated", 201)
+}
+
+func (o *PostAccountsCreated) String() string {
+	return fmt.Sprintf("[POST /accounts][%d] postAccountsCreated", 201)
 }
 
 func (o *PostAccountsCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
+
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	return nil
 }
@@ -82,15 +126,50 @@ func NewPostAccountsForbidden() *PostAccountsForbidden {
 	return &PostAccountsForbidden{}
 }
 
-/*PostAccountsForbidden handles this case with default header values.
+/*
+PostAccountsForbidden describes a response with status code 403, with default header values.
 
 Failed to authenticate request
 */
 type PostAccountsForbidden struct {
 }
 
+// IsSuccess returns true when this post accounts forbidden response has a 2xx status code
+func (o *PostAccountsForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this post accounts forbidden response has a 3xx status code
+func (o *PostAccountsForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post accounts forbidden response has a 4xx status code
+func (o *PostAccountsForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this post accounts forbidden response has a 5xx status code
+func (o *PostAccountsForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post accounts forbidden response a status code equal to that given
+func (o *PostAccountsForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the post accounts forbidden response
+func (o *PostAccountsForbidden) Code() int {
+	return 403
+}
+
 func (o *PostAccountsForbidden) Error() string {
-	return fmt.Sprintf("[POST /accounts][%d] postAccountsForbidden ", 403)
+	return fmt.Sprintf("[POST /accounts][%d] postAccountsForbidden", 403)
+}
+
+func (o *PostAccountsForbidden) String() string {
+	return fmt.Sprintf("[POST /accounts][%d] postAccountsForbidden", 403)
 }
 
 func (o *PostAccountsForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,7 +177,8 @@ func (o *PostAccountsForbidden) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*PostAccountsBody post accounts body
+/*
+PostAccountsBody post accounts body
 swagger:model PostAccountsBody
 */
 type PostAccountsBody struct {
@@ -149,6 +229,11 @@ func (o *PostAccountsBody) validateID(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this post accounts body based on context it is used
+func (o *PostAccountsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

@@ -36,7 +36,7 @@ type Logger interface {
 	Endln(args ...interface{})
 }
 
-//LevelLogger contains common functions for printing logs at different levels
+// LevelLogger contains common functions for printing logs at different levels
 type LevelLogger interface {
 	Debugf(format string, args ...interface{})
 	Infof(format string, args ...interface{})

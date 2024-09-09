@@ -13,89 +13,109 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewGetLeasesParams creates a new GetLeasesParams object
-// with the default values initialized.
+// NewGetLeasesParams creates a new GetLeasesParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetLeasesParams() *GetLeasesParams {
-	var ()
 	return &GetLeasesParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetLeasesParamsWithTimeout creates a new GetLeasesParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetLeasesParamsWithTimeout(timeout time.Duration) *GetLeasesParams {
-	var ()
 	return &GetLeasesParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetLeasesParamsWithContext creates a new GetLeasesParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetLeasesParamsWithContext(ctx context.Context) *GetLeasesParams {
-	var ()
 	return &GetLeasesParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetLeasesParamsWithHTTPClient creates a new GetLeasesParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetLeasesParamsWithHTTPClient(client *http.Client) *GetLeasesParams {
-	var ()
 	return &GetLeasesParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetLeasesParams contains all the parameters to send to the API endpoint
-for the get leases operation typically these are written to a http.Request
+/*
+GetLeasesParams contains all the parameters to send to the API endpoint
+
+	for the get leases operation.
+
+	Typically these are written to a http.Request.
 */
 type GetLeasesParams struct {
 
-	/*AccountID
-	  Account ID of the leases.
+	/* AccountID.
 
+	   Account ID of the leases.
 	*/
 	AccountID *string
-	/*Limit
-	  The maximum number of leases to evaluate (not necessarily the number of matching leases). If there is another page, the URL for page will be in the response Link header.
 
+	/* Limit.
+
+	   The maximum number of leases to evaluate (not necessarily the number of matching leases). If there is another page, the URL for page will be in the response Link header.
 	*/
 	Limit *int64
-	/*NextAccountID
-	  Account ID with which to begin the scan operation. This is used to traverse through paginated results.
 
+	/* NextAccountID.
+
+	   Account ID with which to begin the scan operation. This is used to traverse through paginated results.
 	*/
 	NextAccountID *string
-	/*NextPrincipalID
-	  Principal ID with which to begin the scan operation. This is used to traverse through paginated results.
 
+	/* NextPrincipalID.
+
+	   Principal ID with which to begin the scan operation. This is used to traverse through paginated results.
 	*/
 	NextPrincipalID *string
-	/*PrincipalID
-	  Principal ID of the leases.
 
+	/* PrincipalID.
+
+	   Principal ID of the leases.
 	*/
 	PrincipalID *string
-	/*Status
-	  Status of the leases.
 
+	/* Status.
+
+	   Status of the leases.
 	*/
 	Status *string
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get leases params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetLeasesParams) WithDefaults() *GetLeasesParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get leases params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetLeasesParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get leases params
@@ -209,96 +229,102 @@ func (o *GetLeasesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 
 		// query param accountId
 		var qrAccountID string
+
 		if o.AccountID != nil {
 			qrAccountID = *o.AccountID
 		}
 		qAccountID := qrAccountID
 		if qAccountID != "" {
+
 			if err := r.SetQueryParam("accountId", qAccountID); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	if o.Limit != nil {
 
 		// query param limit
 		var qrLimit int64
+
 		if o.Limit != nil {
 			qrLimit = *o.Limit
 		}
 		qLimit := swag.FormatInt64(qrLimit)
 		if qLimit != "" {
+
 			if err := r.SetQueryParam("limit", qLimit); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	if o.NextAccountID != nil {
 
 		// query param nextAccountId
 		var qrNextAccountID string
+
 		if o.NextAccountID != nil {
 			qrNextAccountID = *o.NextAccountID
 		}
 		qNextAccountID := qrNextAccountID
 		if qNextAccountID != "" {
+
 			if err := r.SetQueryParam("nextAccountId", qNextAccountID); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	if o.NextPrincipalID != nil {
 
 		// query param nextPrincipalId
 		var qrNextPrincipalID string
+
 		if o.NextPrincipalID != nil {
 			qrNextPrincipalID = *o.NextPrincipalID
 		}
 		qNextPrincipalID := qrNextPrincipalID
 		if qNextPrincipalID != "" {
+
 			if err := r.SetQueryParam("nextPrincipalId", qNextPrincipalID); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	if o.PrincipalID != nil {
 
 		// query param principalId
 		var qrPrincipalID string
+
 		if o.PrincipalID != nil {
 			qrPrincipalID = *o.PrincipalID
 		}
 		qPrincipalID := qrPrincipalID
 		if qPrincipalID != "" {
+
 			if err := r.SetQueryParam("principalId", qPrincipalID); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	if o.Status != nil {
 
 		// query param status
 		var qrStatus string
+
 		if o.Status != nil {
 			qrStatus = *o.Status
 		}
 		qStatus := qrStatus
 		if qStatus != "" {
+
 			if err := r.SetQueryParam("status", qStatus); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	if len(res) > 0 {

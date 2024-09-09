@@ -6,16 +6,16 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetAccountsReader is a Reader for the GetAccounts structure.
@@ -38,9 +38,8 @@ func (o *GetAccountsReader) ReadResponse(response runtime.ClientResponse, consum
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /accounts] GetAccounts", response, response.Code())
 	}
 }
 
@@ -49,25 +48,61 @@ func NewGetAccountsOK() *GetAccountsOK {
 	return &GetAccountsOK{}
 }
 
-/*GetAccountsOK handles this case with default header values.
+/*
+GetAccountsOK describes a response with status code 200, with default header values.
 
 OK
 */
 type GetAccountsOK struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
+	AccessControlAllowOrigin  string
 
-	AccessControlAllowOrigin string
-	/*Appears only when there is another page of results in the query. The value contains the URL for the next page of the results and follows the `<url>; rel="next"` convention.
+	/* Appears only when there is another page of results in the query. The value contains the URL for the next page of the results and follows the `<url>; rel="next"` convention.
 	 */
 	Link string
 
 	Payload []*GetAccountsOKBodyItems0
 }
 
+// IsSuccess returns true when this get accounts o k response has a 2xx status code
+func (o *GetAccountsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get accounts o k response has a 3xx status code
+func (o *GetAccountsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get accounts o k response has a 4xx status code
+func (o *GetAccountsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get accounts o k response has a 5xx status code
+func (o *GetAccountsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get accounts o k response a status code equal to that given
+func (o *GetAccountsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get accounts o k response
+func (o *GetAccountsOK) Code() int {
+	return 200
+}
+
 func (o *GetAccountsOK) Error() string {
-	return fmt.Sprintf("[GET /accounts][%d] getAccountsOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /accounts][%d] getAccountsOK %s", 200, payload)
+}
+
+func (o *GetAccountsOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /accounts][%d] getAccountsOK %s", 200, payload)
 }
 
 func (o *GetAccountsOK) GetPayload() []*GetAccountsOKBodyItems0 {
@@ -76,17 +111,33 @@ func (o *GetAccountsOK) GetPayload() []*GetAccountsOKBodyItems0 {
 
 func (o *GetAccountsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
 
-	// response header Link
-	o.Link = response.GetHeader("Link")
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
+
+	// hydrates response header Link
+	hdrLink := response.GetHeader("Link")
+
+	if hdrLink != "" {
+		o.Link = hdrLink
+	}
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
@@ -101,15 +152,50 @@ func NewGetAccountsForbidden() *GetAccountsForbidden {
 	return &GetAccountsForbidden{}
 }
 
-/*GetAccountsForbidden handles this case with default header values.
+/*
+GetAccountsForbidden describes a response with status code 403, with default header values.
 
 Unauthorized
 */
 type GetAccountsForbidden struct {
 }
 
+// IsSuccess returns true when this get accounts forbidden response has a 2xx status code
+func (o *GetAccountsForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get accounts forbidden response has a 3xx status code
+func (o *GetAccountsForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get accounts forbidden response has a 4xx status code
+func (o *GetAccountsForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get accounts forbidden response has a 5xx status code
+func (o *GetAccountsForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get accounts forbidden response a status code equal to that given
+func (o *GetAccountsForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the get accounts forbidden response
+func (o *GetAccountsForbidden) Code() int {
+	return 403
+}
+
 func (o *GetAccountsForbidden) Error() string {
-	return fmt.Sprintf("[GET /accounts][%d] getAccountsForbidden ", 403)
+	return fmt.Sprintf("[GET /accounts][%d] getAccountsForbidden", 403)
+}
+
+func (o *GetAccountsForbidden) String() string {
+	return fmt.Sprintf("[GET /accounts][%d] getAccountsForbidden", 403)
 }
 
 func (o *GetAccountsForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -117,7 +203,8 @@ func (o *GetAccountsForbidden) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*GetAccountsOKBodyItems0 Account Details
+/*
+GetAccountsOKBodyItems0 Account Details
 swagger:model GetAccountsOKBodyItems0
 */
 type GetAccountsOKBodyItems0 struct {
@@ -127,7 +214,7 @@ type GetAccountsOKBodyItems0 struct {
 	// "NotReady": The account is in "dirty" state, and needs to be reset before it may be leased.
 	// "Leased": The account is leased to a principal
 	//
-	// Enum: [Ready NotReady Leased Orphaned]
+	// Enum: ["Ready","NotReady","Leased","Orphaned"]
 	AccountStatus string `json:"accountStatus,omitempty"`
 
 	// ARN for an IAM role within this AWS account. The DCE master account will assume this IAM role to execute operations within this AWS account. This IAM role is configured by the client, and must be configured with [a Trust Relationship with the DCE master account.](/https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html)
@@ -195,14 +282,13 @@ const (
 
 // prop value enum
 func (o *GetAccountsOKBodyItems0) validateAccountStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAccountsOKBodyItems0TypeAccountStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getAccountsOKBodyItems0TypeAccountStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (o *GetAccountsOKBodyItems0) validateAccountStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.AccountStatus) { // not required
 		return nil
 	}
@@ -212,6 +298,11 @@ func (o *GetAccountsOKBodyItems0) validateAccountStatus(formats strfmt.Registry)
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get accounts o k body items0 based on context it is used
+func (o *GetAccountsOKBodyItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

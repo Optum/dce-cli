@@ -6,12 +6,12 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // PutAccountsIDReader is a Reader for the PutAccountsID structure.
@@ -34,9 +34,8 @@ func (o *PutAccountsIDReader) ReadResponse(response runtime.ClientResponse, cons
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[PUT /accounts/{id}] PutAccountsID", response, response.Code())
 	}
 }
 
@@ -45,32 +44,77 @@ func NewPutAccountsIDOK() *PutAccountsIDOK {
 	return &PutAccountsIDOK{}
 }
 
-/*PutAccountsIDOK handles this case with default header values.
+/*
+PutAccountsIDOK describes a response with status code 200, with default header values.
 
 Account Details
 */
 type PutAccountsIDOK struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
+	AccessControlAllowOrigin  string
+}
 
-	AccessControlAllowOrigin string
+// IsSuccess returns true when this put accounts Id o k response has a 2xx status code
+func (o *PutAccountsIDOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this put accounts Id o k response has a 3xx status code
+func (o *PutAccountsIDOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this put accounts Id o k response has a 4xx status code
+func (o *PutAccountsIDOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this put accounts Id o k response has a 5xx status code
+func (o *PutAccountsIDOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this put accounts Id o k response a status code equal to that given
+func (o *PutAccountsIDOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the put accounts Id o k response
+func (o *PutAccountsIDOK) Code() int {
+	return 200
 }
 
 func (o *PutAccountsIDOK) Error() string {
-	return fmt.Sprintf("[PUT /accounts/{id}][%d] putAccountsIdOK ", 200)
+	return fmt.Sprintf("[PUT /accounts/{id}][%d] putAccountsIdOK", 200)
+}
+
+func (o *PutAccountsIDOK) String() string {
+	return fmt.Sprintf("[PUT /accounts/{id}][%d] putAccountsIdOK", 200)
 }
 
 func (o *PutAccountsIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
+
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	return nil
 }
@@ -80,15 +124,50 @@ func NewPutAccountsIDForbidden() *PutAccountsIDForbidden {
 	return &PutAccountsIDForbidden{}
 }
 
-/*PutAccountsIDForbidden handles this case with default header values.
+/*
+PutAccountsIDForbidden describes a response with status code 403, with default header values.
 
 Forbidden
 */
 type PutAccountsIDForbidden struct {
 }
 
+// IsSuccess returns true when this put accounts Id forbidden response has a 2xx status code
+func (o *PutAccountsIDForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this put accounts Id forbidden response has a 3xx status code
+func (o *PutAccountsIDForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this put accounts Id forbidden response has a 4xx status code
+func (o *PutAccountsIDForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this put accounts Id forbidden response has a 5xx status code
+func (o *PutAccountsIDForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this put accounts Id forbidden response a status code equal to that given
+func (o *PutAccountsIDForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the put accounts Id forbidden response
+func (o *PutAccountsIDForbidden) Code() int {
+	return 403
+}
+
 func (o *PutAccountsIDForbidden) Error() string {
-	return fmt.Sprintf("[PUT /accounts/{id}][%d] putAccountsIdForbidden ", 403)
+	return fmt.Sprintf("[PUT /accounts/{id}][%d] putAccountsIdForbidden", 403)
+}
+
+func (o *PutAccountsIDForbidden) String() string {
+	return fmt.Sprintf("[PUT /accounts/{id}][%d] putAccountsIdForbidden", 403)
 }
 
 func (o *PutAccountsIDForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -96,7 +175,8 @@ func (o *PutAccountsIDForbidden) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*PutAccountsIDBody put accounts ID body
+/*
+PutAccountsIDBody put accounts ID body
 swagger:model PutAccountsIDBody
 */
 type PutAccountsIDBody struct {
@@ -111,6 +191,11 @@ type PutAccountsIDBody struct {
 
 // Validate validates this put accounts ID body
 func (o *PutAccountsIDBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this put accounts ID body based on context it is used
+func (o *PutAccountsIDBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

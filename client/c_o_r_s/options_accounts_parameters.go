@@ -13,56 +13,71 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
-// NewOptionsAccountsParams creates a new OptionsAccountsParams object
-// with the default values initialized.
+// NewOptionsAccountsParams creates a new OptionsAccountsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewOptionsAccountsParams() *OptionsAccountsParams {
-
 	return &OptionsAccountsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewOptionsAccountsParamsWithTimeout creates a new OptionsAccountsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewOptionsAccountsParamsWithTimeout(timeout time.Duration) *OptionsAccountsParams {
-
 	return &OptionsAccountsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewOptionsAccountsParamsWithContext creates a new OptionsAccountsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewOptionsAccountsParamsWithContext(ctx context.Context) *OptionsAccountsParams {
-
 	return &OptionsAccountsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewOptionsAccountsParamsWithHTTPClient creates a new OptionsAccountsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewOptionsAccountsParamsWithHTTPClient(client *http.Client) *OptionsAccountsParams {
-
 	return &OptionsAccountsParams{
 		HTTPClient: client,
 	}
 }
 
-/*OptionsAccountsParams contains all the parameters to send to the API endpoint
-for the options accounts operation typically these are written to a http.Request
+/*
+OptionsAccountsParams contains all the parameters to send to the API endpoint
+
+	for the options accounts operation.
+
+	Typically these are written to a http.Request.
 */
 type OptionsAccountsParams struct {
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the options accounts params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *OptionsAccountsParams) WithDefaults() *OptionsAccountsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the options accounts params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *OptionsAccountsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the options accounts params

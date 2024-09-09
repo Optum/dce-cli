@@ -173,7 +173,7 @@ func (t *TerraformBinUtil) Init(ctx context.Context, args []string) error {
 	if err != nil {
 		logFile = nil
 	} else {
-		// #nosec
+		//nolint:gosec
 		defer logFile.Close()
 	}
 
@@ -214,7 +214,7 @@ func (t *TerraformBinUtil) Apply(ctx context.Context, args []string) error {
 	if err != nil {
 		logFile = nil
 	} else {
-		// #nosec
+		//nolint:gosec
 		defer logFile.Close()
 	}
 
@@ -251,7 +251,7 @@ func (t *TerraformBinUtil) GetOutput(ctx context.Context, key string) (string, e
 	if err != nil {
 		logFile = nil
 	} else {
-		// #nosec
+		//nolint:gosec
 		defer logFile.Close()
 	}
 
@@ -260,8 +260,8 @@ func (t *TerraformBinUtil) GetOutput(ctx context.Context, key string) (string, e
 		Name: t.bin(),
 		Args: []string{
 			"output",
+			"-raw",
 			key,
-			"-no-color",
 		},
 		Dir: t.FileSystem.GetLocalTFModuleDir(),
 	},

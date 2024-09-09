@@ -6,13 +6,14 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetUsageReader is a Reader for the GetUsage structure.
@@ -35,9 +36,8 @@ func (o *GetUsageReader) ReadResponse(response runtime.ClientResponse, consumer 
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /usage] GetUsage", response, response.Code())
 	}
 }
 
@@ -46,43 +46,88 @@ func NewGetUsageOK() *GetUsageOK {
 	return &GetUsageOK{}
 }
 
-/*GetUsageOK handles this case with default header values.
+/*
+GetUsageOK describes a response with status code 200, with default header values.
 
 GetUsageOK get usage o k
 */
 type GetUsageOK struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
+	AccessControlAllowOrigin  string
 
-	AccessControlAllowOrigin string
+	Payload []*GetUsageOKBodyItems0
+}
 
-	Payload *GetUsageOKBody
+// IsSuccess returns true when this get usage o k response has a 2xx status code
+func (o *GetUsageOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get usage o k response has a 3xx status code
+func (o *GetUsageOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get usage o k response has a 4xx status code
+func (o *GetUsageOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get usage o k response has a 5xx status code
+func (o *GetUsageOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get usage o k response a status code equal to that given
+func (o *GetUsageOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get usage o k response
+func (o *GetUsageOK) Code() int {
+	return 200
 }
 
 func (o *GetUsageOK) Error() string {
-	return fmt.Sprintf("[GET /usage][%d] getUsageOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /usage][%d] getUsageOK %s", 200, payload)
 }
 
-func (o *GetUsageOK) GetPayload() *GetUsageOKBody {
+func (o *GetUsageOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /usage][%d] getUsageOK %s", 200, payload)
+}
+
+func (o *GetUsageOK) GetPayload() []*GetUsageOKBodyItems0 {
 	return o.Payload
 }
 
 func (o *GetUsageOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
 
-	o.Payload = new(GetUsageOKBody)
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -94,15 +139,50 @@ func NewGetUsageForbidden() *GetUsageForbidden {
 	return &GetUsageForbidden{}
 }
 
-/*GetUsageForbidden handles this case with default header values.
+/*
+GetUsageForbidden describes a response with status code 403, with default header values.
 
 Failed to authenticate request
 */
 type GetUsageForbidden struct {
 }
 
+// IsSuccess returns true when this get usage forbidden response has a 2xx status code
+func (o *GetUsageForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get usage forbidden response has a 3xx status code
+func (o *GetUsageForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get usage forbidden response has a 4xx status code
+func (o *GetUsageForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get usage forbidden response has a 5xx status code
+func (o *GetUsageForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get usage forbidden response a status code equal to that given
+func (o *GetUsageForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the get usage forbidden response
+func (o *GetUsageForbidden) Code() int {
+	return 403
+}
+
 func (o *GetUsageForbidden) Error() string {
-	return fmt.Sprintf("[GET /usage][%d] getUsageForbidden ", 403)
+	return fmt.Sprintf("[GET /usage][%d] getUsageForbidden", 403)
+}
+
+func (o *GetUsageForbidden) String() string {
+	return fmt.Sprintf("[GET /usage][%d] getUsageForbidden", 403)
 }
 
 func (o *GetUsageForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -110,10 +190,11 @@ func (o *GetUsageForbidden) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*GetUsageOKBody usage cost of the aws account from start date to end date
-swagger:model GetUsageOKBody
+/*
+GetUsageOKBodyItems0 get usage o k body items0
+swagger:model GetUsageOKBodyItems0
 */
-type GetUsageOKBody struct {
+type GetUsageOKBodyItems0 struct {
 
 	// accountId of the AWS account
 	AccountID string `json:"accountId,omitempty"`
@@ -138,13 +219,18 @@ type GetUsageOKBody struct {
 	TimeToLive float64 `json:"timeToLive,omitempty"`
 }
 
-// Validate validates this get usage o k body
-func (o *GetUsageOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this get usage o k body items0
+func (o *GetUsageOKBodyItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get usage o k body items0 based on context it is used
+func (o *GetUsageOKBodyItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetUsageOKBody) MarshalBinary() ([]byte, error) {
+func (o *GetUsageOKBodyItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -152,8 +238,8 @@ func (o *GetUsageOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetUsageOKBody) UnmarshalBinary(b []byte) error {
-	var res GetUsageOKBody
+func (o *GetUsageOKBodyItems0) UnmarshalBinary(b []byte) error {
+	var res GetUsageOKBodyItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

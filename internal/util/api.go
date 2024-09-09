@@ -2,7 +2,7 @@ package util
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"time"
 
 	apiclient "github.com/Optum/dce-cli/client"
@@ -76,7 +76,7 @@ func (srt Sig4RoundTripper) RoundTrip(req *http.Request) (res *http.Response, e 
 
 	executeAPI := "execute-api"
 	if req.Body != nil {
-		body, err := ioutil.ReadAll(req.Body)
+		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			log.Fatalln("Error reading payload for v4 signing. ", err)
 		}

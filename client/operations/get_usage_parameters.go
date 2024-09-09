@@ -13,69 +13,85 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewGetUsageParams creates a new GetUsageParams object
-// with the default values initialized.
+// NewGetUsageParams creates a new GetUsageParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetUsageParams() *GetUsageParams {
-	var ()
 	return &GetUsageParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetUsageParamsWithTimeout creates a new GetUsageParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetUsageParamsWithTimeout(timeout time.Duration) *GetUsageParams {
-	var ()
 	return &GetUsageParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetUsageParamsWithContext creates a new GetUsageParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetUsageParamsWithContext(ctx context.Context) *GetUsageParams {
-	var ()
 	return &GetUsageParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetUsageParamsWithHTTPClient creates a new GetUsageParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetUsageParamsWithHTTPClient(client *http.Client) *GetUsageParams {
-	var ()
 	return &GetUsageParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetUsageParams contains all the parameters to send to the API endpoint
-for the get usage operation typically these are written to a http.Request
+/*
+GetUsageParams contains all the parameters to send to the API endpoint
+
+	for the get usage operation.
+
+	Typically these are written to a http.Request.
 */
 type GetUsageParams struct {
 
-	/*EndDate
-	  end date of the usage
+	/* EndDate.
 
+	   end date of the usage
 	*/
 	EndDate float64
-	/*StartDate
-	  start date of the usage
 
+	/* StartDate.
+
+	   start date of the usage
 	*/
 	StartDate float64
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get usage params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetUsageParams) WithDefaults() *GetUsageParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get usage params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetUsageParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get usage params

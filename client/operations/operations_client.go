@@ -9,12 +9,38 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
+	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new operations API client.
 func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
+}
+
+// New creates a new operations API client with basic auth credentials.
+// It takes the following parameters:
+// - host: http host (github.com).
+// - basePath: any base path for the API client ("/v1", "/v3").
+// - scheme: http scheme ("http", "https").
+// - user: user for basic authentication header.
+// - password: password for basic authentication header.
+func NewClientWithBasicAuth(host, basePath, scheme, user, password string) ClientService {
+	transport := httptransport.New(host, basePath, []string{scheme})
+	transport.DefaultAuthentication = httptransport.BasicAuth(user, password)
+	return &Client{transport: transport, formats: strfmt.Default}
+}
+
+// New creates a new operations API client with a bearer token for authentication.
+// It takes the following parameters:
+// - host: http host (github.com).
+// - basePath: any base path for the API client ("/v1", "/v3").
+// - scheme: http scheme ("http", "https").
+// - bearerToken: bearer token for Bearer authentication header.
+func NewClientWithBearerToken(host, basePath, scheme, bearerToken string) ClientService {
+	transport := httptransport.New(host, basePath, []string{scheme})
+	transport.DefaultAuthentication = httptransport.BearerToken(bearerToken)
+	return &Client{transport: transport, formats: strfmt.Default}
 }
 
 /*
@@ -25,51 +51,85 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption may be used to customize the behavior of Client methods.
+type ClientOption func(*runtime.ClientOperation)
+
+// This client is generated with a few options you might find useful for your swagger spec.
+//
+// Feel free to add you own set of options.
+
+// WithAccept allows the client to force the Accept header
+// to negotiate a specific Producer from the server.
+//
+// You may use this option to set arbitrary extensions to your MIME media type.
+func WithAccept(mime string) ClientOption {
+	return func(r *runtime.ClientOperation) {
+		r.ProducesMediaTypes = []string{mime}
+	}
+}
+
+// WithAcceptApplicationJSON sets the Accept header to "application/json".
+func WithAcceptApplicationJSON(r *runtime.ClientOperation) {
+	r.ProducesMediaTypes = []string{"application/json"}
+}
+
+// WithAcceptTextCSS sets the Accept header to "text/css".
+func WithAcceptTextCSS(r *runtime.ClientOperation) {
+	r.ProducesMediaTypes = []string{"text/css"}
+}
+
+// WithAcceptTextHTML sets the Accept header to "text/html".
+func WithAcceptTextHTML(r *runtime.ClientOperation) {
+	r.ProducesMediaTypes = []string{"text/html"}
+}
+
+// WithAcceptTextJavascript sets the Accept header to "text/javascript".
+func WithAcceptTextJavascript(r *runtime.ClientOperation) {
+	r.ProducesMediaTypes = []string{"text/javascript"}
+}
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	DeleteAccountsID(params *DeleteAccountsIDParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteAccountsIDNoContent, error)
+	DeleteAccountsID(params *DeleteAccountsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteAccountsIDNoContent, error)
 
-	DeleteLeases(params *DeleteLeasesParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteLeasesOK, error)
+	DeleteLeases(params *DeleteLeasesParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteLeasesOK, error)
 
-	DeleteLeasesID(params *DeleteLeasesIDParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteLeasesIDOK, error)
+	DeleteLeasesID(params *DeleteLeasesIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteLeasesIDOK, error)
 
-	GetAccounts(params *GetAccountsParams, authInfo runtime.ClientAuthInfoWriter) (*GetAccountsOK, error)
+	GetAccounts(params *GetAccountsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetAccountsOK, error)
 
-	GetAccountsID(params *GetAccountsIDParams, authInfo runtime.ClientAuthInfoWriter) (*GetAccountsIDOK, error)
+	GetAccountsID(params *GetAccountsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetAccountsIDOK, error)
 
-	GetAuth(params *GetAuthParams) (*GetAuthOK, error)
+	GetAuth(params *GetAuthParams, opts ...ClientOption) (*GetAuthOK, error)
 
-	GetAuthFile(params *GetAuthFileParams) (*GetAuthFileOK, error)
+	GetAuthFile(params *GetAuthFileParams, opts ...ClientOption) (*GetAuthFileOK, error)
 
-	GetLeases(params *GetLeasesParams, authInfo runtime.ClientAuthInfoWriter) (*GetLeasesOK, error)
+	GetLeases(params *GetLeasesParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetLeasesOK, error)
 
-	GetLeasesID(params *GetLeasesIDParams, authInfo runtime.ClientAuthInfoWriter) (*GetLeasesIDOK, error)
+	GetLeasesID(params *GetLeasesIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetLeasesIDOK, error)
 
-	GetUsage(params *GetUsageParams, authInfo runtime.ClientAuthInfoWriter) (*GetUsageOK, error)
+	GetUsage(params *GetUsageParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetUsageOK, error)
 
-	PostAccounts(params *PostAccountsParams, authInfo runtime.ClientAuthInfoWriter) (*PostAccountsCreated, error)
+	PostAccounts(params *PostAccountsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostAccountsCreated, error)
 
-	PostLeases(params *PostLeasesParams, authInfo runtime.ClientAuthInfoWriter) (*PostLeasesCreated, error)
+	PostLeases(params *PostLeasesParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostLeasesCreated, error)
 
-	PostLeasesAuth(params *PostLeasesAuthParams, authInfo runtime.ClientAuthInfoWriter) (*PostLeasesAuthCreated, error)
+	PostLeasesIDAuth(params *PostLeasesIDAuthParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostLeasesIDAuthCreated, error)
 
-	PostLeasesIDAuth(params *PostLeasesIDAuthParams, authInfo runtime.ClientAuthInfoWriter) (*PostLeasesIDAuthCreated, error)
-
-	PutAccountsID(params *PutAccountsIDParams, authInfo runtime.ClientAuthInfoWriter) (*PutAccountsIDOK, error)
+	PutAccountsID(params *PutAccountsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PutAccountsIDOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  DeleteAccountsID deletes an account by ID
+DeleteAccountsID deletes an account by ID
 */
-func (a *Client) DeleteAccountsID(params *DeleteAccountsIDParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteAccountsIDNoContent, error) {
+func (a *Client) DeleteAccountsID(params *DeleteAccountsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteAccountsIDNoContent, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteAccountsIDParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "DeleteAccountsID",
 		Method:             "DELETE",
 		PathPattern:        "/accounts/{id}",
@@ -81,7 +141,12 @@ func (a *Client) DeleteAccountsID(params *DeleteAccountsIDParams, authInfo runti
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -96,15 +161,14 @@ func (a *Client) DeleteAccountsID(params *DeleteAccountsIDParams, authInfo runti
 }
 
 /*
-  DeleteLeases removes a lease
+DeleteLeases removes a lease
 */
-func (a *Client) DeleteLeases(params *DeleteLeasesParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteLeasesOK, error) {
+func (a *Client) DeleteLeases(params *DeleteLeasesParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteLeasesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteLeasesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "DeleteLeases",
 		Method:             "DELETE",
 		PathPattern:        "/leases",
@@ -116,7 +180,12 @@ func (a *Client) DeleteLeases(params *DeleteLeasesParams, authInfo runtime.Clien
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -131,15 +200,14 @@ func (a *Client) DeleteLeases(params *DeleteLeasesParams, authInfo runtime.Clien
 }
 
 /*
-  DeleteLeasesID deletes a lease by ID
+DeleteLeasesID deletes a lease by ID
 */
-func (a *Client) DeleteLeasesID(params *DeleteLeasesIDParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteLeasesIDOK, error) {
+func (a *Client) DeleteLeasesID(params *DeleteLeasesIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteLeasesIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteLeasesIDParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "DeleteLeasesID",
 		Method:             "DELETE",
 		PathPattern:        "/leases/{id}",
@@ -151,7 +219,12 @@ func (a *Client) DeleteLeasesID(params *DeleteLeasesIDParams, authInfo runtime.C
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -166,15 +239,14 @@ func (a *Client) DeleteLeasesID(params *DeleteLeasesIDParams, authInfo runtime.C
 }
 
 /*
-  GetAccounts gets accounts
+GetAccounts gets accounts
 */
-func (a *Client) GetAccounts(params *GetAccountsParams, authInfo runtime.ClientAuthInfoWriter) (*GetAccountsOK, error) {
+func (a *Client) GetAccounts(params *GetAccountsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetAccountsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetAccountsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetAccounts",
 		Method:             "GET",
 		PathPattern:        "/accounts",
@@ -186,7 +258,12 @@ func (a *Client) GetAccounts(params *GetAccountsParams, authInfo runtime.ClientA
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -201,15 +278,14 @@ func (a *Client) GetAccounts(params *GetAccountsParams, authInfo runtime.ClientA
 }
 
 /*
-  GetAccountsID gets a specific account by an account ID
+GetAccountsID gets a specific account by an account ID
 */
-func (a *Client) GetAccountsID(params *GetAccountsIDParams, authInfo runtime.ClientAuthInfoWriter) (*GetAccountsIDOK, error) {
+func (a *Client) GetAccountsID(params *GetAccountsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetAccountsIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetAccountsIDParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetAccountsID",
 		Method:             "GET",
 		PathPattern:        "/accounts/{id}",
@@ -221,7 +297,12 @@ func (a *Client) GetAccountsID(params *GetAccountsIDParams, authInfo runtime.Cli
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -236,15 +317,14 @@ func (a *Client) GetAccountsID(params *GetAccountsIDParams, authInfo runtime.Cli
 }
 
 /*
-  GetAuth gets the d c e system authentication web page
+GetAuth gets the d c e system authentication web page
 */
-func (a *Client) GetAuth(params *GetAuthParams) (*GetAuthOK, error) {
+func (a *Client) GetAuth(params *GetAuthParams, opts ...ClientOption) (*GetAuthOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetAuthParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetAuth",
 		Method:             "GET",
 		PathPattern:        "/auth",
@@ -255,7 +335,12 @@ func (a *Client) GetAuth(params *GetAuthParams) (*GetAuthOK, error) {
 		Reader:             &GetAuthReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -270,26 +355,30 @@ func (a *Client) GetAuth(params *GetAuthParams) (*GetAuthOK, error) {
 }
 
 /*
-  GetAuthFile gets the d c e system authentication web page static assets
+GetAuthFile gets the d c e system authentication web page static assets
 */
-func (a *Client) GetAuthFile(params *GetAuthFileParams) (*GetAuthFileOK, error) {
+func (a *Client) GetAuthFile(params *GetAuthFileParams, opts ...ClientOption) (*GetAuthFileOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetAuthFileParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetAuthFile",
 		Method:             "GET",
 		PathPattern:        "/auth/{file+}",
-		ProducesMediaTypes: []string{"text/css", "text/html", "text/javascript"},
+		ProducesMediaTypes: []string{"text/html", "text/javascript", "text/css"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetAuthFileReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -304,15 +393,14 @@ func (a *Client) GetAuthFile(params *GetAuthFileParams) (*GetAuthFileOK, error) 
 }
 
 /*
-  GetLeases gets leases
+GetLeases gets leases
 */
-func (a *Client) GetLeases(params *GetLeasesParams, authInfo runtime.ClientAuthInfoWriter) (*GetLeasesOK, error) {
+func (a *Client) GetLeases(params *GetLeasesParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetLeasesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetLeasesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetLeases",
 		Method:             "GET",
 		PathPattern:        "/leases",
@@ -324,7 +412,12 @@ func (a *Client) GetLeases(params *GetLeasesParams, authInfo runtime.ClientAuthI
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -339,15 +432,14 @@ func (a *Client) GetLeases(params *GetLeasesParams, authInfo runtime.ClientAuthI
 }
 
 /*
-  GetLeasesID gets a lease by Id
+GetLeasesID gets a lease by Id
 */
-func (a *Client) GetLeasesID(params *GetLeasesIDParams, authInfo runtime.ClientAuthInfoWriter) (*GetLeasesIDOK, error) {
+func (a *Client) GetLeasesID(params *GetLeasesIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetLeasesIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetLeasesIDParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetLeasesID",
 		Method:             "GET",
 		PathPattern:        "/leases/{id}",
@@ -359,7 +451,12 @@ func (a *Client) GetLeasesID(params *GetLeasesIDParams, authInfo runtime.ClientA
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -374,15 +471,14 @@ func (a *Client) GetLeasesID(params *GetLeasesIDParams, authInfo runtime.ClientA
 }
 
 /*
-  GetUsage gets usage records by date range
+GetUsage gets usage records by date range
 */
-func (a *Client) GetUsage(params *GetUsageParams, authInfo runtime.ClientAuthInfoWriter) (*GetUsageOK, error) {
+func (a *Client) GetUsage(params *GetUsageParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetUsageOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetUsageParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetUsage",
 		Method:             "GET",
 		PathPattern:        "/usage",
@@ -394,7 +490,12 @@ func (a *Client) GetUsage(params *GetUsageParams, authInfo runtime.ClientAuthInf
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -409,15 +510,14 @@ func (a *Client) GetUsage(params *GetUsageParams, authInfo runtime.ClientAuthInf
 }
 
 /*
-  PostAccounts adds an a w s account to the account pool
+PostAccounts adds an a w s account to the account pool
 */
-func (a *Client) PostAccounts(params *PostAccountsParams, authInfo runtime.ClientAuthInfoWriter) (*PostAccountsCreated, error) {
+func (a *Client) PostAccounts(params *PostAccountsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostAccountsCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewPostAccountsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "PostAccounts",
 		Method:             "POST",
 		PathPattern:        "/accounts",
@@ -429,7 +529,12 @@ func (a *Client) PostAccounts(params *PostAccountsParams, authInfo runtime.Clien
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -444,15 +549,14 @@ func (a *Client) PostAccounts(params *PostAccountsParams, authInfo runtime.Clien
 }
 
 /*
-  PostLeases creates a new lease
+PostLeases creates a new lease
 */
-func (a *Client) PostLeases(params *PostLeasesParams, authInfo runtime.ClientAuthInfoWriter) (*PostLeasesCreated, error) {
+func (a *Client) PostLeases(params *PostLeasesParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostLeasesCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewPostLeasesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "PostLeases",
 		Method:             "POST",
 		PathPattern:        "/leases",
@@ -464,7 +568,12 @@ func (a *Client) PostLeases(params *PostLeasesParams, authInfo runtime.ClientAut
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -479,50 +588,14 @@ func (a *Client) PostLeases(params *PostLeasesParams, authInfo runtime.ClientAut
 }
 
 /*
-  PostLeasesAuth creates lease authentication by for the requesting user s active lease
+PostLeasesIDAuth creates lease authentication by Id
 */
-func (a *Client) PostLeasesAuth(params *PostLeasesAuthParams, authInfo runtime.ClientAuthInfoWriter) (*PostLeasesAuthCreated, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewPostLeasesAuthParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "PostLeasesAuth",
-		Method:             "POST",
-		PathPattern:        "/leases/auth",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"https"},
-		Params:             params,
-		Reader:             &PostLeasesAuthReader{formats: a.formats},
-		AuthInfo:           authInfo,
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*PostLeasesAuthCreated)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for PostLeasesAuth: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
-}
-
-/*
-  PostLeasesIDAuth creates lease authentication by Id
-*/
-func (a *Client) PostLeasesIDAuth(params *PostLeasesIDAuthParams, authInfo runtime.ClientAuthInfoWriter) (*PostLeasesIDAuthCreated, error) {
+func (a *Client) PostLeasesIDAuth(params *PostLeasesIDAuthParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostLeasesIDAuthCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewPostLeasesIDAuthParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "PostLeasesIDAuth",
 		Method:             "POST",
 		PathPattern:        "/leases/{id}/auth",
@@ -534,7 +607,12 @@ func (a *Client) PostLeasesIDAuth(params *PostLeasesIDAuthParams, authInfo runti
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -549,15 +627,14 @@ func (a *Client) PostLeasesIDAuth(params *PostLeasesIDAuthParams, authInfo runti
 }
 
 /*
-  PutAccountsID updates an account
+PutAccountsID updates an account
 */
-func (a *Client) PutAccountsID(params *PutAccountsIDParams, authInfo runtime.ClientAuthInfoWriter) (*PutAccountsIDOK, error) {
+func (a *Client) PutAccountsID(params *PutAccountsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PutAccountsIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewPutAccountsIDParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "PutAccountsID",
 		Method:             "PUT",
 		PathPattern:        "/accounts/{id}",
@@ -569,7 +646,12 @@ func (a *Client) PutAccountsID(params *PutAccountsIDParams, authInfo runtime.Cli
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

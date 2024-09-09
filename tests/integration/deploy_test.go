@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -28,7 +27,7 @@ func TestSystemDeployCommand(t *testing.T) {
 				// Should use default version as TF module source
 				`
 module "dce" {
-	source="github.com/Optum/dce//modules?ref=v0.23.0"`,
+	source="github.com/Optum/dce//modules?ref=v0.38.0"`,
 				`
 output "artifacts_bucket_name" {
 	description = "S3 bucket for artifacts like AWS Lambda code"
@@ -244,7 +243,7 @@ type deployTest struct {
 func (test *deployTest) readConfigFile(t *testing.T, paths ...string) string {
 	paths = append([]string{test.configDir}, paths...)
 	fullPath := filepath.Join(paths...)
-	fileBytes, err := ioutil.ReadFile(fullPath)
+	fileBytes, err := os.ReadFile(fullPath)
 	require.Nil(t, err)
 	return string(fileBytes)
 }
@@ -263,8 +262,7 @@ func newDeployTest(t *testing.T, config *configs.Root) *deployTest {
 
 	// Mock the FileSystemer, to use a tmp dir for
 	// generated terraform files
-	configDir, err := ioutil.TempDir("", ".dce-test-")
-	require.Nil(t, err)
+	configDir := os.TempDir()
 
 	// Mock our Terraform wrapper util
 	terraform := &mocks.Terraformer{}

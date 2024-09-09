@@ -151,11 +151,11 @@ func stringp(s string) *string {
 }
 
 func getRandString(n int) string {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec
 	const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = letterBytes[rand.Int63()%int64(len(letterBytes))]
+		b[i] = letterBytes[rand.Int63()%int64(len(letterBytes))] //nolint:gosec
 	}
 	return string(b)
 }

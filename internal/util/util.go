@@ -155,7 +155,6 @@ type Durationer interface {
 }
 
 // TFTemplater is an interface for the templater that generates
-// the main.tf file.
 type TFTemplater interface {
 	// Add a terraform variable to the template
 	AddVariable(name string, vartype string, vardefault string) error

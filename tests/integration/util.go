@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
+	"io"
 	"os"
 	"testing"
 )
@@ -32,7 +32,7 @@ func zipFiles(t *testing.T, files []file) []byte {
 	err := w.Close()
 	require.Nil(t, err)
 
-	zipBytes, err := ioutil.ReadAll(buf)
+	zipBytes, err := io.ReadAll(buf)
 	require.Nil(t, err)
 
 	return zipBytes

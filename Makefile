@@ -19,7 +19,7 @@ ifaces:
 .PHONY: mocks
 mocks:
 	rm -rf mocks/*
-	mockery -all
+	mockery --all
 
 lint:
 	./scripts/lint.sh

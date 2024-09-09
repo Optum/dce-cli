@@ -229,7 +229,7 @@ func (s *DeployService) getLocalTFMainContents(deployConfig *DeployConfig) (stri
 func (s *DeployService) retrieveCodeAssets(dceLocation string, dceVersion string) (string, error) {
 	tmpDir, oldDir := s.Util.ChToTmpDir()
 
-	defer os.Chdir(oldDir) //nolint,errcheck
+	defer os.Chdir(oldDir) //nolint:errcheck
 
 	if strings.HasPrefix(dceLocation, "github.com") {
 		// Download release assets from github

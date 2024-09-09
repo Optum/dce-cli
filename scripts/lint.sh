@@ -14,8 +14,3 @@ echo "done."
 echo -n "Linting golang code... "
 golangci-lint run
 echo "done."
-
-
-echo -n "Scanning for securirty issues... "
-gosec ./...
-echo "done."

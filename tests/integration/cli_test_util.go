@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/thriftrw/ptr"
-	"io/ioutil"
+	"os"
 	"testing"
 )
 
@@ -112,16 +112,17 @@ type injector func(input *injectorInput)
 // pointers to global services used by CLI commands
 //
 // eg
-// cli.Inject(func(input *injectorInput) {
-//		input.util.Weber = &mocks.Weber{}
-// })
+//
+//	cli.Inject(func(input *injectorInput) {
+//			input.util.Weber = &mocks.Weber{}
+//	})
 func (test *cliTest) Inject(f injector) {
 	test.injector = f
 }
 
 func writeTempConfig(t *testing.T, conf *configs.Root) string {
 	// Create a tmp file
-	tmpfile, err := ioutil.TempFile("", "dce.*.yml")
+	tmpfile, err := os.CreateTemp("", "dce.*.yml")
 	require.Nil(t, err)
 
 	// Set default config

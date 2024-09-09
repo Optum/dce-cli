@@ -38,7 +38,7 @@ func TestTerraformBinUtil_ParseOptions(t *testing.T) {
 		},
 		{
 			name: "should parse normal tab-delimited string",
-			str: `-backend-config="address=demo.consul.io"	-backend-config="path=example_app/terraform_state"`,
+			str:  `-backend-config="address=demo.consul.io"	-backend-config="path=example_app/terraform_state"`,
 			want: []string{
 				"-backend-config=\"address=demo.consul.io\"",
 				"-backend-config=\"path=example_app/terraform_state\"",
@@ -56,7 +56,7 @@ func TestTerraformBinUtil_ParseOptions(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := util.ParseOptions(&tt.str)
+			got, err := util.ParseOptions(&tt.str) //nolint:gosec
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseOptions() error = %v, wantErr %v", err, tt.wantErr)
 				return

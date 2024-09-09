@@ -9,12 +9,38 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
+	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new c o r s API client.
 func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
+}
+
+// New creates a new c o r s API client with basic auth credentials.
+// It takes the following parameters:
+// - host: http host (github.com).
+// - basePath: any base path for the API client ("/v1", "/v3").
+// - scheme: http scheme ("http", "https").
+// - user: user for basic authentication header.
+// - password: password for basic authentication header.
+func NewClientWithBasicAuth(host, basePath, scheme, user, password string) ClientService {
+	transport := httptransport.New(host, basePath, []string{scheme})
+	transport.DefaultAuthentication = httptransport.BasicAuth(user, password)
+	return &Client{transport: transport, formats: strfmt.Default}
+}
+
+// New creates a new c o r s API client with a bearer token for authentication.
+// It takes the following parameters:
+// - host: http host (github.com).
+// - basePath: any base path for the API client ("/v1", "/v3").
+// - scheme: http scheme ("http", "https").
+// - bearerToken: bearer token for Bearer authentication header.
+func NewClientWithBearerToken(host, basePath, scheme, bearerToken string) ClientService {
+	transport := httptransport.New(host, basePath, []string{scheme})
+	transport.DefaultAuthentication = httptransport.BearerToken(bearerToken)
+	return &Client{transport: transport, formats: strfmt.Default}
 }
 
 /*
@@ -25,42 +51,41 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption may be used to customize the behavior of Client methods.
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	OptionsAccounts(params *OptionsAccountsParams) (*OptionsAccountsOK, error)
+	OptionsAccounts(params *OptionsAccountsParams, opts ...ClientOption) (*OptionsAccountsOK, error)
 
-	OptionsAccountsID(params *OptionsAccountsIDParams) (*OptionsAccountsIDOK, error)
+	OptionsAccountsID(params *OptionsAccountsIDParams, opts ...ClientOption) (*OptionsAccountsIDOK, error)
 
-	OptionsAuth(params *OptionsAuthParams) (*OptionsAuthOK, error)
+	OptionsAuth(params *OptionsAuthParams, opts ...ClientOption) (*OptionsAuthOK, error)
 
-	OptionsAuthFile(params *OptionsAuthFileParams) (*OptionsAuthFileOK, error)
+	OptionsAuthFile(params *OptionsAuthFileParams, opts ...ClientOption) (*OptionsAuthFileOK, error)
 
-	OptionsLeases(params *OptionsLeasesParams) (*OptionsLeasesOK, error)
+	OptionsLeases(params *OptionsLeasesParams, opts ...ClientOption) (*OptionsLeasesOK, error)
 
-	OptionsLeasesAuth(params *OptionsLeasesAuthParams) (*OptionsLeasesAuthOK, error)
+	OptionsLeasesID(params *OptionsLeasesIDParams, opts ...ClientOption) (*OptionsLeasesIDOK, error)
 
-	OptionsLeasesID(params *OptionsLeasesIDParams) (*OptionsLeasesIDOK, error)
+	OptionsLeasesIDAuth(params *OptionsLeasesIDAuthParams, opts ...ClientOption) (*OptionsLeasesIDAuthOK, error)
 
-	OptionsLeasesIDAuth(params *OptionsLeasesIDAuthParams) (*OptionsLeasesIDAuthOK, error)
-
-	OptionsUsage(params *OptionsUsageParams) (*OptionsUsageOK, error)
+	OptionsUsage(params *OptionsUsageParams, opts ...ClientOption) (*OptionsUsageOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  OptionsAccounts cs o r s support
+OptionsAccounts cs o r s support
 
-  Enable CORS by returning correct headers
-
+Enable CORS by returning correct headers
 */
-func (a *Client) OptionsAccounts(params *OptionsAccountsParams) (*OptionsAccountsOK, error) {
+func (a *Client) OptionsAccounts(params *OptionsAccountsParams, opts ...ClientOption) (*OptionsAccountsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewOptionsAccountsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "OptionsAccounts",
 		Method:             "OPTIONS",
 		PathPattern:        "/accounts",
@@ -71,7 +96,12 @@ func (a *Client) OptionsAccounts(params *OptionsAccountsParams) (*OptionsAccount
 		Reader:             &OptionsAccountsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -86,18 +116,16 @@ func (a *Client) OptionsAccounts(params *OptionsAccountsParams) (*OptionsAccount
 }
 
 /*
-  OptionsAccountsID cs o r s support
+OptionsAccountsID cs o r s support
 
-  Enable CORS by returning correct headers
-
+Enable CORS by returning correct headers
 */
-func (a *Client) OptionsAccountsID(params *OptionsAccountsIDParams) (*OptionsAccountsIDOK, error) {
+func (a *Client) OptionsAccountsID(params *OptionsAccountsIDParams, opts ...ClientOption) (*OptionsAccountsIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewOptionsAccountsIDParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "OptionsAccountsID",
 		Method:             "OPTIONS",
 		PathPattern:        "/accounts/{id}",
@@ -108,7 +136,12 @@ func (a *Client) OptionsAccountsID(params *OptionsAccountsIDParams) (*OptionsAcc
 		Reader:             &OptionsAccountsIDReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -123,18 +156,16 @@ func (a *Client) OptionsAccountsID(params *OptionsAccountsIDParams) (*OptionsAcc
 }
 
 /*
-  OptionsAuth cs o r s support
+OptionsAuth cs o r s support
 
-  Enable CORS by returning correct headers
-
+Enable CORS by returning correct headers
 */
-func (a *Client) OptionsAuth(params *OptionsAuthParams) (*OptionsAuthOK, error) {
+func (a *Client) OptionsAuth(params *OptionsAuthParams, opts ...ClientOption) (*OptionsAuthOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewOptionsAuthParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "OptionsAuth",
 		Method:             "OPTIONS",
 		PathPattern:        "/auth",
@@ -145,7 +176,12 @@ func (a *Client) OptionsAuth(params *OptionsAuthParams) (*OptionsAuthOK, error) 
 		Reader:             &OptionsAuthReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -160,18 +196,16 @@ func (a *Client) OptionsAuth(params *OptionsAuthParams) (*OptionsAuthOK, error) 
 }
 
 /*
-  OptionsAuthFile cs o r s support
+OptionsAuthFile cs o r s support
 
-  Enable CORS by returning correct headers
-
+Enable CORS by returning correct headers
 */
-func (a *Client) OptionsAuthFile(params *OptionsAuthFileParams) (*OptionsAuthFileOK, error) {
+func (a *Client) OptionsAuthFile(params *OptionsAuthFileParams, opts ...ClientOption) (*OptionsAuthFileOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewOptionsAuthFileParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "OptionsAuthFile",
 		Method:             "OPTIONS",
 		PathPattern:        "/auth/{file+}",
@@ -182,7 +216,12 @@ func (a *Client) OptionsAuthFile(params *OptionsAuthFileParams) (*OptionsAuthFil
 		Reader:             &OptionsAuthFileReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -197,18 +236,16 @@ func (a *Client) OptionsAuthFile(params *OptionsAuthFileParams) (*OptionsAuthFil
 }
 
 /*
-  OptionsLeases cs o r s support
+OptionsLeases cs o r s support
 
-  Enable CORS by returning correct headers
-
+Enable CORS by returning correct headers
 */
-func (a *Client) OptionsLeases(params *OptionsLeasesParams) (*OptionsLeasesOK, error) {
+func (a *Client) OptionsLeases(params *OptionsLeasesParams, opts ...ClientOption) (*OptionsLeasesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewOptionsLeasesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "OptionsLeases",
 		Method:             "OPTIONS",
 		PathPattern:        "/leases",
@@ -219,7 +256,12 @@ func (a *Client) OptionsLeases(params *OptionsLeasesParams) (*OptionsLeasesOK, e
 		Reader:             &OptionsLeasesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -234,55 +276,16 @@ func (a *Client) OptionsLeases(params *OptionsLeasesParams) (*OptionsLeasesOK, e
 }
 
 /*
-  OptionsLeasesAuth cs o r s support
+OptionsLeasesID cs o r s support
 
-  Enable CORS by returning correct headers
-
+Enable CORS by returning correct headers
 */
-func (a *Client) OptionsLeasesAuth(params *OptionsLeasesAuthParams) (*OptionsLeasesAuthOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewOptionsLeasesAuthParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "OptionsLeasesAuth",
-		Method:             "OPTIONS",
-		PathPattern:        "/leases/auth",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"https"},
-		Params:             params,
-		Reader:             &OptionsLeasesAuthReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*OptionsLeasesAuthOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for OptionsLeasesAuth: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
-}
-
-/*
-  OptionsLeasesID cs o r s support
-
-  Enable CORS by returning correct headers
-
-*/
-func (a *Client) OptionsLeasesID(params *OptionsLeasesIDParams) (*OptionsLeasesIDOK, error) {
+func (a *Client) OptionsLeasesID(params *OptionsLeasesIDParams, opts ...ClientOption) (*OptionsLeasesIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewOptionsLeasesIDParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "OptionsLeasesID",
 		Method:             "OPTIONS",
 		PathPattern:        "/leases/{id}",
@@ -293,7 +296,12 @@ func (a *Client) OptionsLeasesID(params *OptionsLeasesIDParams) (*OptionsLeasesI
 		Reader:             &OptionsLeasesIDReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -308,18 +316,16 @@ func (a *Client) OptionsLeasesID(params *OptionsLeasesIDParams) (*OptionsLeasesI
 }
 
 /*
-  OptionsLeasesIDAuth cs o r s support
+OptionsLeasesIDAuth cs o r s support
 
-  Enable CORS by returning correct headers
-
+Enable CORS by returning correct headers
 */
-func (a *Client) OptionsLeasesIDAuth(params *OptionsLeasesIDAuthParams) (*OptionsLeasesIDAuthOK, error) {
+func (a *Client) OptionsLeasesIDAuth(params *OptionsLeasesIDAuthParams, opts ...ClientOption) (*OptionsLeasesIDAuthOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewOptionsLeasesIDAuthParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "OptionsLeasesIDAuth",
 		Method:             "OPTIONS",
 		PathPattern:        "/leases/{id}/auth",
@@ -330,7 +336,12 @@ func (a *Client) OptionsLeasesIDAuth(params *OptionsLeasesIDAuthParams) (*Option
 		Reader:             &OptionsLeasesIDAuthReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -345,18 +356,16 @@ func (a *Client) OptionsLeasesIDAuth(params *OptionsLeasesIDAuthParams) (*Option
 }
 
 /*
-  OptionsUsage cs o r s support
+OptionsUsage cs o r s support
 
-  Enable CORS by returning correct headers
-
+Enable CORS by returning correct headers
 */
-func (a *Client) OptionsUsage(params *OptionsUsageParams) (*OptionsUsageOK, error) {
+func (a *Client) OptionsUsage(params *OptionsUsageParams, opts ...ClientOption) (*OptionsUsageOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewOptionsUsageParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "OptionsUsage",
 		Method:             "OPTIONS",
 		PathPattern:        "/usage",
@@ -367,7 +376,12 @@ func (a *Client) OptionsUsage(params *OptionsUsageParams) (*OptionsUsageOK, erro
 		Reader:             &OptionsUsageReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

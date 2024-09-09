@@ -13,63 +13,78 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
-// NewDeleteAccountsIDParams creates a new DeleteAccountsIDParams object
-// with the default values initialized.
+// NewDeleteAccountsIDParams creates a new DeleteAccountsIDParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewDeleteAccountsIDParams() *DeleteAccountsIDParams {
-	var ()
 	return &DeleteAccountsIDParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewDeleteAccountsIDParamsWithTimeout creates a new DeleteAccountsIDParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewDeleteAccountsIDParamsWithTimeout(timeout time.Duration) *DeleteAccountsIDParams {
-	var ()
 	return &DeleteAccountsIDParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewDeleteAccountsIDParamsWithContext creates a new DeleteAccountsIDParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewDeleteAccountsIDParamsWithContext(ctx context.Context) *DeleteAccountsIDParams {
-	var ()
 	return &DeleteAccountsIDParams{
-
 		Context: ctx,
 	}
 }
 
 // NewDeleteAccountsIDParamsWithHTTPClient creates a new DeleteAccountsIDParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewDeleteAccountsIDParamsWithHTTPClient(client *http.Client) *DeleteAccountsIDParams {
-	var ()
 	return &DeleteAccountsIDParams{
 		HTTPClient: client,
 	}
 }
 
-/*DeleteAccountsIDParams contains all the parameters to send to the API endpoint
-for the delete accounts ID operation typically these are written to a http.Request
+/*
+DeleteAccountsIDParams contains all the parameters to send to the API endpoint
+
+	for the delete accounts ID operation.
+
+	Typically these are written to a http.Request.
 */
 type DeleteAccountsIDParams struct {
 
-	/*ID
-	  The ID of the account to be deleted.
+	/* ID.
 
+	   The ID of the account to be deleted.
 	*/
 	ID string
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the delete accounts ID params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *DeleteAccountsIDParams) WithDefaults() *DeleteAccountsIDParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the delete accounts ID params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *DeleteAccountsIDParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the delete accounts ID params

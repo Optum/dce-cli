@@ -13,63 +13,78 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
-// NewDeleteLeasesIDParams creates a new DeleteLeasesIDParams object
-// with the default values initialized.
+// NewDeleteLeasesIDParams creates a new DeleteLeasesIDParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewDeleteLeasesIDParams() *DeleteLeasesIDParams {
-	var ()
 	return &DeleteLeasesIDParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewDeleteLeasesIDParamsWithTimeout creates a new DeleteLeasesIDParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewDeleteLeasesIDParamsWithTimeout(timeout time.Duration) *DeleteLeasesIDParams {
-	var ()
 	return &DeleteLeasesIDParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewDeleteLeasesIDParamsWithContext creates a new DeleteLeasesIDParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewDeleteLeasesIDParamsWithContext(ctx context.Context) *DeleteLeasesIDParams {
-	var ()
 	return &DeleteLeasesIDParams{
-
 		Context: ctx,
 	}
 }
 
 // NewDeleteLeasesIDParamsWithHTTPClient creates a new DeleteLeasesIDParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewDeleteLeasesIDParamsWithHTTPClient(client *http.Client) *DeleteLeasesIDParams {
-	var ()
 	return &DeleteLeasesIDParams{
 		HTTPClient: client,
 	}
 }
 
-/*DeleteLeasesIDParams contains all the parameters to send to the API endpoint
-for the delete leases ID operation typically these are written to a http.Request
+/*
+DeleteLeasesIDParams contains all the parameters to send to the API endpoint
+
+	for the delete leases ID operation.
+
+	Typically these are written to a http.Request.
 */
 type DeleteLeasesIDParams struct {
 
-	/*ID
-	  The ID of the lease to be deleted.
+	/* ID.
 
+	   The ID of the lease to be deleted.
 	*/
 	ID string
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the delete leases ID params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *DeleteLeasesIDParams) WithDefaults() *DeleteLeasesIDParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the delete leases ID params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *DeleteLeasesIDParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the delete leases ID params

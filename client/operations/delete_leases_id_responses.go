@@ -6,16 +6,16 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // DeleteLeasesIDReader is a Reader for the DeleteLeasesID structure.
@@ -50,9 +50,8 @@ func (o *DeleteLeasesIDReader) ReadResponse(response runtime.ClientResponse, con
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[DELETE /leases/{id}] DeleteLeasesID", response, response.Code())
 	}
 }
 
@@ -61,7 +60,8 @@ func NewDeleteLeasesIDOK() *DeleteLeasesIDOK {
 	return &DeleteLeasesIDOK{}
 }
 
-/*DeleteLeasesIDOK handles this case with default header values.
+/*
+DeleteLeasesIDOK describes a response with status code 200, with default header values.
 
 DeleteLeasesIDOK delete leases Id o k
 */
@@ -69,11 +69,44 @@ type DeleteLeasesIDOK struct {
 	Payload *DeleteLeasesIDOKBody
 }
 
+// IsSuccess returns true when this delete leases Id o k response has a 2xx status code
+func (o *DeleteLeasesIDOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this delete leases Id o k response has a 3xx status code
+func (o *DeleteLeasesIDOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete leases Id o k response has a 4xx status code
+func (o *DeleteLeasesIDOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this delete leases Id o k response has a 5xx status code
+func (o *DeleteLeasesIDOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete leases Id o k response a status code equal to that given
+func (o *DeleteLeasesIDOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the delete leases Id o k response
+func (o *DeleteLeasesIDOK) Code() int {
+	return 200
+}
+
 func (o *DeleteLeasesIDOK) Error() string {
-	/*
-		#nosec CWE-89: false positive. No sql here.
-	*/
-	return fmt.Sprintf("[DELETE /leases/{id}][%d] deleteLeasesIdOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[DELETE /leases/{id}][%d] deleteLeasesIdOK %s", 200, payload)
+}
+
+func (o *DeleteLeasesIDOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[DELETE /leases/{id}][%d] deleteLeasesIdOK %s", 200, payload)
 }
 
 func (o *DeleteLeasesIDOK) GetPayload() *DeleteLeasesIDOKBody {
@@ -97,16 +130,50 @@ func NewDeleteLeasesIDBadRequest() *DeleteLeasesIDBadRequest {
 	return &DeleteLeasesIDBadRequest{}
 }
 
-/*DeleteLeasesIDBadRequest handles this case with default header values.
+/*
+DeleteLeasesIDBadRequest describes a response with status code 400, with default header values.
 
 "Failed to Parse Request Body" if the request body is blank or incorrectly formatted. or if there are no account leases found for the specified accountId or if the account specified is not already Active.
-
 */
 type DeleteLeasesIDBadRequest struct {
 }
 
+// IsSuccess returns true when this delete leases Id bad request response has a 2xx status code
+func (o *DeleteLeasesIDBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete leases Id bad request response has a 3xx status code
+func (o *DeleteLeasesIDBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete leases Id bad request response has a 4xx status code
+func (o *DeleteLeasesIDBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete leases Id bad request response has a 5xx status code
+func (o *DeleteLeasesIDBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete leases Id bad request response a status code equal to that given
+func (o *DeleteLeasesIDBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
+// Code gets the status code for the delete leases Id bad request response
+func (o *DeleteLeasesIDBadRequest) Code() int {
+	return 400
+}
+
 func (o *DeleteLeasesIDBadRequest) Error() string {
-	return fmt.Sprintf("[DELETE /leases/{id}][%d] deleteLeasesIdBadRequest ", 400)
+	return fmt.Sprintf("[DELETE /leases/{id}][%d] deleteLeasesIdBadRequest", 400)
+}
+
+func (o *DeleteLeasesIDBadRequest) String() string {
+	return fmt.Sprintf("[DELETE /leases/{id}][%d] deleteLeasesIdBadRequest", 400)
 }
 
 func (o *DeleteLeasesIDBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -119,15 +186,50 @@ func NewDeleteLeasesIDForbidden() *DeleteLeasesIDForbidden {
 	return &DeleteLeasesIDForbidden{}
 }
 
-/*DeleteLeasesIDForbidden handles this case with default header values.
+/*
+DeleteLeasesIDForbidden describes a response with status code 403, with default header values.
 
 Failed to authenticate request
 */
 type DeleteLeasesIDForbidden struct {
 }
 
+// IsSuccess returns true when this delete leases Id forbidden response has a 2xx status code
+func (o *DeleteLeasesIDForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete leases Id forbidden response has a 3xx status code
+func (o *DeleteLeasesIDForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete leases Id forbidden response has a 4xx status code
+func (o *DeleteLeasesIDForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete leases Id forbidden response has a 5xx status code
+func (o *DeleteLeasesIDForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete leases Id forbidden response a status code equal to that given
+func (o *DeleteLeasesIDForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the delete leases Id forbidden response
+func (o *DeleteLeasesIDForbidden) Code() int {
+	return 403
+}
+
 func (o *DeleteLeasesIDForbidden) Error() string {
-	return fmt.Sprintf("[DELETE /leases/{id}][%d] deleteLeasesIdForbidden ", 403)
+	return fmt.Sprintf("[DELETE /leases/{id}][%d] deleteLeasesIdForbidden", 403)
+}
+
+func (o *DeleteLeasesIDForbidden) String() string {
+	return fmt.Sprintf("[DELETE /leases/{id}][%d] deleteLeasesIdForbidden", 403)
 }
 
 func (o *DeleteLeasesIDForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -140,15 +242,50 @@ func NewDeleteLeasesIDInternalServerError() *DeleteLeasesIDInternalServerError {
 	return &DeleteLeasesIDInternalServerError{}
 }
 
-/*DeleteLeasesIDInternalServerError handles this case with default header values.
+/*
+DeleteLeasesIDInternalServerError describes a response with status code 500, with default header values.
 
 Server errors if the database cannot be reached.
 */
 type DeleteLeasesIDInternalServerError struct {
 }
 
+// IsSuccess returns true when this delete leases Id internal server error response has a 2xx status code
+func (o *DeleteLeasesIDInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete leases Id internal server error response has a 3xx status code
+func (o *DeleteLeasesIDInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete leases Id internal server error response has a 4xx status code
+func (o *DeleteLeasesIDInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this delete leases Id internal server error response has a 5xx status code
+func (o *DeleteLeasesIDInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this delete leases Id internal server error response a status code equal to that given
+func (o *DeleteLeasesIDInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the delete leases Id internal server error response
+func (o *DeleteLeasesIDInternalServerError) Code() int {
+	return 500
+}
+
 func (o *DeleteLeasesIDInternalServerError) Error() string {
-	return fmt.Sprintf("[DELETE /leases/{id}][%d] deleteLeasesIdInternalServerError ", 500)
+	return fmt.Sprintf("[DELETE /leases/{id}][%d] deleteLeasesIdInternalServerError", 500)
+}
+
+func (o *DeleteLeasesIDInternalServerError) String() string {
+	return fmt.Sprintf("[DELETE /leases/{id}][%d] deleteLeasesIdInternalServerError", 500)
 }
 
 func (o *DeleteLeasesIDInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -156,7 +293,8 @@ func (o *DeleteLeasesIDInternalServerError) readResponse(response runtime.Client
 	return nil
 }
 
-/*DeleteLeasesIDOKBody Lease Details
+/*
+DeleteLeasesIDOKBody Lease Details
 swagger:model DeleteLeasesIDOKBody
 */
 type DeleteLeasesIDOKBody struct {
@@ -189,7 +327,7 @@ type DeleteLeasesIDOKBody struct {
 	// "Active": The principal is leased and has access to the account
 	// "Inactive": The lease has become inactive, either through expiring, exceeding budget, or by request.
 	//
-	// Enum: [Active Inactive]
+	// Enum: ["Active","Inactive"]
 	LeaseStatus string `json:"leaseStatus,omitempty"`
 
 	// date lease status was last modified in epoch seconds
@@ -206,7 +344,7 @@ type DeleteLeasesIDOKBody struct {
 	// "LeaseRolledBack": A system error occurred while provisioning the lease.
 	// and it was rolled back.
 	//
-	// Enum: [LeaseExpired LeaseOverBudget LeaseDestroyed LeaseActive LeaseRolledBack]
+	// Enum: ["LeaseExpired","LeaseOverBudget","LeaseDestroyed","LeaseActive","LeaseRolledBack"]
 	LeaseStatusReason string `json:"leaseStatusReason,omitempty"`
 
 	// principalId of the lease to get
@@ -254,14 +392,13 @@ const (
 
 // prop value enum
 func (o *DeleteLeasesIDOKBody) validateLeaseStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, deleteLeasesIdOKBodyTypeLeaseStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, deleteLeasesIdOKBodyTypeLeaseStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (o *DeleteLeasesIDOKBody) validateLeaseStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LeaseStatus) { // not required
 		return nil
 	}
@@ -306,14 +443,13 @@ const (
 
 // prop value enum
 func (o *DeleteLeasesIDOKBody) validateLeaseStatusReasonEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, deleteLeasesIdOKBodyTypeLeaseStatusReasonPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, deleteLeasesIdOKBodyTypeLeaseStatusReasonPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (o *DeleteLeasesIDOKBody) validateLeaseStatusReason(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LeaseStatusReason) { // not required
 		return nil
 	}
@@ -323,6 +459,11 @@ func (o *DeleteLeasesIDOKBody) validateLeaseStatusReason(formats strfmt.Registry
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this delete leases ID o k body based on context it is used
+func (o *DeleteLeasesIDOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

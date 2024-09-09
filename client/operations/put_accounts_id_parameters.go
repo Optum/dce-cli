@@ -13,68 +13,84 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
-// NewPutAccountsIDParams creates a new PutAccountsIDParams object
-// with the default values initialized.
+// NewPutAccountsIDParams creates a new PutAccountsIDParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewPutAccountsIDParams() *PutAccountsIDParams {
-	var ()
 	return &PutAccountsIDParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewPutAccountsIDParamsWithTimeout creates a new PutAccountsIDParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewPutAccountsIDParamsWithTimeout(timeout time.Duration) *PutAccountsIDParams {
-	var ()
 	return &PutAccountsIDParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewPutAccountsIDParamsWithContext creates a new PutAccountsIDParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewPutAccountsIDParamsWithContext(ctx context.Context) *PutAccountsIDParams {
-	var ()
 	return &PutAccountsIDParams{
-
 		Context: ctx,
 	}
 }
 
 // NewPutAccountsIDParamsWithHTTPClient creates a new PutAccountsIDParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewPutAccountsIDParamsWithHTTPClient(client *http.Client) *PutAccountsIDParams {
-	var ()
 	return &PutAccountsIDParams{
 		HTTPClient: client,
 	}
 }
 
-/*PutAccountsIDParams contains all the parameters to send to the API endpoint
-for the put accounts ID operation typically these are written to a http.Request
+/*
+PutAccountsIDParams contains all the parameters to send to the API endpoint
+
+	for the put accounts ID operation.
+
+	Typically these are written to a http.Request.
 */
 type PutAccountsIDParams struct {
 
-	/*Account
-	  Account parameters to modify
+	/* Account.
 
+	   Account parameters to modify
 	*/
 	Account PutAccountsIDBody
-	/*ID
-	  AWS Account ID
 
+	/* ID.
+
+	   AWS Account ID
 	*/
 	ID string
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the put accounts ID params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *PutAccountsIDParams) WithDefaults() *PutAccountsIDParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the put accounts ID params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *PutAccountsIDParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the put accounts ID params
@@ -139,7 +155,6 @@ func (o *PutAccountsIDParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Account); err != nil {
 		return err
 	}

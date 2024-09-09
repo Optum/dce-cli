@@ -6,16 +6,16 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetLeasesIDReader is a Reader for the GetLeasesID structure.
@@ -38,9 +38,8 @@ func (o *GetLeasesIDReader) ReadResponse(response runtime.ClientResponse, consum
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /leases/{id}] GetLeasesID", response, response.Code())
 	}
 }
 
@@ -49,22 +48,57 @@ func NewGetLeasesIDOK() *GetLeasesIDOK {
 	return &GetLeasesIDOK{}
 }
 
-/*GetLeasesIDOK handles this case with default header values.
+/*
+GetLeasesIDOK describes a response with status code 200, with default header values.
 
 GetLeasesIDOK get leases Id o k
 */
 type GetLeasesIDOK struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
-
-	AccessControlAllowOrigin string
+	AccessControlAllowOrigin  string
 
 	Payload *GetLeasesIDOKBody
 }
 
+// IsSuccess returns true when this get leases Id o k response has a 2xx status code
+func (o *GetLeasesIDOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get leases Id o k response has a 3xx status code
+func (o *GetLeasesIDOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get leases Id o k response has a 4xx status code
+func (o *GetLeasesIDOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get leases Id o k response has a 5xx status code
+func (o *GetLeasesIDOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get leases Id o k response a status code equal to that given
+func (o *GetLeasesIDOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get leases Id o k response
+func (o *GetLeasesIDOK) Code() int {
+	return 200
+}
+
 func (o *GetLeasesIDOK) Error() string {
-	return fmt.Sprintf("[GET /leases/{id}][%d] getLeasesIdOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /leases/{id}][%d] getLeasesIdOK %s", 200, payload)
+}
+
+func (o *GetLeasesIDOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /leases/{id}][%d] getLeasesIdOK %s", 200, payload)
 }
 
 func (o *GetLeasesIDOK) GetPayload() *GetLeasesIDOKBody {
@@ -73,14 +107,26 @@ func (o *GetLeasesIDOK) GetPayload() *GetLeasesIDOKBody {
 
 func (o *GetLeasesIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
+
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	o.Payload = new(GetLeasesIDOKBody)
 
@@ -97,15 +143,50 @@ func NewGetLeasesIDForbidden() *GetLeasesIDForbidden {
 	return &GetLeasesIDForbidden{}
 }
 
-/*GetLeasesIDForbidden handles this case with default header values.
+/*
+GetLeasesIDForbidden describes a response with status code 403, with default header values.
 
 Failed to retrieve lease
 */
 type GetLeasesIDForbidden struct {
 }
 
+// IsSuccess returns true when this get leases Id forbidden response has a 2xx status code
+func (o *GetLeasesIDForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get leases Id forbidden response has a 3xx status code
+func (o *GetLeasesIDForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get leases Id forbidden response has a 4xx status code
+func (o *GetLeasesIDForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get leases Id forbidden response has a 5xx status code
+func (o *GetLeasesIDForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get leases Id forbidden response a status code equal to that given
+func (o *GetLeasesIDForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the get leases Id forbidden response
+func (o *GetLeasesIDForbidden) Code() int {
+	return 403
+}
+
 func (o *GetLeasesIDForbidden) Error() string {
-	return fmt.Sprintf("[GET /leases/{id}][%d] getLeasesIdForbidden ", 403)
+	return fmt.Sprintf("[GET /leases/{id}][%d] getLeasesIdForbidden", 403)
+}
+
+func (o *GetLeasesIDForbidden) String() string {
+	return fmt.Sprintf("[GET /leases/{id}][%d] getLeasesIdForbidden", 403)
 }
 
 func (o *GetLeasesIDForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -113,7 +194,8 @@ func (o *GetLeasesIDForbidden) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*GetLeasesIDOKBody Lease Details
+/*
+GetLeasesIDOKBody Lease Details
 swagger:model GetLeasesIDOKBody
 */
 type GetLeasesIDOKBody struct {
@@ -146,7 +228,7 @@ type GetLeasesIDOKBody struct {
 	// "Active": The principal is leased and has access to the account
 	// "Inactive": The lease has become inactive, either through expiring, exceeding budget, or by request.
 	//
-	// Enum: [Active Inactive]
+	// Enum: ["Active","Inactive"]
 	LeaseStatus string `json:"leaseStatus,omitempty"`
 
 	// date lease status was last modified in epoch seconds
@@ -163,7 +245,7 @@ type GetLeasesIDOKBody struct {
 	// "LeaseRolledBack": A system error occurred while provisioning the lease.
 	// and it was rolled back.
 	//
-	// Enum: [LeaseExpired LeaseOverBudget LeaseDestroyed LeaseActive LeaseRolledBack]
+	// Enum: ["LeaseExpired","LeaseOverBudget","LeaseDestroyed","LeaseActive","LeaseRolledBack"]
 	LeaseStatusReason string `json:"leaseStatusReason,omitempty"`
 
 	// principalId of the lease to get
@@ -211,14 +293,13 @@ const (
 
 // prop value enum
 func (o *GetLeasesIDOKBody) validateLeaseStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getLeasesIdOKBodyTypeLeaseStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getLeasesIdOKBodyTypeLeaseStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (o *GetLeasesIDOKBody) validateLeaseStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LeaseStatus) { // not required
 		return nil
 	}
@@ -263,14 +344,13 @@ const (
 
 // prop value enum
 func (o *GetLeasesIDOKBody) validateLeaseStatusReasonEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getLeasesIdOKBodyTypeLeaseStatusReasonPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getLeasesIdOKBodyTypeLeaseStatusReasonPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (o *GetLeasesIDOKBody) validateLeaseStatusReason(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LeaseStatusReason) { // not required
 		return nil
 	}
@@ -280,6 +360,11 @@ func (o *GetLeasesIDOKBody) validateLeaseStatusReason(formats strfmt.Registry) e
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get leases ID o k body based on context it is used
+func (o *GetLeasesIDOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

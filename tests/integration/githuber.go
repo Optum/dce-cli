@@ -3,7 +3,7 @@ package integration
 import (
 	"fmt"
 	"github.com/Optum/dce-cli/mocks"
-	"io/ioutil"
+	"os"
 	"testing"
 )
 
@@ -34,7 +34,7 @@ func (gh *stubGithub) DownloadGithubReleaseAsset(assetName string, dceVersion st
 	}
 
 	// Write the file
-	// #nosec
-	err := ioutil.WriteFile(assetName, content, 0666)
+	//nolint:gosec
+	err := os.WriteFile(assetName, content, 0666)
 	return err
 }

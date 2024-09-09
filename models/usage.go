@@ -6,13 +6,81 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
+	"context"
+	"strconv"
+
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // Usage usage cost of the aws account from start date to end date
+//
 // swagger:model usage
-type Usage struct {
+type Usage []*UsageItems0
+
+// Validate validates this usage
+func (m Usage) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	for i := 0; i < len(m); i++ {
+		if swag.IsZero(m[i]) { // not required
+			continue
+		}
+
+		if m[i] != nil {
+			if err := m[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName(strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName(strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+// ContextValidate validate this usage based on the context it is used
+func (m Usage) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	for i := 0; i < len(m); i++ {
+
+		if m[i] != nil {
+
+			if swag.IsZero(m[i]) { // not required
+				return nil
+			}
+
+			if err := m[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName(strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName(strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+// UsageItems0 usage items0
+//
+// swagger:model UsageItems0
+type UsageItems0 struct {
 
 	// accountId of the AWS account
 	AccountID string `json:"accountId,omitempty"`
@@ -37,13 +105,18 @@ type Usage struct {
 	TimeToLive float64 `json:"timeToLive,omitempty"`
 }
 
-// Validate validates this usage
-func (m *Usage) Validate(formats strfmt.Registry) error {
+// Validate validates this usage items0
+func (m *UsageItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this usage items0 based on context it is used
+func (m *UsageItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *Usage) MarshalBinary() ([]byte, error) {
+func (m *UsageItems0) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -51,8 +124,8 @@ func (m *Usage) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Usage) UnmarshalBinary(b []byte) error {
-	var res Usage
+func (m *UsageItems0) UnmarshalBinary(b []byte) error {
+	var res UsageItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

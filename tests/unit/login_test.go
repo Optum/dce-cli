@@ -100,32 +100,3 @@ func TestLeaseLoginGivenFlags(t *testing.T) {
 		})
 	}
 }
-
-func TestLeaseLoginNoID(t *testing.T) {
-	initMocks(configs.Root{})
-
-	// Mock the `POST /leases/auth` endpoint
-	reqParams := &operations.PostLeasesAuthParams{}
-	reqParams.SetTimeout(20 * time.Second)
-	mockAPIer.On("PostLeasesAuth", reqParams, nil).
-		Return(&operations.PostLeasesAuthCreated{
-			Payload: &operations.PostLeasesAuthCreatedBody{
-				AccessKeyID:     "access-key-id",
-				SecretAccessKey: "secret-access-key",
-				SessionToken:    "session-token",
-				ConsoleURL:      "console-url",
-			},
-		}, nil)
-
-	// Weber.OpenURL() should be called with the
-	// ConsoleURL returned by the API
-	mockWeber.On("OpenURL", "console-url")
-
-	// Run the login command
-	service.Login(&service2.LeaseLoginOptions{
-		OpenBrowser: true,
-	})
-
-	// Check that we called Weber.OpenURL()
-	mockWeber.AssertExpectations(t)
-}

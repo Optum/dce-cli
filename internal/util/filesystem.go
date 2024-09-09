@@ -1,7 +1,6 @@
 package util
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -35,12 +34,12 @@ func (u *FileSystemUtil) writeToYAMLFile(path string, _struct interface{}) error
 		if err != nil {
 			return err
 		}
-		// #nosec
+		//nolint:gosec
 		defer file.Close()
 	}
 
-	// #nosec
-	err = ioutil.WriteFile(path, _yaml, 0644)
+	//nolint:gosec
+	err = os.WriteFile(path, _yaml, 0644)
 	if err != nil {
 		return err
 	}
@@ -56,7 +55,7 @@ func (u *FileSystemUtil) WriteConfig() error {
 // ReadInConfig loads the configuration from the configuration file
 // and unmarshals it into the config object
 func (u *FileSystemUtil) ReadInConfig() error {
-	yamlStr, err := ioutil.ReadFile(u.ConfigFile)
+	yamlStr, err := os.ReadFile(u.ConfigFile)
 	if err != nil {
 		return err
 	}
@@ -98,7 +97,7 @@ func (u *FileSystemUtil) ReadFromFile(path string) string {
 	/*
 		#nosec CWE-22: added disclaimer to function docs
 	*/
-	contents, err := ioutil.ReadFile(path)
+	contents, err := os.ReadFile(path)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
@@ -114,7 +113,7 @@ func (u *FileSystemUtil) ChToConfigDir() (string, string) {
 
 	mode := int(0700)
 	if _, err := os.Stat(destinationDir); os.IsNotExist(err) {
-		err := os.Mkdir(destinationDir, os.ModeDir|os.FileMode(mode))
+		err := os.Mkdir(destinationDir, os.ModeDir|os.FileMode(mode)) //nolint:gosec
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -167,17 +166,21 @@ func (u *FileSystemUtil) Chdir(path string) {
 }
 
 func (u *FileSystemUtil) WriteFile(fileName string, data string) {
-	// #nosec
-	err := ioutil.WriteFile(fileName, []byte(data), 0644)
+	//nolint:gosec
+	err := os.WriteFile(fileName, []byte(data), 0644)
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
 func (u *FileSystemUtil) ReadDir(path string) []os.FileInfo {
-	files, err := ioutil.ReadDir(path)
+	entries, err := os.ReadDir(path)
 	if err != nil {
 		log.Fatalln(err)
+	}
+	files := make([]os.FileInfo, len(entries))
+	for i := range entries {
+		files[i], _ = entries[i].Info()
 	}
 	return files
 }

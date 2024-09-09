@@ -6,15 +6,17 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // Lease Lease Details
+//
 // swagger:model lease
 type Lease struct {
 
@@ -46,7 +48,7 @@ type Lease struct {
 	// "Active": The principal is leased and has access to the account
 	// "Inactive": The lease has become inactive, either through expiring, exceeding budget, or by request.
 	//
-	// Enum: [Active Inactive]
+	// Enum: ["Active","Inactive"]
 	LeaseStatus string `json:"leaseStatus,omitempty"`
 
 	// date lease status was last modified in epoch seconds
@@ -63,7 +65,7 @@ type Lease struct {
 	// "LeaseRolledBack": A system error occurred while provisioning the lease.
 	// and it was rolled back.
 	//
-	// Enum: [LeaseExpired LeaseOverBudget LeaseDestroyed LeaseActive LeaseRolledBack]
+	// Enum: ["LeaseExpired","LeaseOverBudget","LeaseDestroyed","LeaseActive","LeaseRolledBack"]
 	LeaseStatusReason string `json:"leaseStatusReason,omitempty"`
 
 	// principalId of the lease to get
@@ -111,14 +113,13 @@ const (
 
 // prop value enum
 func (m *Lease) validateLeaseStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, leaseTypeLeaseStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, leaseTypeLeaseStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (m *Lease) validateLeaseStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.LeaseStatus) { // not required
 		return nil
 	}
@@ -163,14 +164,13 @@ const (
 
 // prop value enum
 func (m *Lease) validateLeaseStatusReasonEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, leaseTypeLeaseStatusReasonPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, leaseTypeLeaseStatusReasonPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (m *Lease) validateLeaseStatusReason(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.LeaseStatusReason) { // not required
 		return nil
 	}
@@ -180,6 +180,11 @@ func (m *Lease) validateLeaseStatusReason(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this lease based on context it is used
+func (m *Lease) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

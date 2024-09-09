@@ -24,24 +24,24 @@ require (
 	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/frankban/quicktest v1.7.0 // indirect
-	github.com/go-openapi/errors v0.19.2
-	github.com/go-openapi/runtime v0.19.7
-	github.com/go-openapi/strfmt v0.19.3
-	github.com/go-openapi/swag v0.19.5
-	github.com/go-openapi/validate v0.19.3
-	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
+	github.com/go-openapi/errors v0.22.0
+	github.com/go-openapi/runtime v0.28.0
+	github.com/go-openapi/strfmt v0.23.0
+	github.com/go-openapi/swag v0.23.0
+	github.com/go-openapi/validate v0.24.0
 	github.com/mholt/archiver v3.1.1+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nwaples/rardecode v1.0.0 // indirect
 	github.com/pierrec/lz4 v2.3.0+incompatible // indirect
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
 	github.com/pkg/errors v0.8.0
+	github.com/rjeczalik/interfaces v0.3.0 // indirect
 	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/cobra v0.0.5
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.9.0
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	go.uber.org/thriftrw v1.20.2
-	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
-	golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa // indirect
-	gopkg.in/yaml.v2 v2.2.4
+	golang.org/x/net v0.28.0 // indirect
+	golang.org/x/sys v0.24.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0
 )

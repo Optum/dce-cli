@@ -6,16 +6,16 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetAccountsIDReader is a Reader for the GetAccountsID structure.
@@ -38,9 +38,8 @@ func (o *GetAccountsIDReader) ReadResponse(response runtime.ClientResponse, cons
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[GET /accounts/{id}] GetAccountsID", response, response.Code())
 	}
 }
 
@@ -49,22 +48,57 @@ func NewGetAccountsIDOK() *GetAccountsIDOK {
 	return &GetAccountsIDOK{}
 }
 
-/*GetAccountsIDOK handles this case with default header values.
+/*
+GetAccountsIDOK describes a response with status code 200, with default header values.
 
 GetAccountsIDOK get accounts Id o k
 */
 type GetAccountsIDOK struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
-
-	AccessControlAllowOrigin string
+	AccessControlAllowOrigin  string
 
 	Payload *GetAccountsIDOKBody
 }
 
+// IsSuccess returns true when this get accounts Id o k response has a 2xx status code
+func (o *GetAccountsIDOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get accounts Id o k response has a 3xx status code
+func (o *GetAccountsIDOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get accounts Id o k response has a 4xx status code
+func (o *GetAccountsIDOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get accounts Id o k response has a 5xx status code
+func (o *GetAccountsIDOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get accounts Id o k response a status code equal to that given
+func (o *GetAccountsIDOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get accounts Id o k response
+func (o *GetAccountsIDOK) Code() int {
+	return 200
+}
+
 func (o *GetAccountsIDOK) Error() string {
-	return fmt.Sprintf("[GET /accounts/{id}][%d] getAccountsIdOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /accounts/{id}][%d] getAccountsIdOK %s", 200, payload)
+}
+
+func (o *GetAccountsIDOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /accounts/{id}][%d] getAccountsIdOK %s", 200, payload)
 }
 
 func (o *GetAccountsIDOK) GetPayload() *GetAccountsIDOKBody {
@@ -73,14 +107,26 @@ func (o *GetAccountsIDOK) GetPayload() *GetAccountsIDOKBody {
 
 func (o *GetAccountsIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
+
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	o.Payload = new(GetAccountsIDOKBody)
 
@@ -97,15 +143,50 @@ func NewGetAccountsIDForbidden() *GetAccountsIDForbidden {
 	return &GetAccountsIDForbidden{}
 }
 
-/*GetAccountsIDForbidden handles this case with default header values.
+/*
+GetAccountsIDForbidden describes a response with status code 403, with default header values.
 
 Failed to retrieve account
 */
 type GetAccountsIDForbidden struct {
 }
 
+// IsSuccess returns true when this get accounts Id forbidden response has a 2xx status code
+func (o *GetAccountsIDForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get accounts Id forbidden response has a 3xx status code
+func (o *GetAccountsIDForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get accounts Id forbidden response has a 4xx status code
+func (o *GetAccountsIDForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get accounts Id forbidden response has a 5xx status code
+func (o *GetAccountsIDForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get accounts Id forbidden response a status code equal to that given
+func (o *GetAccountsIDForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the get accounts Id forbidden response
+func (o *GetAccountsIDForbidden) Code() int {
+	return 403
+}
+
 func (o *GetAccountsIDForbidden) Error() string {
-	return fmt.Sprintf("[GET /accounts/{id}][%d] getAccountsIdForbidden ", 403)
+	return fmt.Sprintf("[GET /accounts/{id}][%d] getAccountsIdForbidden", 403)
+}
+
+func (o *GetAccountsIDForbidden) String() string {
+	return fmt.Sprintf("[GET /accounts/{id}][%d] getAccountsIdForbidden", 403)
 }
 
 func (o *GetAccountsIDForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -113,7 +194,8 @@ func (o *GetAccountsIDForbidden) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*GetAccountsIDOKBody Account Details
+/*
+GetAccountsIDOKBody Account Details
 swagger:model GetAccountsIDOKBody
 */
 type GetAccountsIDOKBody struct {
@@ -123,7 +205,7 @@ type GetAccountsIDOKBody struct {
 	// "NotReady": The account is in "dirty" state, and needs to be reset before it may be leased.
 	// "Leased": The account is leased to a principal
 	//
-	// Enum: [Ready NotReady Leased Orphaned]
+	// Enum: ["Ready","NotReady","Leased","Orphaned"]
 	AccountStatus string `json:"accountStatus,omitempty"`
 
 	// ARN for an IAM role within this AWS account. The DCE master account will assume this IAM role to execute operations within this AWS account. This IAM role is configured by the client, and must be configured with [a Trust Relationship with the DCE master account.](/https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html)
@@ -191,14 +273,13 @@ const (
 
 // prop value enum
 func (o *GetAccountsIDOKBody) validateAccountStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAccountsIdOKBodyTypeAccountStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getAccountsIdOKBodyTypeAccountStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (o *GetAccountsIDOKBody) validateAccountStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.AccountStatus) { // not required
 		return nil
 	}
@@ -208,6 +289,11 @@ func (o *GetAccountsIDOKBody) validateAccountStatus(formats strfmt.Registry) err
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get accounts ID o k body based on context it is used
+func (o *GetAccountsIDOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

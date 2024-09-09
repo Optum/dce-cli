@@ -6,13 +6,14 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // PostLeasesIDAuthReader is a Reader for the PostLeasesIDAuth structure.
@@ -47,9 +48,8 @@ func (o *PostLeasesIDAuthReader) ReadResponse(response runtime.ClientResponse, c
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[POST /leases/{id}/auth] PostLeasesIDAuth", response, response.Code())
 	}
 }
 
@@ -58,22 +58,57 @@ func NewPostLeasesIDAuthCreated() *PostLeasesIDAuthCreated {
 	return &PostLeasesIDAuthCreated{}
 }
 
-/*PostLeasesIDAuthCreated handles this case with default header values.
+/*
+PostLeasesIDAuthCreated describes a response with status code 201, with default header values.
 
 PostLeasesIDAuthCreated post leases Id auth created
 */
 type PostLeasesIDAuthCreated struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
-
-	AccessControlAllowOrigin string
+	AccessControlAllowOrigin  string
 
 	Payload *PostLeasesIDAuthCreatedBody
 }
 
+// IsSuccess returns true when this post leases Id auth created response has a 2xx status code
+func (o *PostLeasesIDAuthCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this post leases Id auth created response has a 3xx status code
+func (o *PostLeasesIDAuthCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post leases Id auth created response has a 4xx status code
+func (o *PostLeasesIDAuthCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this post leases Id auth created response has a 5xx status code
+func (o *PostLeasesIDAuthCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post leases Id auth created response a status code equal to that given
+func (o *PostLeasesIDAuthCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the post leases Id auth created response
+func (o *PostLeasesIDAuthCreated) Code() int {
+	return 201
+}
+
 func (o *PostLeasesIDAuthCreated) Error() string {
-	return fmt.Sprintf("[POST /leases/{id}/auth][%d] postLeasesIdAuthCreated  %+v", 201, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /leases/{id}/auth][%d] postLeasesIdAuthCreated %s", 201, payload)
+}
+
+func (o *PostLeasesIDAuthCreated) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /leases/{id}/auth][%d] postLeasesIdAuthCreated %s", 201, payload)
 }
 
 func (o *PostLeasesIDAuthCreated) GetPayload() *PostLeasesIDAuthCreatedBody {
@@ -82,14 +117,26 @@ func (o *PostLeasesIDAuthCreated) GetPayload() *PostLeasesIDAuthCreatedBody {
 
 func (o *PostLeasesIDAuthCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
+
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	o.Payload = new(PostLeasesIDAuthCreatedBody)
 
@@ -106,15 +153,50 @@ func NewPostLeasesIDAuthUnauthorized() *PostLeasesIDAuthUnauthorized {
 	return &PostLeasesIDAuthUnauthorized{}
 }
 
-/*PostLeasesIDAuthUnauthorized handles this case with default header values.
+/*
+PostLeasesIDAuthUnauthorized describes a response with status code 401, with default header values.
 
 Unauthorized
 */
 type PostLeasesIDAuthUnauthorized struct {
 }
 
+// IsSuccess returns true when this post leases Id auth unauthorized response has a 2xx status code
+func (o *PostLeasesIDAuthUnauthorized) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this post leases Id auth unauthorized response has a 3xx status code
+func (o *PostLeasesIDAuthUnauthorized) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post leases Id auth unauthorized response has a 4xx status code
+func (o *PostLeasesIDAuthUnauthorized) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this post leases Id auth unauthorized response has a 5xx status code
+func (o *PostLeasesIDAuthUnauthorized) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post leases Id auth unauthorized response a status code equal to that given
+func (o *PostLeasesIDAuthUnauthorized) IsCode(code int) bool {
+	return code == 401
+}
+
+// Code gets the status code for the post leases Id auth unauthorized response
+func (o *PostLeasesIDAuthUnauthorized) Code() int {
+	return 401
+}
+
 func (o *PostLeasesIDAuthUnauthorized) Error() string {
-	return fmt.Sprintf("[POST /leases/{id}/auth][%d] postLeasesIdAuthUnauthorized ", 401)
+	return fmt.Sprintf("[POST /leases/{id}/auth][%d] postLeasesIdAuthUnauthorized", 401)
+}
+
+func (o *PostLeasesIDAuthUnauthorized) String() string {
+	return fmt.Sprintf("[POST /leases/{id}/auth][%d] postLeasesIdAuthUnauthorized", 401)
 }
 
 func (o *PostLeasesIDAuthUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -127,15 +209,50 @@ func NewPostLeasesIDAuthForbidden() *PostLeasesIDAuthForbidden {
 	return &PostLeasesIDAuthForbidden{}
 }
 
-/*PostLeasesIDAuthForbidden handles this case with default header values.
+/*
+PostLeasesIDAuthForbidden describes a response with status code 403, with default header values.
 
 Failed to retrieve lease authentication
 */
 type PostLeasesIDAuthForbidden struct {
 }
 
+// IsSuccess returns true when this post leases Id auth forbidden response has a 2xx status code
+func (o *PostLeasesIDAuthForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this post leases Id auth forbidden response has a 3xx status code
+func (o *PostLeasesIDAuthForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post leases Id auth forbidden response has a 4xx status code
+func (o *PostLeasesIDAuthForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this post leases Id auth forbidden response has a 5xx status code
+func (o *PostLeasesIDAuthForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post leases Id auth forbidden response a status code equal to that given
+func (o *PostLeasesIDAuthForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the post leases Id auth forbidden response
+func (o *PostLeasesIDAuthForbidden) Code() int {
+	return 403
+}
+
 func (o *PostLeasesIDAuthForbidden) Error() string {
-	return fmt.Sprintf("[POST /leases/{id}/auth][%d] postLeasesIdAuthForbidden ", 403)
+	return fmt.Sprintf("[POST /leases/{id}/auth][%d] postLeasesIdAuthForbidden", 403)
+}
+
+func (o *PostLeasesIDAuthForbidden) String() string {
+	return fmt.Sprintf("[POST /leases/{id}/auth][%d] postLeasesIdAuthForbidden", 403)
 }
 
 func (o *PostLeasesIDAuthForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -148,15 +265,50 @@ func NewPostLeasesIDAuthInternalServerError() *PostLeasesIDAuthInternalServerErr
 	return &PostLeasesIDAuthInternalServerError{}
 }
 
-/*PostLeasesIDAuthInternalServerError handles this case with default header values.
+/*
+PostLeasesIDAuthInternalServerError describes a response with status code 500, with default header values.
 
 Server failure
 */
 type PostLeasesIDAuthInternalServerError struct {
 }
 
+// IsSuccess returns true when this post leases Id auth internal server error response has a 2xx status code
+func (o *PostLeasesIDAuthInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this post leases Id auth internal server error response has a 3xx status code
+func (o *PostLeasesIDAuthInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post leases Id auth internal server error response has a 4xx status code
+func (o *PostLeasesIDAuthInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this post leases Id auth internal server error response has a 5xx status code
+func (o *PostLeasesIDAuthInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this post leases Id auth internal server error response a status code equal to that given
+func (o *PostLeasesIDAuthInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the post leases Id auth internal server error response
+func (o *PostLeasesIDAuthInternalServerError) Code() int {
+	return 500
+}
+
 func (o *PostLeasesIDAuthInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /leases/{id}/auth][%d] postLeasesIdAuthInternalServerError ", 500)
+	return fmt.Sprintf("[POST /leases/{id}/auth][%d] postLeasesIdAuthInternalServerError", 500)
+}
+
+func (o *PostLeasesIDAuthInternalServerError) String() string {
+	return fmt.Sprintf("[POST /leases/{id}/auth][%d] postLeasesIdAuthInternalServerError", 500)
 }
 
 func (o *PostLeasesIDAuthInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -164,7 +316,8 @@ func (o *PostLeasesIDAuthInternalServerError) readResponse(response runtime.Clie
 	return nil
 }
 
-/*PostLeasesIDAuthCreatedBody Lease Authentication
+/*
+PostLeasesIDAuthCreatedBody Lease Authentication
 swagger:model PostLeasesIDAuthCreatedBody
 */
 type PostLeasesIDAuthCreatedBody struct {
@@ -175,9 +328,6 @@ type PostLeasesIDAuthCreatedBody struct {
 	// URL to access the AWS Console
 	ConsoleURL string `json:"consoleUrl,omitempty"`
 
-	// expires on
-	ExpiresOn float64 `json:"expiresOn,omitempty"`
-
 	// Secret Access Key for access to the AWS API
 	SecretAccessKey string `json:"secretAccessKey,omitempty"`
 
@@ -187,6 +337,11 @@ type PostLeasesIDAuthCreatedBody struct {
 
 // Validate validates this post leases ID auth created body
 func (o *PostLeasesIDAuthCreatedBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this post leases ID auth created body based on context it is used
+func (o *PostLeasesIDAuthCreatedBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

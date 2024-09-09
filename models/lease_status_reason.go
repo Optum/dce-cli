@@ -6,10 +6,11 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
@@ -26,6 +27,15 @@ import (
 //
 // swagger:model leaseStatusReason
 type LeaseStatusReason string
+
+func NewLeaseStatusReason(value LeaseStatusReason) *LeaseStatusReason {
+	return &value
+}
+
+// Pointer returns a pointer to a freshly-allocated LeaseStatusReason.
+func (m LeaseStatusReason) Pointer() *LeaseStatusReason {
+	return &m
+}
 
 const (
 
@@ -59,7 +69,7 @@ func init() {
 }
 
 func (m LeaseStatusReason) validateLeaseStatusReasonEnum(path, location string, value LeaseStatusReason) error {
-	if err := validate.Enum(path, location, value, leaseStatusReasonEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, leaseStatusReasonEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -77,5 +87,10 @@ func (m LeaseStatusReason) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this lease status reason based on context it is used
+func (m LeaseStatusReason) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

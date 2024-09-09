@@ -17,10 +17,10 @@ func (u *PromptUtil) PromptBasic(label string, validator func(input string) erro
 		Prompt:                 fmt.Sprint(label, " "),
 		DisableAutoSaveHistory: true,
 	})
-	defer rl.Close() //nolint,errcheck
 	if err != nil {
 		log.Fatalln(err)
 	}
+	defer rl.Close() //nolint:errcheck
 
 	input, err := rl.Readline()
 	if err != nil {

@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//LeasesPath path to lease endpoint
+// LeasesPath path to lease endpoint
 const LeasesPath = "/leases"
 
 var acctID string

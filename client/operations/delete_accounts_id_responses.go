@@ -9,8 +9,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // DeleteAccountsIDReader is a Reader for the DeleteAccountsID structure.
@@ -45,9 +44,8 @@ func (o *DeleteAccountsIDReader) ReadResponse(response runtime.ClientResponse, c
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[DELETE /accounts/{id}] DeleteAccountsID", response, response.Code())
 	}
 }
 
@@ -56,32 +54,77 @@ func NewDeleteAccountsIDNoContent() *DeleteAccountsIDNoContent {
 	return &DeleteAccountsIDNoContent{}
 }
 
-/*DeleteAccountsIDNoContent handles this case with default header values.
+/*
+DeleteAccountsIDNoContent describes a response with status code 204, with default header values.
 
 The account has been successfully deleted.
 */
 type DeleteAccountsIDNoContent struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
+	AccessControlAllowOrigin  string
+}
 
-	AccessControlAllowOrigin string
+// IsSuccess returns true when this delete accounts Id no content response has a 2xx status code
+func (o *DeleteAccountsIDNoContent) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this delete accounts Id no content response has a 3xx status code
+func (o *DeleteAccountsIDNoContent) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete accounts Id no content response has a 4xx status code
+func (o *DeleteAccountsIDNoContent) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this delete accounts Id no content response has a 5xx status code
+func (o *DeleteAccountsIDNoContent) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete accounts Id no content response a status code equal to that given
+func (o *DeleteAccountsIDNoContent) IsCode(code int) bool {
+	return code == 204
+}
+
+// Code gets the status code for the delete accounts Id no content response
+func (o *DeleteAccountsIDNoContent) Code() int {
+	return 204
 }
 
 func (o *DeleteAccountsIDNoContent) Error() string {
-	return fmt.Sprintf("[DELETE /accounts/{id}][%d] deleteAccountsIdNoContent ", 204)
+	return fmt.Sprintf("[DELETE /accounts/{id}][%d] deleteAccountsIdNoContent", 204)
+}
+
+func (o *DeleteAccountsIDNoContent) String() string {
+	return fmt.Sprintf("[DELETE /accounts/{id}][%d] deleteAccountsIdNoContent", 204)
 }
 
 func (o *DeleteAccountsIDNoContent) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
+
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	return nil
 }
@@ -91,15 +134,50 @@ func NewDeleteAccountsIDForbidden() *DeleteAccountsIDForbidden {
 	return &DeleteAccountsIDForbidden{}
 }
 
-/*DeleteAccountsIDForbidden handles this case with default header values.
+/*
+DeleteAccountsIDForbidden describes a response with status code 403, with default header values.
 
 Unauthorized.
 */
 type DeleteAccountsIDForbidden struct {
 }
 
+// IsSuccess returns true when this delete accounts Id forbidden response has a 2xx status code
+func (o *DeleteAccountsIDForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete accounts Id forbidden response has a 3xx status code
+func (o *DeleteAccountsIDForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete accounts Id forbidden response has a 4xx status code
+func (o *DeleteAccountsIDForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete accounts Id forbidden response has a 5xx status code
+func (o *DeleteAccountsIDForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete accounts Id forbidden response a status code equal to that given
+func (o *DeleteAccountsIDForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the delete accounts Id forbidden response
+func (o *DeleteAccountsIDForbidden) Code() int {
+	return 403
+}
+
 func (o *DeleteAccountsIDForbidden) Error() string {
-	return fmt.Sprintf("[DELETE /accounts/{id}][%d] deleteAccountsIdForbidden ", 403)
+	return fmt.Sprintf("[DELETE /accounts/{id}][%d] deleteAccountsIdForbidden", 403)
+}
+
+func (o *DeleteAccountsIDForbidden) String() string {
+	return fmt.Sprintf("[DELETE /accounts/{id}][%d] deleteAccountsIdForbidden", 403)
 }
 
 func (o *DeleteAccountsIDForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -112,15 +190,50 @@ func NewDeleteAccountsIDNotFound() *DeleteAccountsIDNotFound {
 	return &DeleteAccountsIDNotFound{}
 }
 
-/*DeleteAccountsIDNotFound handles this case with default header values.
+/*
+DeleteAccountsIDNotFound describes a response with status code 404, with default header values.
 
 No account found for the given ID.
 */
 type DeleteAccountsIDNotFound struct {
 }
 
+// IsSuccess returns true when this delete accounts Id not found response has a 2xx status code
+func (o *DeleteAccountsIDNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete accounts Id not found response has a 3xx status code
+func (o *DeleteAccountsIDNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete accounts Id not found response has a 4xx status code
+func (o *DeleteAccountsIDNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete accounts Id not found response has a 5xx status code
+func (o *DeleteAccountsIDNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete accounts Id not found response a status code equal to that given
+func (o *DeleteAccountsIDNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the delete accounts Id not found response
+func (o *DeleteAccountsIDNotFound) Code() int {
+	return 404
+}
+
 func (o *DeleteAccountsIDNotFound) Error() string {
-	return fmt.Sprintf("[DELETE /accounts/{id}][%d] deleteAccountsIdNotFound ", 404)
+	return fmt.Sprintf("[DELETE /accounts/{id}][%d] deleteAccountsIdNotFound", 404)
+}
+
+func (o *DeleteAccountsIDNotFound) String() string {
+	return fmt.Sprintf("[DELETE /accounts/{id}][%d] deleteAccountsIdNotFound", 404)
 }
 
 func (o *DeleteAccountsIDNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -133,15 +246,50 @@ func NewDeleteAccountsIDConflict() *DeleteAccountsIDConflict {
 	return &DeleteAccountsIDConflict{}
 }
 
-/*DeleteAccountsIDConflict handles this case with default header values.
+/*
+DeleteAccountsIDConflict describes a response with status code 409, with default header values.
 
 The account is unable to be deleted.
 */
 type DeleteAccountsIDConflict struct {
 }
 
+// IsSuccess returns true when this delete accounts Id conflict response has a 2xx status code
+func (o *DeleteAccountsIDConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this delete accounts Id conflict response has a 3xx status code
+func (o *DeleteAccountsIDConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete accounts Id conflict response has a 4xx status code
+func (o *DeleteAccountsIDConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this delete accounts Id conflict response has a 5xx status code
+func (o *DeleteAccountsIDConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete accounts Id conflict response a status code equal to that given
+func (o *DeleteAccountsIDConflict) IsCode(code int) bool {
+	return code == 409
+}
+
+// Code gets the status code for the delete accounts Id conflict response
+func (o *DeleteAccountsIDConflict) Code() int {
+	return 409
+}
+
 func (o *DeleteAccountsIDConflict) Error() string {
-	return fmt.Sprintf("[DELETE /accounts/{id}][%d] deleteAccountsIdConflict ", 409)
+	return fmt.Sprintf("[DELETE /accounts/{id}][%d] deleteAccountsIdConflict", 409)
+}
+
+func (o *DeleteAccountsIDConflict) String() string {
+	return fmt.Sprintf("[DELETE /accounts/{id}][%d] deleteAccountsIdConflict", 409)
 }
 
 func (o *DeleteAccountsIDConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -35,7 +35,7 @@ func (u *GithubUtil) DownloadGithubReleaseAsset(assetName string, releaseName st
 	if err != nil {
 		return err
 	}
-	// #nosec
+	//nolint:gosec
 	defer out.Close()
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {

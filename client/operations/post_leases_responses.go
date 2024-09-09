@@ -6,16 +6,16 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // PostLeasesReader is a Reader for the PostLeases structure.
@@ -56,9 +56,8 @@ func (o *PostLeasesReader) ReadResponse(response runtime.ClientResponse, consume
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[POST /leases] PostLeases", response, response.Code())
 	}
 }
 
@@ -67,22 +66,57 @@ func NewPostLeasesCreated() *PostLeasesCreated {
 	return &PostLeasesCreated{}
 }
 
-/*PostLeasesCreated handles this case with default header values.
+/*
+PostLeasesCreated describes a response with status code 201, with default header values.
 
 PostLeasesCreated post leases created
 */
 type PostLeasesCreated struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
-
-	AccessControlAllowOrigin string
+	AccessControlAllowOrigin  string
 
 	Payload *PostLeasesCreatedBody
 }
 
+// IsSuccess returns true when this post leases created response has a 2xx status code
+func (o *PostLeasesCreated) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this post leases created response has a 3xx status code
+func (o *PostLeasesCreated) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post leases created response has a 4xx status code
+func (o *PostLeasesCreated) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this post leases created response has a 5xx status code
+func (o *PostLeasesCreated) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post leases created response a status code equal to that given
+func (o *PostLeasesCreated) IsCode(code int) bool {
+	return code == 201
+}
+
+// Code gets the status code for the post leases created response
+func (o *PostLeasesCreated) Code() int {
+	return 201
+}
+
 func (o *PostLeasesCreated) Error() string {
-	return fmt.Sprintf("[POST /leases][%d] postLeasesCreated  %+v", 201, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /leases][%d] postLeasesCreated %s", 201, payload)
+}
+
+func (o *PostLeasesCreated) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /leases][%d] postLeasesCreated %s", 201, payload)
 }
 
 func (o *PostLeasesCreated) GetPayload() *PostLeasesCreatedBody {
@@ -91,14 +125,26 @@ func (o *PostLeasesCreated) GetPayload() *PostLeasesCreatedBody {
 
 func (o *PostLeasesCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
+
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	o.Payload = new(PostLeasesCreatedBody)
 
@@ -115,16 +161,50 @@ func NewPostLeasesBadRequest() *PostLeasesBadRequest {
 	return &PostLeasesBadRequest{}
 }
 
-/*PostLeasesBadRequest handles this case with default header values.
+/*
+PostLeasesBadRequest describes a response with status code 400, with default header values.
 
 If the "expiresOn" date specified is non-zero but less than the current epoch date,  "Requested lease has a desired expiry date less than today: <date>" or "Failed to Parse Request Body" if the request body is blank or incorrectly formatted.
-
 */
 type PostLeasesBadRequest struct {
 }
 
+// IsSuccess returns true when this post leases bad request response has a 2xx status code
+func (o *PostLeasesBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this post leases bad request response has a 3xx status code
+func (o *PostLeasesBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post leases bad request response has a 4xx status code
+func (o *PostLeasesBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this post leases bad request response has a 5xx status code
+func (o *PostLeasesBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post leases bad request response a status code equal to that given
+func (o *PostLeasesBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
+// Code gets the status code for the post leases bad request response
+func (o *PostLeasesBadRequest) Code() int {
+	return 400
+}
+
 func (o *PostLeasesBadRequest) Error() string {
-	return fmt.Sprintf("[POST /leases][%d] postLeasesBadRequest ", 400)
+	return fmt.Sprintf("[POST /leases][%d] postLeasesBadRequest", 400)
+}
+
+func (o *PostLeasesBadRequest) String() string {
+	return fmt.Sprintf("[POST /leases][%d] postLeasesBadRequest", 400)
 }
 
 func (o *PostLeasesBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -137,15 +217,50 @@ func NewPostLeasesForbidden() *PostLeasesForbidden {
 	return &PostLeasesForbidden{}
 }
 
-/*PostLeasesForbidden handles this case with default header values.
+/*
+PostLeasesForbidden describes a response with status code 403, with default header values.
 
 Failed to authenticate request
 */
 type PostLeasesForbidden struct {
 }
 
+// IsSuccess returns true when this post leases forbidden response has a 2xx status code
+func (o *PostLeasesForbidden) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this post leases forbidden response has a 3xx status code
+func (o *PostLeasesForbidden) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post leases forbidden response has a 4xx status code
+func (o *PostLeasesForbidden) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this post leases forbidden response has a 5xx status code
+func (o *PostLeasesForbidden) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post leases forbidden response a status code equal to that given
+func (o *PostLeasesForbidden) IsCode(code int) bool {
+	return code == 403
+}
+
+// Code gets the status code for the post leases forbidden response
+func (o *PostLeasesForbidden) Code() int {
+	return 403
+}
+
 func (o *PostLeasesForbidden) Error() string {
-	return fmt.Sprintf("[POST /leases][%d] postLeasesForbidden ", 403)
+	return fmt.Sprintf("[POST /leases][%d] postLeasesForbidden", 403)
+}
+
+func (o *PostLeasesForbidden) String() string {
+	return fmt.Sprintf("[POST /leases][%d] postLeasesForbidden", 403)
 }
 
 func (o *PostLeasesForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -158,15 +273,50 @@ func NewPostLeasesConflict() *PostLeasesConflict {
 	return &PostLeasesConflict{}
 }
 
-/*PostLeasesConflict handles this case with default header values.
+/*
+PostLeasesConflict describes a response with status code 409, with default header values.
 
 Conflict if there is an existing lease already active with the provided principal and account.
 */
 type PostLeasesConflict struct {
 }
 
+// IsSuccess returns true when this post leases conflict response has a 2xx status code
+func (o *PostLeasesConflict) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this post leases conflict response has a 3xx status code
+func (o *PostLeasesConflict) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post leases conflict response has a 4xx status code
+func (o *PostLeasesConflict) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this post leases conflict response has a 5xx status code
+func (o *PostLeasesConflict) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this post leases conflict response a status code equal to that given
+func (o *PostLeasesConflict) IsCode(code int) bool {
+	return code == 409
+}
+
+// Code gets the status code for the post leases conflict response
+func (o *PostLeasesConflict) Code() int {
+	return 409
+}
+
 func (o *PostLeasesConflict) Error() string {
-	return fmt.Sprintf("[POST /leases][%d] postLeasesConflict ", 409)
+	return fmt.Sprintf("[POST /leases][%d] postLeasesConflict", 409)
+}
+
+func (o *PostLeasesConflict) String() string {
+	return fmt.Sprintf("[POST /leases][%d] postLeasesConflict", 409)
 }
 
 func (o *PostLeasesConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -179,15 +329,50 @@ func NewPostLeasesInternalServerError() *PostLeasesInternalServerError {
 	return &PostLeasesInternalServerError{}
 }
 
-/*PostLeasesInternalServerError handles this case with default header values.
+/*
+PostLeasesInternalServerError describes a response with status code 500, with default header values.
 
 Server errors if the database cannot be reached.
 */
 type PostLeasesInternalServerError struct {
 }
 
+// IsSuccess returns true when this post leases internal server error response has a 2xx status code
+func (o *PostLeasesInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this post leases internal server error response has a 3xx status code
+func (o *PostLeasesInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this post leases internal server error response has a 4xx status code
+func (o *PostLeasesInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this post leases internal server error response has a 5xx status code
+func (o *PostLeasesInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this post leases internal server error response a status code equal to that given
+func (o *PostLeasesInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the post leases internal server error response
+func (o *PostLeasesInternalServerError) Code() int {
+	return 500
+}
+
 func (o *PostLeasesInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /leases][%d] postLeasesInternalServerError ", 500)
+	return fmt.Sprintf("[POST /leases][%d] postLeasesInternalServerError", 500)
+}
+
+func (o *PostLeasesInternalServerError) String() string {
+	return fmt.Sprintf("[POST /leases][%d] postLeasesInternalServerError", 500)
 }
 
 func (o *PostLeasesInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -195,7 +380,8 @@ func (o *PostLeasesInternalServerError) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*PostLeasesBody post leases body
+/*
+PostLeasesBody post leases body
 swagger:model PostLeasesBody
 */
 type PostLeasesBody struct {
@@ -282,6 +468,11 @@ func (o *PostLeasesBody) validatePrincipalID(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this post leases body based on context it is used
+func (o *PostLeasesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *PostLeasesBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -300,7 +491,8 @@ func (o *PostLeasesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*PostLeasesCreatedBody Lease Details
+/*
+PostLeasesCreatedBody Lease Details
 swagger:model PostLeasesCreatedBody
 */
 type PostLeasesCreatedBody struct {
@@ -333,7 +525,7 @@ type PostLeasesCreatedBody struct {
 	// "Active": The principal is leased and has access to the account
 	// "Inactive": The lease has become inactive, either through expiring, exceeding budget, or by request.
 	//
-	// Enum: [Active Inactive]
+	// Enum: ["Active","Inactive"]
 	LeaseStatus string `json:"leaseStatus,omitempty"`
 
 	// date lease status was last modified in epoch seconds
@@ -350,7 +542,7 @@ type PostLeasesCreatedBody struct {
 	// "LeaseRolledBack": A system error occurred while provisioning the lease.
 	// and it was rolled back.
 	//
-	// Enum: [LeaseExpired LeaseOverBudget LeaseDestroyed LeaseActive LeaseRolledBack]
+	// Enum: ["LeaseExpired","LeaseOverBudget","LeaseDestroyed","LeaseActive","LeaseRolledBack"]
 	LeaseStatusReason string `json:"leaseStatusReason,omitempty"`
 
 	// principalId of the lease to get
@@ -398,14 +590,13 @@ const (
 
 // prop value enum
 func (o *PostLeasesCreatedBody) validateLeaseStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, postLeasesCreatedBodyTypeLeaseStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, postLeasesCreatedBodyTypeLeaseStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (o *PostLeasesCreatedBody) validateLeaseStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LeaseStatus) { // not required
 		return nil
 	}
@@ -450,14 +641,13 @@ const (
 
 // prop value enum
 func (o *PostLeasesCreatedBody) validateLeaseStatusReasonEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, postLeasesCreatedBodyTypeLeaseStatusReasonPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, postLeasesCreatedBodyTypeLeaseStatusReasonPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (o *PostLeasesCreatedBody) validateLeaseStatusReason(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LeaseStatusReason) { // not required
 		return nil
 	}
@@ -467,6 +657,11 @@ func (o *PostLeasesCreatedBody) validateLeaseStatusReason(formats strfmt.Registr
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this post leases created body based on context it is used
+func (o *PostLeasesCreatedBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

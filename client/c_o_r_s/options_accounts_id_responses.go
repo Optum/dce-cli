@@ -9,8 +9,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // OptionsAccountsIDReader is a Reader for the OptionsAccountsID structure.
@@ -27,9 +26,8 @@ func (o *OptionsAccountsIDReader) ReadResponse(response runtime.ClientResponse, 
 			return nil, err
 		}
 		return result, nil
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("[OPTIONS /accounts/{id}] OptionsAccountsID", response, response.Code())
 	}
 }
 
@@ -38,32 +36,77 @@ func NewOptionsAccountsIDOK() *OptionsAccountsIDOK {
 	return &OptionsAccountsIDOK{}
 }
 
-/*OptionsAccountsIDOK handles this case with default header values.
+/*
+OptionsAccountsIDOK describes a response with status code 200, with default header values.
 
 Default response for CORS method
 */
 type OptionsAccountsIDOK struct {
 	AccessControlAllowHeaders string
-
 	AccessControlAllowMethods string
+	AccessControlAllowOrigin  string
+}
 
-	AccessControlAllowOrigin string
+// IsSuccess returns true when this options accounts Id o k response has a 2xx status code
+func (o *OptionsAccountsIDOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this options accounts Id o k response has a 3xx status code
+func (o *OptionsAccountsIDOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this options accounts Id o k response has a 4xx status code
+func (o *OptionsAccountsIDOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this options accounts Id o k response has a 5xx status code
+func (o *OptionsAccountsIDOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this options accounts Id o k response a status code equal to that given
+func (o *OptionsAccountsIDOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the options accounts Id o k response
+func (o *OptionsAccountsIDOK) Code() int {
+	return 200
 }
 
 func (o *OptionsAccountsIDOK) Error() string {
-	return fmt.Sprintf("[OPTIONS /accounts/{id}][%d] optionsAccountsIdOK ", 200)
+	return fmt.Sprintf("[OPTIONS /accounts/{id}][%d] optionsAccountsIdOK", 200)
+}
+
+func (o *OptionsAccountsIDOK) String() string {
+	return fmt.Sprintf("[OPTIONS /accounts/{id}][%d] optionsAccountsIdOK", 200)
 }
 
 func (o *OptionsAccountsIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	// response header Access-Control-Allow-Headers
-	o.AccessControlAllowHeaders = response.GetHeader("Access-Control-Allow-Headers")
+	// hydrates response header Access-Control-Allow-Headers
+	hdrAccessControlAllowHeaders := response.GetHeader("Access-Control-Allow-Headers")
 
-	// response header Access-Control-Allow-Methods
-	o.AccessControlAllowMethods = response.GetHeader("Access-Control-Allow-Methods")
+	if hdrAccessControlAllowHeaders != "" {
+		o.AccessControlAllowHeaders = hdrAccessControlAllowHeaders
+	}
 
-	// response header Access-Control-Allow-Origin
-	o.AccessControlAllowOrigin = response.GetHeader("Access-Control-Allow-Origin")
+	// hydrates response header Access-Control-Allow-Methods
+	hdrAccessControlAllowMethods := response.GetHeader("Access-Control-Allow-Methods")
+
+	if hdrAccessControlAllowMethods != "" {
+		o.AccessControlAllowMethods = hdrAccessControlAllowMethods
+	}
+
+	// hydrates response header Access-Control-Allow-Origin
+	hdrAccessControlAllowOrigin := response.GetHeader("Access-Control-Allow-Origin")
+
+	if hdrAccessControlAllowOrigin != "" {
+		o.AccessControlAllowOrigin = hdrAccessControlAllowOrigin
+	}
 
 	return nil
 }
